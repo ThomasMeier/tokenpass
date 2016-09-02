@@ -12,16 +12,18 @@
 </section>
 
 <section>
-  <p>Welcome, {{$user['name']}}</p>
+  <div class="panel with-padding">
+    <p>Welcome, {{$user['name']}}</p>
 
-  <p>You are logged in as user <strong>{{ $user['username']}}</strong>.</p>
+    <p>You are logged in as user <strong>{{ $user['username']}}</strong>.</p>
 
-  @if (!$user->emailIsConfirmed())
-      <div role="alert">
-          <p><strong>Note</strong>: You must confirm your email address by clicking the link in the email you received before you can use your account.</p>
-          <p><a href="/auth/sendemail">Send the email confirmation again</a>.</p>
-      </div>
-  @endif
+    @if (!$user->emailIsConfirmed())
+        <div role="alert">
+            <p><strong>Note</strong>: You must confirm your email address by clicking the link in the email you received before you can use your account.</p>
+            <p><a href="/auth/sendemail">Send the email confirmation again</a>.</p>
+        </div>
+    @endif
+  </div>
 </section>
 
 @endsection
