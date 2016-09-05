@@ -71,6 +71,10 @@ Route::get('inventory/lend/{id}/delete',               ['middleware' => 'tls', '
 Route::post('inventory/lend/{id}/edit',                ['middleware' => 'tls', 'as' => 'inventory.lend.delete', 'uses' => 'Inventory\InventoryController@editLoan']);
 Route::post('inventory/lend/{address}/{asset}',        ['middleware' => 'tls', 'as' => 'inventory.lend', 'uses' => 'Inventory\InventoryController@lendAsset']);
 
+//token dtails
+Route::get('token/{token}',                            ['middleware' => 'tls', 'as' => 'token.info', 'uses' => 'Inventory\InventoryController@getTokenDetails']);
+
+
 // Image routes
 Route::post('image/store',                             ['middleware' => 'tls', 'uses' => 'Image\ImageController@store']);
 //Route::post('image/show',                              ['middleware' => 'tls', 'uses' => 'Image\ImageController@show']);

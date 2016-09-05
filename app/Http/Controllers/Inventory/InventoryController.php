@@ -678,6 +678,12 @@ class InventoryController extends Controller
             return $this->ajaxEnabledSuccessResponse('Loan successfully modified!', route('inventory'));
         }        
     }
+    
+    public function getTokenDetails($token)
+    {
+        
+        return view('inventory.token-details', array('token_name' => $token,));
+    }
 
     // ------------------------------------------------------------------------
     protected function ajaxEnabledErrorResponse($error_message, $redirect_url, $error_code = 400) {
