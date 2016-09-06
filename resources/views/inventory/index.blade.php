@@ -165,20 +165,10 @@
               <label for="token-@{{ token.name }}"></label>
             </div>
             <div class="token-info">
-      	    	<span class="muted quantity">
-                <div v-if="token.hasPromisedTokens">
-                  <em>* @{{ formatQuantity(token.balance) }}</em>
-                </div>
-                <div v-else>
-                  <div v-if="token.hasLoanedTokens">
-                     <em>* @{{ formatQuantity(token.balance) }}</em>
-                  </div>
-                  <div v-else>
-                  @{{ formatQuantity(token.balance) }}
-                  </div>
-                </div>
-          		</span>
-
+              <span class="quantity">
+                <span class="quantity-star" v-if="token.hasPromisedTokens || token.hasLoanedTokens">*</span>
+                <span class="muted">@{{ formatQuantity(token.balance) }}</span>
+              </span>
       	    	<span class="nickname">
                 <a href="/token/@{{ token.name }}">@{{ token.name }}</a>
           		</span>
