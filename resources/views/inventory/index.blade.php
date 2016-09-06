@@ -180,7 +180,7 @@
           		</span>
 
       	    	<span class="nickname">
-                <a href="https://blockscan.com/assetInfo/@{{ token.name }}" target="_blank">@{{ token.name }}</a>
+                <a href="/token/@{{ token.name }}">@{{ token.name }}</a>
           		</span>
             </div>
             <div class="token-actions">
