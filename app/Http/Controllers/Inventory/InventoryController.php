@@ -4,7 +4,7 @@ namespace TKAccounts\Http\Controllers\Inventory;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
-use Input, \Exception, Session, Response;
+use Input, \Exception, Session, Response, Cache;
 use TKAccounts\Http\Controllers\Controller;
 use TKAccounts\Models\Address;
 use TKAccounts\Models\Provisional;
@@ -382,9 +382,28 @@ class InventoryController extends Controller
 		return redirect(route('inventory.pockets'));
 	}
     
-    public function clickVerifyAddress($address)
+
+    
+    public function checkForVerifySignature(Request $request)
     {
-        return $this->verifyAddressOwnership($address);
+        $user = Auth::user();
+        if(!$user){
+            return response()->json(array('error' => 'Not logged in'), 400);
+        }
+        $unverified = Address::where('verified', 0)->where('user_id', $user->id)->get();
+        $output = array();
+        if($unverified){
+            $found = false;
+            foreach($unverified as $k => $address){
+                $code = Session::get($address->address);
+                $hash = hash('sha256', $code);
+                $cache_sig = Cache::get($hash.'_sig');
+                if($cache_sig){
+                    $output[] = array('signature' => $cache_sig, 'address' => $address->address);
+                }
+            }
+        }
+        return response()->json(array('results' => $output));
     }
 
 	public function refreshBalances()
@@ -428,7 +447,10 @@ class InventoryController extends Controller
 			// Generate message for signing and flash for POST results
 			if ($address->verified == 0) {
 				$address['secure_code'] = Address::getSecureCodeGeneration();
+                $address['msg_hash'] = hash('sha256', $address['secure_code']);
 				Session::set($address->address, $address['secure_code']);
+                Cache::put($address['msg_hash'].'_msg', $address['secure_code'], 600);
+                Cache::put($address['msg_hash'], $this->user->id, 600);
 			}
             //remove some fields that the view doesnt need to know about
             unset($address->user_id);

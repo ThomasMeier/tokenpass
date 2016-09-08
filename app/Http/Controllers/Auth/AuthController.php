@@ -377,14 +377,7 @@ public function getSignRequirement(Request $request, $user = null) {
 }
 
 public function setSigned(Request $request) {
-    /*
-    $sig = Input::get('signature');
-    if(trim($sig) != ''){
-        $request->request->set('signed_message', str_replace(' ', '+', urldecode($sig)));
-        return $this->setSigned($request);
-    }
-    * */
-    
+
     if(Input::get('signature') AND Input::get('msg_hash')){
         //click-to-sign functionality, look for session that contains this hash
         $sig = Input::get('signature');
@@ -393,7 +386,8 @@ public function setSigned(Request $request) {
         $sesh_user = User::find($user_id);
         if($sesh_user){
             $sigval = Address::getUserVerificationCode($sesh_user, 'simple');
-            $msg_hash = hash('sha256', $sigval['user_meta']);
+            $sigval = $sigval['user_meta'];
+            $msg_hash = hash('sha256', $sigval);
             if($msg_hash != $input_msg_hash){
                 Log::error('Hash value does not match session ('.$input_msg_hash.') - '.$sigval);
                 return response()->json(array('error' => 'Hash value does not match session ('.$input_msg_hash.') - '.$sigval), 400);
@@ -577,6 +571,33 @@ public function checkForLoginSignature(Request $request)
     $msg_hash = hash('sha256', $sigval);
     $get = Cache::get($msg_hash.'_sig');
     return response()->json(array('signature' => $get));
+}
+
+public function clickVerifyAddress($address)
+{
+    if(Input::get('signature') AND Input::get('msg_hash')){
+        //click-to-sign functionality, look for session that contains this hash
+        $sig = Input::get('signature');
+        $input_msg_hash = Input::get('msg_hash');
+        $user_id = Cache::get($input_msg_hash);
+        $sesh_user = User::find($user_id);
+        if($sesh_user){
+            $sigval = Cache::get($input_msg_hash.'_msg');
+            $msg_hash = hash('sha256', $sigval);
+            if($msg_hash != $input_msg_hash){
+                Log::error('Hash value does not match session ('.$input_msg_hash.') - '.$sigval);
+                return response()->json(array('error' => 'Hash value does not match session ('.$input_msg_hash.') - '.$sigval), 400);
+            }
+            //save submitted signature, process in main browser window
+            Cache::put($msg_hash.'_sig', $sig, 600);
+            return response()->json(array('result' => true));            
+        }
+        else{
+            Log::error('User not found ('.$get_sesh->user_id.')');
+            return response()->json(array('error' => 'User not found'), 400);
+        }
+    }
+    return response()->json(array('error' => 'Invalid request'), 400);
 }
 
 protected function verifySignature($data) {
