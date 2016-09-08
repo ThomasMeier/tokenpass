@@ -38,4 +38,20 @@ $(function(){
     var newState = currentState ? 0 : 1;
     $this.attr('data-toggle', newState);
   });
+
+  // Responsive tables
+  var tables = $('.table--responsive');
+
+  $.each(tables, function(i, table) {
+    var $table = $(tables[i]);
+    var headings = $table.find('thead').find('th');
+    var dataRows = $table.find('tbody').find('tr');
+    $.each(dataRows, function(i, dataRow) {
+      var dataCells = $(dataRow).find('td');
+      $.each(dataCells, function(i, datum) {
+        $(datum).attr('data-heading', headings[i].innerText);
+      });
+    });
+  });
+
 });

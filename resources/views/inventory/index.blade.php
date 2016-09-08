@@ -153,119 +153,117 @@
           * contains promised tokens
         </span>
       </div>
-      <div class="panel">
-    	  <div class="token" v-for="token in tokens | filterBy search">
-    	    <!-- TODO: Token's have avatars
-        	<div class="avatar"><img src="http://lorempixel.com/25/25/?t=1"></div> 
-        	-->
+  	  <div class="token" v-for="token in tokens | filterBy search">
+  	    <!-- TODO: Token's have avatars
+      	<div class="avatar"><img src="http://lorempixel.com/25/25/?t=1"></div> 
+      	-->
 
-    	    <div class="primary-info">
-            <div class="token-indicator">
-              <input v-on:change="toggleActive(token)" v-model="token.toggle" class="toggle toggle-round-flat" id="token-@{{ token.name }}" type="checkbox">
-              <label for="token-@{{ token.name }}"></label>
+  	    <div class="primary-info">
+          <div class="token-indicator">
+            <input v-on:change="toggleActive(token)" v-model="token.toggle" class="toggle toggle-round-flat" id="token-@{{ token.name }}" type="checkbox">
+            <label for="token-@{{ token.name }}"></label>
+          </div>
+          <div class="token-info">
+            <span class="quantity">
+              <span class="quantity-star" v-if="token.hasPromisedTokens || token.hasLoanedTokens">*</span>
+              <span class="muted">@{{ formatQuantity(token.balance) }}</span>
+            </span>
+    	    	<span class="nickname">
+              <a href="/token/@{{ token.name }}">@{{ token.name }}</a>
+        		</span>
+          </div>
+          <div class="token-actions">
+            <div v-on:click="toggleSecondaryInfo" class="detail-toggle">
+              Balance Breakdown
+              <i class="material-icons">keyboard_arrow_down</i>
             </div>
-            <div class="token-info">
-              <span class="quantity">
-                <span class="quantity-star" v-if="token.hasPromisedTokens || token.hasLoanedTokens">*</span>
-                <span class="muted">@{{ formatQuantity(token.balance) }}</span>
-              </span>
-      	    	<span class="nickname">
-                <a href="/token/@{{ token.name }}">@{{ token.name }}</a>
-          		</span>
-            </div>
-            <div class="token-actions">
-              <div v-on:click="toggleSecondaryInfo" class="detail-toggle">
-                Balance Breakdown
-                <i class="material-icons">keyboard_arrow_down</i>
+          </div>
+          <div class="clear"></div>
+        </div>
+
+        <div class="secondary-info" style="display: none;/* needed for jQuery slide */">
+          <div v-for="pocket in token.balanceAddresses" class="pocket">
+            <div class="detail-heading">@{{ pocket.label }}</div>
+            <div class="pocket-details-main">
+              <!-- Heading -->
+              <div class="pocket-heading">
+                <span class="muted">Address /</span>
+                <a href="https://blocktrail.com/BTC/address/@{{ pocket.address }}" target="_blank">@{{ pocket.address }}</a>              
+              </div>
+              <div class="pocket-promised-balance">
+                <span class="muted">Total /</span>
+                @{{ formatQuantity(pocket.total) }}
               </div>
             </div>
-            <div class="clear"></div>
-          </div>
 
-          <div class="secondary-info" style="display: none;/* needed for jQuery slide */">
-            <div v-for="pocket in token.balanceAddresses" class="pocket">
-              <div class="detail-heading">@{{ pocket.label }}</div>
-              <div class="pocket-details-main">
-                <!-- Heading -->
-                <div class="pocket-heading">
-                  <span class="muted">Address /</span>
-                  <a href="https://blocktrail.com/BTC/address/@{{ pocket.address }}" target="_blank">@{{ pocket.address }}</a>              
-                </div>
+            <div class="pocket-details-second">
+              <!-- Real Balance -->
+              <div class="pocket-real-balance">
+                <span class="muted">Real Balance /</span>
+                @{{ formatQuantity(pocket.real) }}
+                <span v-if="pocket.real > 0">
+                    <a v-on:click="setCurrentToken(token, pocket)" class="detail-toggle reveal-modal" data-modal="lendTokenModal" style="cursor: pointer;">
+                       Lend
+                       <i class="material-icons">share</i>
+                    </a>
+                </span>                  
+              </div>
+              <!-- Promised transactions -->
+              <div v-if="pocket.provisional.length > 0">
+                <!-- <div class="detail-subheading">Promised Transactions</div> -->
                 <div class="pocket-promised-balance">
-                  <span class="muted">Total /</span>
-                  @{{ formatQuantity(pocket.total) }}
+                  <span class="muted">Promised Balance /</span>
+                  <span class="text-success">@{{ formatQuantity(pocket.provisional_total) }}</span>
+                </div>
+                <div class="pocket-promised-table-wrapper">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Source</th>
+                        <th>Amount</th>
+                        <th>Expires</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="promise in pocket.provisional">
+                        <td class="muted">@{{ promise.source }}</td>
+                        <td>@{{ formatQuantity(promise.quantity) }}</td>
+                        <td><span title="@{{ formatDate(promise.expiration) }}">@{{ relativeTime(promise.expiration) }}</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
-
-              <div class="pocket-details-second">
-                <!-- Real Balance -->
-                <div class="pocket-real-balance">
-                  <span class="muted">Real Balance /</span>
-                  @{{ formatQuantity(pocket.real) }}
-                  <span v-if="pocket.real > 0">
-                      <a v-on:click="setCurrentToken(token, pocket)" class="detail-toggle reveal-modal" data-modal="lendTokenModal" style="cursor: pointer;">
-                         Lend
-                         <i class="material-icons">share</i>
-                      </a>
-                  </span>                  
+              <div v-if="pocket.loans.length > 0">
+                <div class="pocket-loaned-balance">
+                    <span class="muted">Loaned Balance /</span>
+                    <span class="text-danger">@{{ formatQuantity(pocket.loan_total) }}</span>
                 </div>
-                <!-- Promised transactions -->
-                <div v-if="pocket.provisional.length > 0">
-                  <!-- <div class="detail-subheading">Promised Transactions</div> -->
-                  <div class="pocket-promised-balance">
-                    <span class="muted">Promised Balance /</span>
-                    <span class="text-success">@{{ formatQuantity(pocket.provisional_total) }}</span>
-                  </div>
-                  <div class="pocket-promised-table-wrapper">
-                    <table class="table">
-                      <thead>
-                        <tr>
-                          <th>Source</th>
-                          <th>Amount</th>
-                          <th>Expires</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="promise in pocket.provisional">
-                          <td class="muted">@{{ promise.source }}</td>
-                          <td>@{{ formatQuantity(promise.quantity) }}</td>
-                          <td><span title="@{{ formatDate(promise.expiration) }}">@{{ relativeTime(promise.expiration) }}</span></td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                <div v-if="pocket.loans.length > 0">
-                  <div class="pocket-loaned-balance">
-                      <span class="muted">Loaned Balance /</span>
-                      <span class="text-danger">@{{ formatQuantity(pocket.loan_total) }}</span>
-                  </div>
-                  <div class="pocket-loaned-table-wrapper pocket-promised-table-wrapper">
-                    <table class="table">
-                      <thead>
-                        <tr>
-                          <th>Lendee</th>
-                          <th>Amount</th>
-                          <th>Expires</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="loan in pocket.loans">
-                          <td class="muted">@{{ loan.destination }}</td>
-                          <td>@{{ formatQuantity(loan.quantity) }}</td>
-                          <td><span title="@{{ formatDate(loan.expiration) }}">@{{ relativeTime(loan.expiration) }}</span>
-                              <a href="/inventory/lend/@{{ loan.id }}/delete" class="delete-loan"><i class="material-icons text-danger" title="Remove TCA loan">cancel</i></a>                        
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>                
-                </div>
+                <div class="pocket-loaned-table-wrapper pocket-promised-table-wrapper">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Lendee</th>
+                        <th>Amount</th>
+                        <th>Expires</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="loan in pocket.loans">
+                        <td class="muted">@{{ loan.destination }}</td>
+                        <td>@{{ formatQuantity(loan.quantity) }}</td>
+                        <td><span title="@{{ formatDate(loan.expiration) }}">@{{ relativeTime(loan.expiration) }}</span>
+                            <a href="/inventory/lend/@{{ loan.id }}/delete" class="delete-loan"><i class="material-icons text-danger" title="Remove TCA loan">cancel</i></a>                        
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>                
               </div>
             </div>
           </div>
-    		</div> <!-- END TOKEN -->
-      </div>
+        </div>
+  		</div> <!-- END TOKEN -->
     </div>
     <div v-else>  
       <p v-if="getVerifiedPocket()">
@@ -288,7 +286,7 @@
   <section v-if="loans.length" v-cloak>
     <div class="panel-pre-heading">Token Access Loans / <span class="muted">Active Loans:</span> @{{ loans.length }}</div>
     <div class="panel with-padding">
-      <table class="table">
+      <table class="table table--responsive">
         <thead>
           <tr>
             <th>Source Pocket</th>

@@ -24,7 +24,7 @@
 		</p>
 	</div>
 	<div class="panel with-padding">
-		<table class="table" v-cloak>
+		<table class="table table--responsive" v-cloak>
 			<thead>
 				<tr>
 					<th>Name</th>

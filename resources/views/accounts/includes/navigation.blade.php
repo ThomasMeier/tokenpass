@@ -8,6 +8,7 @@
   </ul>
   <hr>
   <ul>
+    <li><a href="/auth/update">Settings</a></li>
     <li><a href="/auth/logout">Logout</a></li>
   </ul>
 </div>

@@ -1,18 +1,61 @@
-table.table
-  border-collapse: collapse
+.table
   width: 100%
+  border-collapse: collapse
   overflow-x: auto
   thead
     border-bottom: 1px solid #EEEEEE
-  tbody
-    tr
-      &:not(:last-of-type)
-        border-bottom: 1px solid #EEEEEE
-      &:hover
-        background-color: rgb(248, 248, 248)
   th, td
     text-align: left
     padding: 14px 8px
     font-weight: normal
+    word-break: break-word
   th
     color: $gray-light
+
+// Responsive Styles
+@media only screen and (max-width: $tablet)
+
+  /* Force table to not be like tables anymore */
+  .table--responsive
+    thead, 
+    tbody, 
+    th, 
+    td, 
+    tr  
+      display: block 
+
+    thead
+      border-bottom: none
+    
+    th, td
+      padding: 0
+
+    /* Hide table headers (but not display: none, for accessibility) */
+    thead tr
+      position: absolute
+      top: -9999px
+      left: -9999px
+    tr
+      margin-bottom: 15px
+      background-color: #fff
+      
+    td
+      /* Behave  like a "row" */
+      border: none
+      position: relative
+      padding-left: 35%
+      overflow-x: hidden
+      line-height: 1.7
+      word-break: break-word
+
+    td:before
+      /* Now like a table header */
+      position: absolute
+      /* Top/left values mimic padding */
+      left: 6px
+      width: 35% 
+      padding-right: 10px 
+      color: $gray-light
+      word-break: break-word
+      content: attr(data-heading)
+      display: block
