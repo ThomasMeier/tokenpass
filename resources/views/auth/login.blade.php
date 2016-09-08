@@ -70,7 +70,7 @@
 	        </div>
 	        <div class="signature__wrapper">
 	          <textarea name="signed_message" placeholder="cryptographic signature" rows="4"></textarea>
-	          <a class="signature__cts" href="{{ env('POCKETS_URI') }}:sign?message={{ str_replace('+', '%20', urlencode($sigval)) }}&label={{ str_replace('+', '%20', urlencode('Sign in to Tokenpass')) }}&callback={{ urlencode(route('auth.login', array('msg_hash' => $msg_hash))) }}">
+	          <a class="signature__cts" href="{{ env('POCKETS_URI') }}:sign?message={{ str_replace('+', '%20', urlencode($sigval)) }}&label={{ str_replace('+', '%20', urlencode('Sign in to Tokenpass (2FA)')) }}&callback={{ urlencode(route('auth.login', array('msg_hash' => $msg_hash))) }}">
                 <img src="/img/pockets-icon-64-light.png" alt="Pockets Icon" width="36px" style="margin-right: 15px">
 	            Click To Sign
 	          </a>

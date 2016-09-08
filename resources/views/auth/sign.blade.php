@@ -31,12 +31,28 @@
                     <i class="help-icon material-icons">help_outline</i>
                 </div>
                 <textarea name="signed_message" placeholder="cryptographic signature" rows="5"></textarea>
-                <button type="submit" class="login-btn">Authenticate</button>
-                <p>
-                    <strong><a href="{{ env('POCKETS_URI') }}:sign?message={{ str_replace('+', '%20', urlencode($sigval)) }}&label={{ str_replace('+', '%20', urlencode('Tokenpass Two Factor Authentication')) }}&callback={{ urlencode(route('auth.sign')) }}">Sign with Pockets</a></strong>
-                </p>                
+                <div class="signature__wrapper">
+                    <a class="signature__cts" href="{{ env('POCKETS_URI') }}:sign?message={{ str_replace('+', '%20', urlencode($sigval)) }}&label={{ str_replace('+', '%20', urlencode('Sign in to Tokenpass')) }}&callback={{ urlencode(route('auth.signed', array('msg_hash' => $msg_hash))) }}">
+                        <img src="/img/pockets-icon-64-light.png" alt="Pockets Icon" width="36px" style="margin-right: 15px">
+                        Click To Sign
+                    </a>                 
+                </div>
+                <button type="submit" class="login-btn" id="auth-btc">Authenticate</button>
             </form>
         </div>
     </div>
 
+@endsection
+
+@section('page-js')
+<script type="text/javascript">
+    window.checkSigInterval = setInterval(function(){
+        $.get('{{ route("auth.login.check-sig", array("2fa" => 1)) }}', function(data){
+           if(typeof data.signature != 'undefined' && data.signature != null){
+               $('textarea[name="signed_message"]').val(data.signature);
+               $('#auth-btc').click();
+           }
+        });
+    }, 2000);
+</script>
 @endsection
