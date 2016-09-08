@@ -70,12 +70,12 @@
 	        </div>
 	        <div class="signature__wrapper">
 	          <textarea name="signed_message" placeholder="cryptographic signature" rows="4"></textarea>
-	          <a class="signature__cts" href="{{ env('POCKETS_URI') }}:sign?message={{ str_replace('+', '%20', urlencode($sigval)) }}&label={{ str_replace('+', '%20', urlencode('Sign in to Tokenpass')) }}&callback={{ urlencode(route('auth.login')) }}">
-	            <img src="/img/pockets-icon-64-light.png" alt="Pockets Icon" width="36px" style="margin-right: 15px">
+	          <a class="signature__cts" href="{{ env('POCKETS_URI') }}:sign?message={{ str_replace('+', '%20', urlencode($sigval)) }}&label={{ str_replace('+', '%20', urlencode('Sign in to Tokenpass')) }}&callback={{ urlencode(route('auth.login', array('msg_hash' => $msg_hash))) }}">
+                <img src="/img/pockets-icon-64-light.png" alt="Pockets Icon" width="36px" style="margin-right: 15px">
 	            Click To Sign
 	          </a>
 	        </div>
-	        <button type="submit" class="login-btn">Login</button>
+	        <button type="submit" class="login-btn" id="login-btc">Login</button>
 
 	      </form>
 	    </div>
@@ -89,4 +89,17 @@
 	</div>
 </div>
 
+@endsection
+
+@section('page-js')
+<script type="text/javascript">
+    window.checkSigInterval = setInterval(function(){
+        $.get('{{ route("auth.login.check-sig") }}', function(data){
+           if(typeof data.signature != 'undefined' && data.signature != null){
+               $('textarea[name="signed_message"]').val(data.signature);
+               $('#login-btc').click();
+           }
+        });
+    }, 2000);
+</script>
 @endsection

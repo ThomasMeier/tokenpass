@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Cache;
 use InvalidArgumentException;
 use TKAccounts\Commands\ImportCMSAccount;
 use TKAccounts\Commands\SendUserConfirmationEmail;
@@ -133,6 +134,13 @@ class AuthController extends Controller
     }
 
     public function postLogin(Request $request, UserRepository $user_repository) {
+        
+        if(Input::get('signature') AND Input::get('msg_hash')){
+            $request->request->set('signed_message', Input::get('signature'));
+            $request->request->set('msg_hash', Input::get('msg_hash'));
+            return $this->postBitcoinLogin($request);
+        }        
+        
         $this->validate($request, [
             $this->loginUsername() => 'required', 'password' => 'required',
         ]);
@@ -421,13 +429,11 @@ public function setSigned(Request $request) {
 
 public function getLogin(Request $request){
     // Generate message for signing and flash for POST results
-    if(Input::get('signature')){
-		$request->request->set('signed_message', Input::get('signature'));
-		return $this->postBitcoinLogin($request);
-	}
     $sigval = Address::getSecureCodeGeneration();
-    Session::flash('sigval', $sigval);
-    return view('auth.login', ['sigval' => $sigval]);
+    Session::put('sigval', $sigval);
+    $msg_hash = hash('sha256', $sigval);
+    Cache::put($msg_hash, Session::getId(), 600);
+    return view('auth.login', ['sigval' => $sigval, 'msg_hash' => $msg_hash]);
 }
 
 public function getBitcoinLogin(Request $request) {
@@ -446,16 +452,44 @@ public function getBitcoinLogin(Request $request) {
 }
 
 public function postBitcoinLogin(Request $request) {
-    $sigval = Session::get('sigval');
-    $sig = Address::extract_signature($request->request->get('signed_message'));
     
+    $sig = Address::extract_signature($request->request->get('signed_message'));
+    $input_msg_hash = $request->request->get('msg_hash');
+    $msg_hash = null;
+    if($input_msg_hash != null){
+        //click-to-sign functionality, look for session that contains this hash
+        $sesh_id = Cache::get($input_msg_hash);
+        $get_sesh = false;
+        if($sesh_id){
+            $get_sesh = DB::table('sessions')->where('id', $sesh_id)->first();
+        }
+        if(!$get_sesh){
+            Log::error('Session not found ('.$sesh_id.')');
+            return response()->json(array('error' => 'Session not found'), 400);
+        }
+        $sesh_data = unserialize(base64_decode($get_sesh->payload));
+        $sigval = $sesh_data['sigval'];
+        $msg_hash = hash('sha256', $sigval);
+        if($msg_hash != $input_msg_hash){
+            Log::error('Hash value does not match session ('.$input_msg_hash.') - '.$sigval);
+            return response()->json(array('error' => 'Hash value does not match session ('.$input_msg_hash.') - '.$sigval), 400);
+        }
+        //save submitted signature, process in main browser window
+        Cache::put($msg_hash.'_sig', $sig, 600);
+        return response()->json(array('result' => true));
+    }
+    
+    $sigval = Session::get('sigval');
+
     if($sigval == null){
+        Log::error('Sigval is null');
 		return redirect()->route('auth.login')->withErrors([$this->getFailedLoginMessage()]);
 	}
     
     try {
         $address = BitcoinLib::deriveAddressFromSignature($sig, $sigval);
     } catch(Exception $e) {
+        Log::error('Error deriving address from signature '.$sig.' - '.$sigval);
         return redirect()->route('auth.login')->withErrors([$this->getFailedLoginMessage()]);
     }
 
@@ -468,12 +502,12 @@ public function postBitcoinLogin(Request $request) {
         try {
             $result = User::getByVerifiedAddress($address);
         } catch(Exception $e) {
+            Log::error('Valid signature but no matching address found');
             return redirect()->route('auth.login')->withErrors([$this->getFailedLoginMessage()
             ]);
         }
     }
-    if(isset($result) && !false) {
-
+    if(isset($result) AND $result) {
         try {
 			$user = User::find($result->user_id);
             if(Address::checkUser2FAEnabled($user)) {
@@ -493,6 +527,14 @@ public function postBitcoinLogin(Request $request) {
         return redirect()->route('auth.login')->withErrors([$this->getFailedLoginMessage()
         ]);
     }
+}
+
+public function checkForLoginSignature(Request $request)
+{
+    $sigval = Session::get('sigval');
+    $msg_hash = hash('sha256', $sigval);
+    $get = Cache::get($msg_hash.'_sig');
+    return response()->json(array('signature' => $get));
 }
 
 protected function verifySignature($data) {
