@@ -8,13 +8,6 @@ class BitcoinAuthTest extends TestCase {
 
     protected $use_database = true;
 
-    public function testBitcoinAuthorizeFormGet() {
-        // check loading authorize form
-        $response = $this->call('GET', '/auth/bitcoin');
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertContains('<form', $response->getContent());
-        PHPUnit::assertInternalType('string', Session::get('sigval'));
-    }
 
     public function testPRNGeneration() {
         $file_content = file_get_contents('database/wordlists/english.txt');
