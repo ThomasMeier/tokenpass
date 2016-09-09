@@ -8,18 +8,18 @@
 <div class="everything">
 	<div class="logo"><a href="/">token<strong>pass</strong></a></div>
     <div class="row">@include('partials.alerts')</div>
+    @if(TKAccounts\Models\OAuthClient::getOAuthClientIDFromIntended())
+        <div>
+            <p class="alert-info">
+                You are about to sign into 
+                <strong><a href="{{\TKAccounts\Models\OAuthClient::getOAuthClientDetailsFromIntended()["app_link"]}}" target="_blank">{{\TKAccounts\Models\OAuthClient::getOAuthClientDetailsFromIntended()['name']}}</a></strong>
+            </p>
+        </div>
+    @endif    
 	<div class="logins-wrapper">
 		<div class="login-with-email">
 			<h1 class="login-heading">Login with Email</h1>
 			<div class="form-wrapper">
-				@if(TKAccounts\Models\OAuthClient::getOAuthClientIDFromIntended())
-					<div>
-	                    <p class="alert-info">
-	                        You are about to sign into 
-	                        <strong><a href="{{\TKAccounts\Models\OAuthClient::getOAuthClientDetailsFromIntended()["app_link"]}}" target="_blank">{{\TKAccounts\Models\OAuthClient::getOAuthClientDetailsFromIntended()['name']}}</a></strong>
-	                    </p>
-					</div>
-				@endif
 				<form method="POST" action="/auth/login">
 					{!! csrf_field() !!}
 					<input class="with-forgot" id="Username" name="username" type="text" placeholder="username" value="{{ old('username') }}">
@@ -47,15 +47,6 @@
 	  </div>
 		<div class="login-with-bitcoin">
 	    <div class="form-wrapper">
-	      @if(TKAccounts\Models\OAuthClient::getOAuthClientIDFromIntended())
-	          <div>
-	              <p class="alert-info">
-	                  You are about to sign into 
-	                  <strong><a href="{{\TKAccounts\Models\OAuthClient::getOAuthClientDetailsFromIntended()["app_link"]}}" target="_blank">{{\TKAccounts\Models\OAuthClient::getOAuthClientDetailsFromIntended()['name']}}</a></strong>
-	              </p>
-	          </div>
-	      @endif
-
 	      <h1 class="login-heading">Login with Bitcoin</h1>
 	      <form method="POST" action="/auth/bitcoin">
 	        {!! csrf_field() !!}
