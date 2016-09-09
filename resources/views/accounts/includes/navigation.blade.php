@@ -8,6 +8,7 @@
   </ul>
   <hr>
   <ul>
+    <li><a href="/auth/update">Settings</a></li>
     <li><a href="/auth/logout">Logout</a></li>
   </ul>
 </div>
@@ -21,7 +22,7 @@
     <div class="user">
       <div class="avatar">
         <a href="/auth/update" title="My account">
-          <img src="https://s3.amazonaws.com/{{ env('S3_BUCKET') }}/{{ hash('sha256',Auth::user()->uuid) }}/avatar.png" onError="this.onerror=null;this.src='/img/default-avatar.jpg'">
+          <img src="https://s3.amazonaws.com/{{ env('S3_BUCKET') }}/{{ hash('sha256',Auth::user()->uuid) }}/avatar.png" onError="this.onerror=null;this.src='/img/default-avatar.png'">
         </a>
       </div>
       <i class="logout">

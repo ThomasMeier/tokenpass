@@ -22,6 +22,7 @@ Route::get('/', [
 
 // Authentication routes...
 Route::get('auth/login',                               ['middleware' => 'tls', 'as' => 'auth.login', 'uses' => 'Auth\AuthController@getLogin']);
+Route::get('auth/login/_check',                        ['middleware' => 'tls', 'as' => 'auth.login.check-sig', 'uses' => 'Auth\AuthController@checkForLoginSignature']);
 Route::post('auth/login',                              ['middleware' => 'tls', 'uses' => 'Auth\AuthController@postLogin']);
 Route::get('auth/logout',                              ['middleware' => 'tls', 'uses' => 'Auth\AuthController@getLogout']);
 
@@ -62,7 +63,8 @@ Route::get('inventory',                                ['middleware' => 'tls', '
 Route::post('inventory/address/new',                   ['middleware' => 'tls', 'as' => 'inventory.pockets.new', 'uses' => 'Inventory\InventoryController@registerAddress']);
 Route::post('inventory/address/{address}/edit',        ['middleware' => 'tls', 'as' => 'inventory.pockets.edit', 'uses' => 'Inventory\InventoryController@editAddress']);
 Route::post('inventory/address/{address}/verify',      ['middleware' => 'tls', 'as' => 'inventory.pockets.verify', 'uses' => 'Inventory\InventoryController@verifyAddressOwnership']);
-Route::get('inventory/address/{address}/click-verify',      ['middleware' => 'tls', 'as' => 'inventory.pockets.verify', 'uses' => 'Inventory\InventoryController@clickVerifyAddress']);
+Route::post('inventory/address/{address}/click-verify',['middleware' => 'tls', 'as' => 'inventory.pockets.verify', 'uses' => 'Auth\AuthController@clickVerifyAddress']);
+Route::get('inventory/_check',                         ['middleware' => 'tls', 'as' => 'inventory.check-sig', 'uses' => 'Inventory\InventoryController@checkForVerifySignature']);
 Route::get('inventory/address/{address}/delete',       ['middleware' => 'tls', 'as' => 'inventory.pockets.delete', 'uses' => 'Inventory\InventoryController@deleteAddress']);
 Route::get('inventory/refresh',                        ['middleware' => 'tls', 'as' => 'inventory.force-update', 'uses' => 'Inventory\InventoryController@refreshBalances']);
 Route::get('inventory/check-refresh',                  ['middleware' => 'tls', 'as' => 'inventory.check-refresh', 'uses' => 'Inventory\InventoryController@checkPageRefresh']);
@@ -70,6 +72,10 @@ Route::post('inventory/asset/{asset}/toggle',          ['middleware' => 'tls', '
 Route::get('inventory/lend/{id}/delete',               ['middleware' => 'tls', 'as' => 'inventory.lend.delete', 'uses' => 'Inventory\InventoryController@deleteLoan']);
 Route::post('inventory/lend/{id}/edit',                ['middleware' => 'tls', 'as' => 'inventory.lend.delete', 'uses' => 'Inventory\InventoryController@editLoan']);
 Route::post('inventory/lend/{address}/{asset}',        ['middleware' => 'tls', 'as' => 'inventory.lend', 'uses' => 'Inventory\InventoryController@lendAsset']);
+
+//token dtails
+Route::get('token/{token}',                            ['middleware' => 'tls', 'as' => 'token.info', 'uses' => 'Inventory\InventoryController@getTokenDetails']);
+
 
 // Image routes
 Route::post('image/store',                             ['middleware' => 'tls', 'uses' => 'Image\ImageController@store']);

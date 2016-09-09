@@ -28,7 +28,7 @@
         signature. 
       </p>
 
-      <form class="js-auto-ajax" action="/inventory/address/@{{ currentPocket.address }}/verify" method="POST">
+      <form class="js-auto-ajax" action="/inventory/address/@{{ currentPocket.address }}/verify" method="POST" id="verify-form-@{{ currentPocket.address }}">
 
         <div class="error-placeholder panel-danger"></div>
 
@@ -44,7 +44,7 @@
 
         <button type="submit">Verify</button>
         <p>
-			<strong><a href="{{ env('POCKETS_URI') }}:sign?message=@{{ encodeURIComponent(currentPocket.secure_code) }}&label={{ str_replace('+', '%20', urlencode('Prove ownership of pocket address for Tokenpass')) }}&callback=@{{ encodeURIComponent(currentPocket.click_origin + '/inventory/address/' + currentPocket.address + '/click-verify') }}">Sign with Pockets</a></strong>
+			<strong><a href="{{ env('POCKETS_URI') }}:sign?message=@{{ encodeURIComponent(currentPocket.secure_code) }}&label={{ str_replace('+', '%20', urlencode('Prove ownership of pocket address for Tokenpass')) }}&callback=@{{ encodeURIComponent(currentPocket.click_origin + '/inventory/address/' + currentPocket.address + '/click-verify?msg_hash=' + currentPocket.msg_hash) }}">Sign with Pockets</a></strong>
 		</p>        
       </form>
     </div>
@@ -110,8 +110,10 @@
   </section>
 
   <section id="pocketsList" class="pockets" v-cloak>
-    <p>A Pocket is a Token Compatible Bitcoin Address that can be used to store and use Access Tokens - Once you've verified your pockets, Tokenpass keeps track of what access tokens you own at any given time and passes that information along to websites, integrations and applications each user chooses to authorize.</p>
-    <p>Need a Token Compatible Wallet? Visit <a href="http://pockets.tokenly.com" target="_blank">http://pockets.tokenly.com</a> to download yours free today.</p>
+    <div class="panel with-padding">
+      <p>A Pocket is a Token Compatible Bitcoin Address that can be used to store and use Access Tokens - Once you've verified your pockets, Tokenpass keeps track of what access tokens you own at any given time and passes that information along to websites, integrations and applications each user chooses to authorize.</p>
+      <p>Need a Token Compatible Wallet? Visit <a href="http://pockets.tokenly.com" target="_blank">http://pockets.tokenly.com</a> to download yours free today.</p>
+    </div>
     <div v-if="pockets.length">
       <div class="pocket" v-for="pocket in pockets | filterBy search" id="pocket-@{{ pocket.address }}" data-pocket-index="@{{ $index }}">
         <div class="pocket-main">
@@ -140,7 +142,7 @@
           <div v-on:click="toggleEdit" class="settings-btn">  
             <i class="material-icons" title="Edit address settings">settings</i>
           </div>
-          <div data-modal="verifyPocketModal" v-on:click="setCurrentPocket(pocket)" v-show="!pocket.verified" class="verify-btn reveal-modal">
+          <div data-modal="verifyPocketModal" v-on:click="setCurrentPocket(pocket, true)" v-show="!pocket.verified" class="verify-btn reveal-modal">
             Verify
           </div>
           <div class="clear"></div>
@@ -230,9 +232,12 @@ var vm = new Vue({
       }
     },
 
-    setCurrentPocket: function(pocket){
+    setCurrentPocket: function(pocket, for_verify=false){
       pocket.click_origin = window.click_origin;
       vm.currentPocket = pocket;
+      if(for_verify){
+          startSigWatch();
+      }
     },
     startLoading: function(pocket){
       var $indicator = $('#pocket-' + pocket.address).find('.pocket-indicator');
@@ -368,6 +373,22 @@ $('.add-pocket-btn').click(function(e){
     }
 });
 
+function startSigWatch(){
+    window.checkSigInterval = setInterval(function(){
+        $.get('{{ route("inventory.check-sig", array()) }}', function(data){
+           if(typeof data.results != 'undefined' && data.results.length > 0){
+               var hit = false;
+                $.each(data.results, function(idx, val){
+                    if(!hit){
+                        $('#verify-form-' + val.address).find('textarea[name="sig"]').val(val.signature);
+                        $('#verify-form-' + val.address).find('button[type="submit"]').click();
+                        var hit = true;
+                    }
+                });
+           }
+        });
+    }, 2000);
+}
 </script>
 
 @endsection

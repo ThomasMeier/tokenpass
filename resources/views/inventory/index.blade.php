@@ -146,11 +146,13 @@
 		</a>
 	</section>
 	<section class="tokens" v-cloak>
-    <p class="reveal-modal click-me" data-modal="promiseInfoModal">
-      * contains promised tokens
-    </p>
     <div v-if="tokens.length">
-      <div class="panel-pre-heading">My Tokens</div>
+      <div class="panel-pre-heading">
+        My Tokens / 
+        <span style="font-size: 0.8em" class="reveal-modal click-me" data-modal="promiseInfoModal">
+          * contains promised tokens
+        </span>
+      </div>
   	  <div class="token" v-for="token in tokens | filterBy search">
   	    <!-- TODO: Token's have avatars
       	<div class="avatar"><img src="http://lorempixel.com/25/25/?t=1"></div> 
@@ -162,22 +164,12 @@
             <label for="token-@{{ token.name }}"></label>
           </div>
           <div class="token-info">
-    	    	<span class="muted quantity">
-              <div v-if="token.hasPromisedTokens">
-                <em>* @{{ formatQuantity(token.balance) }}</em>
-              </div>
-              <div v-else>
-                <div v-if="token.hasLoanedTokens">
-                   <em>* @{{ formatQuantity(token.balance) }}</em>
-                </div>
-                <div v-else>
-                @{{ formatQuantity(token.balance) }}
-                </div>
-              </div>
-        		</span>
-
+            <span class="quantity">
+              <span class="quantity-star" v-if="token.hasPromisedTokens || token.hasLoanedTokens">*</span>
+              <span class="muted">@{{ formatQuantity(token.balance) }}</span>
+            </span>
     	    	<span class="nickname">
-              <a href="https://blockscan.com/assetInfo/@{{ token.name }}" target="_blank">@{{ token.name }}</a>
+              <a href="/token/@{{ token.name }}">@{{ token.name }}</a>
         		</span>
           </div>
           <div class="token-actions">
@@ -271,8 +263,7 @@
             </div>
           </div>
         </div>
-
-  		</div>
+  		</div> <!-- END TOKEN -->
     </div>
     <div v-else>  
       <p v-if="getVerifiedPocket()">
@@ -294,9 +285,8 @@
 
   <section v-if="loans.length" v-cloak>
     <div class="panel-pre-heading">Token Access Loans / <span class="muted">Active Loans:</span> @{{ loans.length }}</div>
-    <div class="panel">
-      
-      <table class="table">
+    <div class="panel with-padding">
+      <table class="table table--responsive">
         <thead>
           <tr>
             <th>Source Pocket</th>

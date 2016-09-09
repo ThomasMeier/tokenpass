@@ -18,6 +18,8 @@
               </p>
           </div>
       @endif
+
+      <h1 class="login-heading">Login with Bitcoin</h1>
       <form method="POST" action="/auth/bitcoin">
         {!! csrf_field() !!}
 
@@ -29,22 +31,35 @@
         <div class="tooltip-wrapper" data-tooltip="Paste your signed Word of the Day into this window, then click login.">
           <i class="help-icon material-icons">help_outline</i>
         </div>
-        <textarea name="signed_message" placeholder="cryptographic signature" rows="5"></textarea>
+        <div class="signature__wrapper">
+          <textarea name="signed_message" placeholder="cryptographic signature" rows="4"></textarea>
+          <a class="signature__cts" href="{{ env('POCKETS_URI') }}:sign?message={{ str_replace('+', '%20', urlencode($sigval)) }}&label={{ str_replace('+', '%20', urlencode('Sign in to Tokenpass')) }}&callback={{ urlencode(route('auth.bitcoin')) }}">
+            <img src="/img/pockets-icon-64-light.png" alt="Pockets Icon" width="36px" style="margin-right: 15px">
+            Click To Sign
+          </a>
+        </div>
         <button type="submit" class="login-btn">Login</button>
-        <a class="signin-with-btc-btn" href="{{ env('POCKETS_URI') }}:sign?message={{ str_replace('+', '%20', urlencode($sigval)) }}&label={{ str_replace('+', '%20', urlencode('Sign in to Tokenpass')) }}&callback={{ urlencode(route('auth.bitcoin')) }}">Sign with Pockets</a>
-		</p>
+
       </form>
     </div>
+    <div class="login-subtext">
+      <span>
+        Don't have Pockets?
+        <a href="http://pockets.tokenly.com" target="_blank"><strong>Download</strong></a>
+      </span>
+    </div>
+    <div class="login-or-divider-module">
+      <div class="divider">.</div>
+      <span class="or">or</span>
+      <div class="divider">.</div>
+    </div>
+    <a class="signin-with-btc-btn" href="/auth/login">Sign In With Username</a>
     <div class="login-subtext">
       <span>
         Don't have an account?
         <a href="/auth/register"><strong>Register</strong></a>
       </span>
     </div>
-    <div class="or-divider-module">
-      <div class="divider">.</div><span class="or">or</span>
-      <div class="divider">.</div>
-    </div><a class="signin-with-btc-btn" href="/auth/login">Sign In With Username</a>
 </div>
 
 @endsection

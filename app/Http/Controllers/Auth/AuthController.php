@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Cache;
 use InvalidArgumentException;
 use TKAccounts\Commands\ImportCMSAccount;
 use TKAccounts\Commands\SendUserConfirmationEmail;
@@ -133,6 +134,13 @@ class AuthController extends Controller
     }
 
     public function postLogin(Request $request, UserRepository $user_repository) {
+        
+        if(Input::get('signature') AND Input::get('msg_hash')){
+            $request->request->set('signed_message', Input::get('signature'));
+            $request->request->set('msg_hash', Input::get('msg_hash'));
+            return $this->postBitcoinLogin($request);
+        }        
+        
         $this->validate($request, [
             $this->loginUsername() => 'required', 'password' => 'required',
         ]);
@@ -349,11 +357,6 @@ public function toggleSecondFactor()
 
 
 public function getSignRequirement(Request $request, $user = null) {
-    $sig = Input::get('signature');
-    if(trim($sig) != ''){
-        $request->request->set('signed_message', str_replace(' ', '+', urldecode($sig)));
-        return $this->setSigned($request);
-    }
     if (session()->has('user')) {
         $user = session()->get('user');
         $request->session()->reflash();
@@ -368,10 +371,36 @@ public function getSignRequirement(Request $request, $user = null) {
         return redirect('auth/login');
     }
     $sigval = Address::getUserVerificationCode($user, 'simple');
-    return view('auth.sign', ['sigval' => $sigval['user_meta'], 'redirect' => $request['redirect']]);
+    $msg_hash = hash('sha256', $sigval['user_meta']);
+    Cache::put($msg_hash, $user->id, 600);    
+    return view('auth.sign', ['sigval' => $sigval['user_meta'], 'redirect' => $request['redirect'], 'msg_hash' => $msg_hash]);
 }
 
 public function setSigned(Request $request) {
+
+    if(Input::get('signature') AND Input::get('msg_hash')){
+        //click-to-sign functionality, look for session that contains this hash
+        $sig = Input::get('signature');
+        $input_msg_hash = Input::get('msg_hash');
+        $user_id = Cache::get($input_msg_hash);
+        $sesh_user = User::find($user_id);
+        if($sesh_user){
+            $sigval = Address::getUserVerificationCode($sesh_user, 'simple');
+            $sigval = $sigval['user_meta'];
+            $msg_hash = hash('sha256', $sigval);
+            if($msg_hash != $input_msg_hash){
+                Log::error('Hash value does not match session ('.$input_msg_hash.') - '.$sigval);
+                return response()->json(array('error' => 'Hash value does not match session ('.$input_msg_hash.') - '.$sigval), 400);
+            }
+            //save submitted signature, process in main browser window
+            Cache::put($msg_hash.'_sig', $sig, 600);
+            return response()->json(array('result' => true));            
+        }
+        else{
+            Log::error('User not found ('.$get_sesh->user_id.')');
+            return response()->json(array('error' => 'User not found'), 400);
+        }
+    }
     
     if (session()->has('user')) {
         $user = session()->get('user');
@@ -419,8 +448,19 @@ public function setSigned(Request $request) {
     }
 }
 
-public function getBitcoinLogin(Request $request) {
+public function getLogin(Request $request){
+    // Generate message for signing and flash for POST results
+    $sigval = Address::getSecureCodeGeneration();
+    Session::put('sigval', $sigval);
+    $msg_hash = hash('sha256', $sigval);
+    Cache::put($msg_hash, Session::getId(), 600);
+    return view('auth.login', ['sigval' => $sigval, 'msg_hash' => $msg_hash]);
+}
 
+public function getBitcoinLogin(Request $request) {
+    //page depreciated
+    return redirect()->route('auth.login');
+    /*
     // Generate message for signing and flash for POST results
     if(Input::get('signature')){
 		$request->request->set('signed_message', Input::get('signature'));
@@ -429,20 +469,49 @@ public function getBitcoinLogin(Request $request) {
     $sigval = Address::getSecureCodeGeneration();
     Session::flash('sigval', $sigval);
     return view('auth.bitcoin', ['sigval' => $sigval]);
+    */
 }
 
 public function postBitcoinLogin(Request $request) {
-    $sigval = Session::get('sigval');
-    $sig = Address::extract_signature($request->request->get('signed_message'));
     
+    $sig = Address::extract_signature($request->request->get('signed_message'));
+    $input_msg_hash = $request->request->get('msg_hash');
+    $msg_hash = null;
+    if($input_msg_hash != null){
+        //click-to-sign functionality, look for session that contains this hash
+        $sesh_id = Cache::get($input_msg_hash);
+        $get_sesh = false;
+        if($sesh_id){
+            $get_sesh = DB::table('sessions')->where('id', $sesh_id)->first();
+        }
+        if(!$get_sesh){
+            Log::error('Session not found ('.$sesh_id.')');
+            return response()->json(array('error' => 'Session not found'), 400);
+        }
+        $sesh_data = unserialize(base64_decode($get_sesh->payload));
+        $sigval = $sesh_data['sigval'];
+        $msg_hash = hash('sha256', $sigval);
+        if($msg_hash != $input_msg_hash){
+            Log::error('Hash value does not match session ('.$input_msg_hash.') - '.$sigval);
+            return response()->json(array('error' => 'Hash value does not match session ('.$input_msg_hash.') - '.$sigval), 400);
+        }
+        //save submitted signature, process in main browser window
+        Cache::put($msg_hash.'_sig', $sig, 600);
+        return response()->json(array('result' => true));
+    }
+    
+    $sigval = Session::get('sigval');
+
     if($sigval == null){
-		return redirect()->route('auth.bitcoin')->withErrors([$this->getFailedLoginMessage()]);
+        Log::error('Sigval is null');
+		return redirect()->route('auth.login')->withErrors([$this->getFailedLoginMessage()]);
 	}
     
     try {
         $address = BitcoinLib::deriveAddressFromSignature($sig, $sigval);
     } catch(Exception $e) {
-        return redirect()->route('auth.bitcoin')->withErrors([$this->getFailedLoginMessage()]);
+        Log::error('Error deriving address from signature '.$sig.' - '.$sigval);
+        return redirect()->route('auth.login')->withErrors([$this->getFailedLoginMessage()]);
     }
 
     $data = [
@@ -454,12 +523,12 @@ public function postBitcoinLogin(Request $request) {
         try {
             $result = User::getByVerifiedAddress($address);
         } catch(Exception $e) {
-            return redirect()->route('auth.bitcoin')->withErrors([$this->getFailedLoginMessage()
+            Log::error('Valid signature but no matching address found');
+            return redirect()->route('auth.login')->withErrors([$this->getFailedLoginMessage()
             ]);
         }
     }
-    if(isset($result) && !false) {
-
+    if(isset($result) AND $result) {
         try {
 			$user = User::find($result->user_id);
             if(Address::checkUser2FAEnabled($user)) {
@@ -472,13 +541,63 @@ public function postBitcoinLogin(Request $request) {
             Auth::loginUsingId($result->user_id);
         } catch (Exception $e)
         {
-            return redirect()->route('auth.bitcoin')->withErrors([$this->getFailedLoginMessage()]);
+            return redirect()->route('auth.login')->withErrors([$this->getFailedLoginMessage()]);
         }
         return $this->handleUserWasAuthenticated($request, true);
     } else {
-        return redirect()->route('auth.bitcoin')->withErrors([$this->getFailedLoginMessage()
+        return redirect()->route('auth.login')->withErrors([$this->getFailedLoginMessage()
         ]);
     }
+}
+
+public function checkForLoginSignature(Request $request)
+{
+    if(Input::get('2fa')){
+        if (session()->has('user')) {
+            $user = session()->get('user');
+        } else {
+            $user = Auth::user();
+        }
+        if(!$user){
+            return response()->json(array('error' => 'Not logged in'), 400);
+        }
+        $sigval = Address::getUserVerificationCode($user, 'simple');
+        $sigval = $sigval['user_meta'];
+    }
+    else{
+        $sigval = Session::get('sigval');
+    }
+    
+    $msg_hash = hash('sha256', $sigval);
+    $get = Cache::get($msg_hash.'_sig');
+    return response()->json(array('signature' => $get));
+}
+
+public function clickVerifyAddress($address)
+{
+    if(Input::get('signature') AND Input::get('msg_hash')){
+        //click-to-sign functionality, look for session that contains this hash
+        $sig = Input::get('signature');
+        $input_msg_hash = Input::get('msg_hash');
+        $user_id = Cache::get($input_msg_hash);
+        $sesh_user = User::find($user_id);
+        if($sesh_user){
+            $sigval = Cache::get($input_msg_hash.'_msg');
+            $msg_hash = hash('sha256', $sigval);
+            if($msg_hash != $input_msg_hash){
+                Log::error('Hash value does not match session ('.$input_msg_hash.') - '.$sigval);
+                return response()->json(array('error' => 'Hash value does not match session ('.$input_msg_hash.') - '.$sigval), 400);
+            }
+            //save submitted signature, process in main browser window
+            Cache::put($msg_hash.'_sig', $sig, 600);
+            return response()->json(array('result' => true));            
+        }
+        else{
+            Log::error('User not found ('.$get_sesh->user_id.')');
+            return response()->json(array('error' => 'User not found'), 400);
+        }
+    }
+    return response()->json(array('error' => 'Invalid request'), 400);
 }
 
 protected function verifySignature($data) {

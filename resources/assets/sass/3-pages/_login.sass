@@ -3,9 +3,24 @@ body.login
   .everything
     position: relative
     top: 7vh
-    max-width: 420px
-    padding: $gutter
+    max-width: 480px
+    +tablet
+      max-width: 880px
+    padding: $gutter 30px
     margin: 0 auto
+  .logins-wrapper
+    display: flex
+    flex-direction: column
+    +tablet
+      flex-direction: row
+  .login-with-email, .login-with-bitcoin
+    width: 100%
+  .login-with-email
+    +tablet
+      float: left
+  .login-with-bitcoin
+    +tablet
+      float: right
   .logo
     color: $gray
     font-size: 42px
@@ -39,10 +54,11 @@ body.login
     line-height: 1.4
     border-radius: 4px
   .help-icon
-    position: relative
+    position: absolute
     z-index: 200
     color: $brand-primary
     float: right
+    right: -28px
     margin-bottom: 4px
     i.material-icons
       font-size: 16px
@@ -78,6 +94,30 @@ body.login
       width: 100%
       &:not(:last-child)
         margin-bottom: 10px
+  .signature__wrapper
+    border: 1px solid $gray-lighter
+    overflow: hidden
+    border-radius: 4px
+    textarea
+      border: none
+      margin-bottom: 0
+      &:focus
+        outline: none
+  .signature__cts
+    display: block
+    color: #fff
+    background-color: $gray-light
+    text-transform: uppercase
+    text-align: center
+    letter-spacing: 1px
+    padding: 6px 10px
+    min-height: 34px
+    display: flex
+    align-items: center
+    justify-content: center
+    transition: background-color 0.1s ease
+    &:hover
+      background-color: darken($gray-light, 10%)
   .login-subtext
     text-align: center
     margin: 30px 0 0 0
@@ -93,3 +133,43 @@ body.login
     text-align: center
     +btn_border($gray)
     width: 100%
+  .login-or-divider-module
+    margin: 40px 0 30px 0
+    position: relative
+    .divider
+      float: left
+      display: inline-block
+      width: 41%
+      border-top: 1px solid $gray-lighter
+      vertical-align: middle
+      color: transparent
+    .or
+      float: left
+      color: $gray-light
+      font-weight: 200
+      margin-top: -12px
+      font-size: 24px
+      display: inline-block
+      vertical-align: middle
+      text-align: center
+      width: 16%
+    +tablet
+      position: relative
+      text-align: center
+      width: 200px
+      .divider
+        float: none
+        width: 1px
+        display: inline-block
+        border-top: none
+        border-right: 1px solid $gray-lighter
+        height: 40%
+        color: transparent
+      .or
+        float: none
+        width: 100%
+        display: inline-block
+        color: $gray-light
+        font-weight: 200
+        font-size: 24px
+        margin: 25px 0 30px

@@ -1,6 +1,6 @@
 body.inventory
   section.tokens
-    $token-height: 41px
+    $token-height: 40px
     .token
       line-height: $token-height
       background-color: #fff
@@ -25,6 +25,8 @@ body.inventory
         label
           text-align: center
           margin-top: 5px
+          +tablet
+            margin-top: 0
       .avatar
         float: left
         margin-top: 7px
@@ -57,6 +59,11 @@ body.inventory
           display: inline-block
           margin-right: 10px
           text-align: right
+          position: relative
+        .quantity-star
+          position: absolute
+          top: 1px
+          left: -10px
         .token-actions
           text-align: right
           width: 100%
