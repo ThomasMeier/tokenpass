@@ -38,14 +38,21 @@
 
         <label for="verify-address">BTC Address:</label>
         <input type="text" id="verify-sig" readonly value="@{{ currentPocket.address }}" />
-
-        <label for="verify-sig">Enter Message Signature:</label>
+        
+<!--         <label for="verify-sig">Enter Message Signature:</label>
         <textarea name="sig" id="verify-sig" rows="8" required onClick="this.select();"></textarea>
+         <a href=>Sign with Pockets</a> -->
+
+        <div class="signature__wrapper">
+          <textarea name="sig" id="verify-sig" placeholder="cryptographic signature" rows="4"></textarea>
+          <a class="signature__cts" href="{{ env('POCKETS_URI') }}:sign?message=@{{ encodeURIComponent(currentPocket.secure_code) }}&label={{ str_replace('+', '%20', urlencode('Prove ownership of pocket address for Tokenpass')) }}&callback=@{{ encodeURIComponent(currentPocket.click_origin + '/inventory/address/' + currentPocket.address + '/click-verify?msg_hash=' + currentPocket.msg_hash) }}">
+              <img src="/img/pockets-icon-64-light.png" alt="Pockets Icon" width="36px" style="margin-right: 15px">
+            Click To Sign
+          </a>
+        </div>
 
         <button type="submit">Verify</button>
-        <p>
-			<strong><a href="{{ env('POCKETS_URI') }}:sign?message=@{{ encodeURIComponent(currentPocket.secure_code) }}&label={{ str_replace('+', '%20', urlencode('Prove ownership of pocket address for Tokenpass')) }}&callback=@{{ encodeURIComponent(currentPocket.click_origin + '/inventory/address/' + currentPocket.address + '/click-verify?msg_hash=' + currentPocket.msg_hash) }}">Sign with Pockets</a></strong>
-		</p>        
+    			
       </form>
     </div>
   </div> <!-- End Verify Modal  -->
