@@ -239,7 +239,8 @@ var vm = new Vue({
       }
     },
 
-    setCurrentPocket: function(pocket, for_verify=false){
+    setCurrentPocket: function(pocket, for_verify){
+      if (typeof for_verify == 'undefined') { for_verify = false; }
       pocket.click_origin = window.click_origin;
       vm.currentPocket = pocket;
       if(for_verify){

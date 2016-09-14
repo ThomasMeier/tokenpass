@@ -469,7 +469,8 @@ var vm = new Vue({
     lendEditEndDateTime: ''
   },
   methods: {
-    setCurrentToken: function(token, pocket = null){
+    setCurrentToken: function(token, pocket){
+      if (typeof pocket == 'undefined') { pocket = null; }
       this.currentToken = token;
       this.currentPocket = pocket;
     },
