@@ -141,7 +141,10 @@ class InventoryController extends Controller
         $bvam_balances = $balances;
         unset($bvam_balances['BTC']);
         $keys = array_keys($bvam_balances);
-        $bvam_data = $bvam->getMultipleAssetsInfo($keys);
+        $bvam_data = array();
+        if(count($keys) > 0){
+            $bvam_data = $bvam->getMultipleAssetsInfo($keys);
+        }
         
 		$vars = [
 			'addresses' => $addresses,
