@@ -103,6 +103,10 @@
         <span title="Scan with your mobile device" id="instant-address-qr" data-verify-message="{{ $verify_message }}">
           <?php echo QrCode::size(200)->generate(route('api.instant-verify', $user->username).'?msg='.$verify_message) ?>
         </span>
+        <a class="signature__cts" href="pockets:sign?message={{ $verify_message }}&label=Instant Register Address with Tokenpass&callback={{ urlencode(route('api.instant-verify', $user->username).'?msg='.$verify_message) }}">
+            <img src="/img/pockets-icon-64-light.png" alt="Pockets Icon" width="36px" style="margin-right: 15px">
+            Click To Register
+        </a>        
       </p>
     </div>
   </div> <!-- End Add Pocket Modal  -->
@@ -377,7 +381,7 @@ $('.add-pocket-btn').click(function(e){
                     location.reload();
                 }
             });
-        }, 5000);
+        }, 1000);
     }
 });
 
@@ -395,7 +399,7 @@ function startSigWatch(){
                 });
            }
         });
-    }, 2000);
+    }, 1000);
 }
 </script>
 
