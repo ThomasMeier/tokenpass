@@ -11,6 +11,7 @@ use TKAccounts\Models\Provisional;
 use TKAccounts\Models\UserMeta;
 use TKAccounts\Models\User;
 use DB;
+use Tokenly\BvamApiClient\BVAMClient;
 
 class InventoryController extends Controller
 {
@@ -136,6 +137,11 @@ class InventoryController extends Controller
                 unset($loans[$k]->user_id);
             }
         }
+        $bvam = new BVAMClient(env('BVAM_URL'));
+        $bvam_balances = $balances;
+        unset($bvam_balances['BTC']);
+        $keys = array_keys($bvam_balances);
+        $bvam_data = $bvam->getMultipleAssetsInfo($keys);
         
 		$vars = [
 			'addresses' => $addresses,
@@ -144,6 +150,7 @@ class InventoryController extends Controller
 			'balance_addresses' => $balance_addresses,
 			'disabled_tokens' => $disabled_tokens,
             'loans' => $loans,
+            'bvam' => $bvam_data,
             ];
 
 		return view('inventory.index', $vars);
@@ -703,8 +710,9 @@ class InventoryController extends Controller
     
     public function getTokenDetails($token)
     {
-        
-        return view('inventory.token-details', array('token_name' => $token,));
+        $bvam = new BVAMClient(env('BVAM_URL'));
+        $bvam_data = $bvam->getAssetInfo($token);
+        return view('inventory.token-details', array('token_name' => $token, 'bvam' => $bvam_data));
     }
 
     // ------------------------------------------------------------------------
