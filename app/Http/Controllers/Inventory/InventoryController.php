@@ -4,7 +4,7 @@ namespace TKAccounts\Http\Controllers\Inventory;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
-use Input, \Exception, Session, Response, Cache;
+use Input, \Exception, Session, Response, Cache, Config;
 use TKAccounts\Http\Controllers\Controller;
 use TKAccounts\Models\Address;
 use TKAccounts\Models\Provisional;
@@ -712,7 +712,8 @@ class InventoryController extends Controller
     {
         $bvam = new BVAMClient(env('BVAM_URL'));
         $bvam_data = $bvam->getAssetInfo($token);
-        return view('inventory.token-details', array('token_name' => $token, 'bvam' => $bvam_data));
+        $bvam_labels = Config::get('tokenpass.supported_bvam_labels');
+        return view('inventory.token-details', array('token_name' => $token, 'bvam' => $bvam_data, 'bvam_labels' => $bvam_labels));
     }
 
     // ------------------------------------------------------------------------
