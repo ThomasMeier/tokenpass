@@ -58,7 +58,7 @@ if(isset($bvam['metadata']['images'][0])){
       <div class="panel with-padding panel--details">
         <div class="outer-container">
           @if ($description)
-          <div class="info__node">
+          <div class="info__node info__description">
             {{ $description }}
           </div>
           @endif
