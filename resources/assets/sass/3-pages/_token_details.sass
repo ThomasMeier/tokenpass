@@ -1,24 +1,23 @@
 .section__token-details
   .primary
-    display: flex
-    align-items: center
+    +tablet
+      display: flex
+      align-items: center
 
   .primary__avatar
-    width: 90px
-    height: 90px
-    border: 4px solid $brand-primary
-    background-color: $gray-lightest
-    border-radius: 100%
+    width: 48px
+    height: 48px
     overflow: hidden
     margin-right: 40px
+    img
+      width: 100%
 
   .primary__name
-    font-size: 34px
-    font-weight: 200
-    text-transform: uppercase
+    font-size: 24px
+    font-weight: bold
     line-height: 1.3
 
-  .primary__balance
+  .primary__sub
     font-size: 18px
     font-weight: 200
 
@@ -32,3 +31,6 @@
 
   .info__node__title
     color: $gray-lighter
+
+  .panel--details
+    margin-bottom: 15px
