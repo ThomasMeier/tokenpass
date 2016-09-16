@@ -716,7 +716,13 @@ class InventoryController extends Controller
         $bvam = new BVAMClient(env('BVAM_URL'));
         $bvam_data = $bvam->getAssetInfo($token);
         $bvam_labels = Config::get('tokenpass.supported_bvam_labels');
-        return view('inventory.token-details', array('token_name' => $token, 'bvam' => $bvam_data, 'bvam_labels' => $bvam_labels));
+        $user = Auth::user();
+        $balance = 0;
+        if($user){
+            $balance = Address::getUserTokenBalance($user, $token);
+        }
+        
+        return view('inventory.token-details', array('token_name' => $token, 'bvam' => $bvam_data, 'bvam_labels' => $bvam_labels, 'balance' => $balance));
     }
 
     // ------------------------------------------------------------------------
