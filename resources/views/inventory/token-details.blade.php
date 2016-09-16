@@ -9,7 +9,6 @@
 <?php
 $defaultAvatar = '/img/Tokenly_Logo_Icon_Light.svg' ;
 
-
 $asset = $bvam['asset']; 
 $name = $bvam['metadata']['name'];
 $shortName = false;
@@ -18,7 +17,7 @@ if(isset($bvam['metadata']['short_name'])){
 }
 $description = $bvam['metadata']['description'];
 $website = $bvam['metadata']['website'];
-$supply = $bvam['assetInfo']['supply'];
+$supply = round($bvam['assetInfo']['supply'] / 100000000, 8);
 $avatar = null;
 if(isset($bvam['metadata']['images'][0])){
     $avatar = $bvam['metadata']['images'][0]['data'];
@@ -75,7 +74,7 @@ if(isset($bvam['metadata']['images'][0])){
 
           @if ($supply)
             <div class="info__node">
-              <div class="info__node__title span-3">Supply</div>
+              <div class="info__node__title span-3">Global Supply</div>
               <div class="span-9">{{ number_format($supply) }}</div>
             </div>
           @endif
