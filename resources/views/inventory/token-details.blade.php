@@ -6,15 +6,25 @@
 
 @section('accounts_content')
 
-{{--*/ $defaultAvatar = '/img/Tokenly_Logo_Icon_Light.svg' /*--}}
+<?php
+$defaultAvatar = '/img/Tokenly_Logo_Icon_Light.svg' ;
 
-{{--*/ $asset = $bvam['asset'] ?? null /*--}}
-{{--*/ $name = $bvam['metadata']['name'] ?? null /*--}}
-{{--*/ $shortName = $bvam['metadata']['shortName'] ?? null /*--}}
-{{--*/ $description = $bvam['metadata']['description'] ?? null /*--}}
-{{--*/ $website = $bvam['metadata']['website'] ?? null /*--}}
-{{--*/ $supply = $bvam['assetInfo']['supply'] ?? null /*--}}
-{{--*/ $avatar = $bvam['metadata']['images'][0]['data'] ?? $defaultAvatar /*--}}
+
+$asset = $bvam['asset']; 
+$name = $bvam['metadata']['name'];
+$shortName = false;
+if(isset($bvam['metadata']['short_name'])){
+    $shortName = $bvam['metadata']['short_name'];
+}
+$description = $bvam['metadata']['description'];
+$website = $bvam['metadata']['website'];
+$supply = $bvam['assetInfo']['supply'];
+$avatar = null;
+if(isset($bvam['metadata']['images'][0])){
+    $avatar = $bvam['metadata']['images'][0]['data'];
+}
+
+?>
 
 <section class="title">
   <span class="heading">Token Information</span>
@@ -29,7 +39,11 @@
     <div class="panel with-padding panel--details">
       <div class="primary">
         <div class="primary__avatar">
-          <img src="{{ $avatar }}" alt="Asset Avatar">
+            @if($avatar)
+                <img src="{{ $avatar }}" alt="{{ $asset }} Avatar">
+            @else
+                <img src="/img/Tokenly_Logo_Icon_White.svg" alt="No avatar found" />
+            @endif
         </div>
         <div>
           <div class="primary__name">{{ $shortName or $name }}</div>
