@@ -140,6 +140,7 @@ Route::get('api/v1/tca/check/{username}',                  ['middleware' => 'tls
 Route::get('api/v1/tca/check-address/{address}',           ['middleware' => 'tls', 'as' => 'api.tca.check-address', 'uses' => 'API\APIController@checkAddressTokenAccess']);
 Route::get('api/v1/tca/check-sign/{address}',              ['middleware' => 'tls', 'as' => 'api.tca.check-sign', 'uses' => 'API\APIController@checkSignRequirement']);
 Route::post('api/v1/tca/set-sign',                         ['middleware' => 'tls', 'as' => 'api.tca.set-sign', 'uses' => 'API\APIController@setSignRequirement']);
+
 Route::get('api/v1/tca/addresses/{username}',              ['middleware' => 'tls', 'as' => 'api.tca.addresses', 'uses' => 'API\APIController@getAddresses']);
 Route::get('api/v1/tca/addresses/{username}/refresh',      ['middleware' => 'tls', 'as' => 'api.tca.addresses.refresh', 'uses' => 'API\APIController@getRefreshedAddresses']);
 Route::get('api/v1/tca/addresses/{username}/{address}',    ['middleware' => 'tls', 'as' => 'api.tca.addresses.details', 'uses' => 'API\APIController@getAddressDetails']);
@@ -147,6 +148,7 @@ Route::post('api/v1/tca/addresses/{username}/{address}',   ['middleware' => 'tls
 Route::patch('api/v1/tca/addresses/{username}/{address}',  ['middleware' => 'tls', 'as' => 'api.tca.addresses.edit', 'uses' => 'API\APIController@editAddress']);
 Route::delete('api/v1/tca/addresses/{username}/{address}', ['middleware' => 'tls', 'as' => 'api.tca.addresses.delete', 'uses' => 'API\APIController@deleteAddress']);
 Route::post('api/v1/tca/addresses',                        ['middleware' => 'tls', 'as' => 'api.tca.addresses.new', 'uses' => 'API\APIController@registerAddress']);
+
 Route::get('api/v1/tca/provisional',                       ['middleware' => 'tls', 'as' => 'api.tca.provisional.list', 'uses' => 'API\APIController@getProvisionalTCASourceAddressList']);
 Route::post('api/v1/tca/provisional/register',             ['middleware' => 'tls', 'as' => 'api.tca.provisional.register', 'uses' => 'API\APIController@registerProvisionalTCASourceAddress']);
 Route::get('api/v1/tca/provisional/tx',                    ['middleware' => 'tls', 'as' => 'api.tca.provisional.tx.list', 'uses' => 'API\APIController@getProvisionalTCATransactionList']);
@@ -155,12 +157,15 @@ Route::get('api/v1/tca/provisional/tx/{id}',               ['middleware' => 'tls
 Route::patch('api/v1/tca/provisional/tx/{id}',             ['middleware' => 'tls', 'as' => 'api.tca.provisional.tx.update', 'uses' => 'API\APIController@updateProvisionalTCATransaction']);
 Route::delete('api/v1/tca/provisional/tx/{id}',            ['middleware' => 'tls', 'as' => 'api.tca.provisional.tx.delete', 'uses' => 'API\APIController@deleteProvisionalTCATransaction']);
 Route::delete('api/v1/tca/provisional/{address}',          ['middleware' => 'tls', 'as' => 'api.tca.provisional.delete', 'uses' => 'API\APIController@deleteProvisionalTCASourceAddress']);
+
 Route::post('api/v1/oauth/request',                        ['middleware' => 'tls', 'as' => 'api.oauth.request', 'uses' => 'API\APIController@requestOAuth', 'middleware' => ['check-authorization-params']]);
 Route::post('api/v1/oauth/token',                          ['middleware' => 'tls', 'as' => 'api.oauth.token', 'uses' => 'API\APIController@getOAuthToken', 'middleware' => ['check-authorization-params']]);
 Route::get('api/v1/oauth/logout',                          ['middleware' => 'tls', 'as' => 'api.oauth.logout', 'uses' => 'API\APIController@invalidateOAuth']);
+
 Route::patch('api/v1/update',                              ['middleware' => 'tls', 'as' => 'api.update-account', 'uses' => 'API\APIController@updateAccount']);
 Route::post('api/v1/register',                             ['middleware' => 'tls', 'as' => 'api.register', 'uses' => 'API\APIController@registerAccount']);
 Route::post('api/v1/login',                                ['middleware' => 'tls', 'as' => 'api.login', 'uses' => 'API\APIController@loginWithUsernameAndPassword']);
+
 Route::get('api/v1/lookup/address/{address}',              ['middleware' => 'tls', 'as' => 'api.lookup.address', 'uses' => 'API\APIController@lookupUserByAddress']);
 Route::post('api/v1/lookup/address/{address}',             ['middleware' => 'tls', 'as' => 'api.lookup.address.post', 'uses' => 'API\APIController@lookupUserByAddress']);
 Route::get('api/v1/lookup/user/{username}',                ['middleware' => 'tls', 'as' => 'api.lookup.user', 'uses' => 'API\APIController@lookupAddressByUser']);

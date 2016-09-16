@@ -65,3 +65,34 @@ $spin-duration: 1s
   &:hover
     cursor: pointer
     color: lighten($brand-primary, 10%)
+
+.signature__wrapper
+  border: 1px solid $gray-lighter
+  overflow: hidden
+  border-radius: 4px
+  margin-bottom: 15px
+  textarea
+    border: none !important
+    margin-bottom: 0 !important
+    &:focus
+      outline: none
+.signature__cts
+  display: block
+  color: #fff
+  background-color: $gray-light
+  text-transform: uppercase
+  text-align: center
+  letter-spacing: 1px
+  padding: 6px 10px
+  min-height: 34px
+  display: flex
+  align-items: center
+  justify-content: center
+  transition: background-color 0.1s ease
+  &:hover
+    background-color: darken($gray-light, 10%)
+    color: #fff
+
+.responsive-image
+  width: 100%
+  height: auto !important

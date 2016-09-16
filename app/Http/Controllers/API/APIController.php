@@ -1426,6 +1426,9 @@ class APIController extends Controller
 		//get the message needed to verify and check inputs
 		$verify_message = Address::getInstantVerifyMessage($user, false);
 		$input_sig = Input::get('sig');
+        if(Input::get('signature')){
+            $input_sig = Input::get('signature');
+        }
 		$input_message = Input::get('msg');
 		if(!$input_sig OR trim($input_sig) == ''){
 			$output['error'] = 'sig required';

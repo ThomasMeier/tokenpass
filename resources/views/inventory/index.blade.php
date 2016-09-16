@@ -59,22 +59,17 @@
           </div>
         </div>
 
-<!-- TODO: Start datetime setting on loans -->
-<!--         <div class="outer-container">
-          <div class="input-group span-3">
-            <label for="start_time">Start Time</label>
-            <input type="hh:mm t" name="start_time" placeholder="hh:mm" data-inputmask="'alias': 'hh:mm t'" class="start_time">
-          </div>
-          <div class="input-group span-9">
-            <label for="start_date">Start Date</label>
-            <input type="date" name="start_date" placeholder="dd/mm/yyyy" data-inputmask="'alias': 'date'" class="start_date">
-          </div>
-        </div> -->
-
         <div class="outer-container">
-          <div class="input-group span-12">
-            <label for="end_date">Expiration Date + Time</label>
-            <input type="text" name="end_date" placeholder="dd/mm/yyyy hh:mm" data-inputmask="'alias': 'datetime'" class="end_date">
+          <input name="end_date" v-model="lendCreateEndDateTime" type="hidden">
+
+          <div class="input-group span-6">
+            <label for="end_date">Expiration Date</label>
+            <input v-model="lendCreateEndDate" type="date" placeholder="yyyy-mm-dd" v-on:change="setDateTime('lendCreateEndDateTime', lendCreateEndDate, lendCreateEndTime)">
+          </div>
+
+          <div class="input-group span-6">
+            <label for="end_time">Expiration Time</label>
+            <input v-model="lendCreateEndTime" type="num" value="00:00" placeholder="hh:mm" v-on:change="setDateTime('lendCreateEndDateTime', lendCreateEndDate, lendCreateEndTime)">
             <div class="sublabel">24 Hour Time</div>
           </div>
         </div>
@@ -105,6 +100,7 @@
         <strong>ID:</strong> #@{{ currentLoan.id }}<br>
         <strong>Created:</strong> @{{ currentLoan.created_at }}<br>
         <strong>Updated:</strong> @{{ currentLoan.updated_at }}<br>
+        <strong>Expiration:</strong> <em>@{{ utcToDate(currentLoan.expiration) }}</em><br>
         <strong>Source Pocket:</strong> @{{ currentLoan.source }}<br>
         <strong>Lendee:</strong> @{{ currentLoan.destination }}<br>
         <strong>Amount: </strong> @{{ formatQuantity(currentLoan.quantity) }} @{{ currentLoan.asset }}
@@ -117,12 +113,19 @@
       </div>
       <form method="POST" action="/inventory/lend/@{{ currentLoan.id }}/edit">
         <div class="outer-container">
-          <div class="input-group span-12">
-            <label for="end_date">Expiration Date + Time</label>
-            <input type="text" name="end_date" class="end_date" placeholder="dd/mm/yyyy hh:mm" data-inputmask="'alias': 'datetime'" v-model="currentLoan.expiration_datetime">
+          <input name="end_date" v-model="lendEditEndDateTime" type="hidden">
+
+          <div class="input-group span-6">
+            <label>Expiration Date</label>
+            <input v-model="lendEditEndDate" type="date" placeholder="yyyy-mm-dd" v-on:change="setDateTime('lendEditEndDateTime', lendEditEndDate, lendEditEndTime)">
+          </div>
+          <div class="input-group span-6">
+            <label>Expiration Time</label>
+            <input v-model="lendEditEndTime" type="num" value="00:00" placeholder="hh:mm" v-on:change="setDateTime('lendEditEndDateTime', lendEditEndDate, lendEditEndTime)">
             <div class="sublabel">24 Hour Time</div>
           </div>
         </div>
+
         <div class="input-group">
           <label for="show_as">Show loan source as:</label>
           <select name="show_as" id="show_as" v-model="currentLoan.show_as">
@@ -169,7 +172,7 @@
               <span class="muted">@{{ formatQuantity(token.balance) }}</span>
             </span>
     	    	<span class="nickname">
-              <a href="/token/@{{ token.name }}">@{{ token.name }}</a>
+              <a href="/token/@{{ token.name }}">@{{ tokenName(token) }}</a>
         		</span>
           </div>
           <div class="token-actions">
@@ -334,7 +337,8 @@ var instanceVars = {
   disabledTokens: {!! json_encode($disabled_tokens) !!},
   addressLabels: {!! json_encode($address_labels) !!},
   pockets: {!! json_encode($addresses) !!},
-  loans: {!! json_encode($loans) !!}
+  loans: {!! json_encode($loans) !!},
+  bvam: {!! json_encode($bvam) !!}
 }
 
 Number.prototype.noExponents = function(){
@@ -361,7 +365,15 @@ var data = (function(args){
       BALANCE_ADDRESSES = args['balanceAddresses'], 
       DISABLED_TOKENS = args['disabledTokens'], 
       ADDRESS_LABELS = args['addressLabels'],
-      LOANS = args['loans']
+      LOANS = args['loans'],
+      BVAM = args['bvam']
+
+  // Store BVAM array indeces into assetName/index pair
+  var bvamByIndex = {};
+  for (var index in BVAM) {
+    var assetName = BVAM[index].asset;
+    bvamByIndex[assetName] = index;
+  }
 
   // Convert balances into an array of token objects
   var tokens_arr = [];
@@ -376,14 +388,14 @@ var data = (function(args){
       balanceAddresses: balanceAddress,
       hasPromisedTokens: hasPromisedTokens(balanceAddress),
       hasLoanedTokens: hasLoanedTokens(balanceAddress),
-      toggle: !DISABLED_TOKENS.includes(key)
+      toggle: !DISABLED_TOKENS.includes(key),
+      bvam: BVAM[bvamByIndex[key]]
     });
   }
   
   var loans_arr = [];
   for(var key in LOANS){
       var loan = LOANS[key];
-      loan.expiration_datetime = moment(new Date(loan.expiration * 1000)).format('DD/MM/YYYY HH:MM');
       loans_arr.push(loan);
   }
 
@@ -454,13 +466,21 @@ var vm = new Vue({
     tokens: data.tokens,
     loans: data.loans,
     instanceVars: instanceVars,
+    // Dynamically populated by methods
     currentToken: {},
     currentPocket: {},
     currentLoan: {},
-    verifiedPocketIndex: null
+    verifiedPocketIndex: null,
+    lendCreateEndDate: '',
+    lendCreateEndTime: '',
+    lendCreateEndDateTime: '',
+    lendEditEndDate: '',
+    lendEditEndTime: '',
+    lendEditEndDateTime: ''
   },
   methods: {
-    setCurrentToken: function(token, pocket = null){
+    setCurrentToken: function(token, pocket){
+      if (typeof pocket == 'undefined') { pocket = null; }
       this.currentToken = token;
       this.currentPocket = pocket;
     },
@@ -468,13 +488,17 @@ var vm = new Vue({
   		return this.delimitNumbers((q / 100000000).noExponents());
   	},
     setCurrentLoan: function(loan){
-      this.currentLoan = loan;  
+      this.currentLoan = loan;
+      var date = moment(this.utcToDate(loan.expiration));
+      this.lendEditEndDate = date.format('YYYY-MM-DD');
+      this.lendEditEndTime = date.format('HH:mm');
+      this.lendEditEndDateTime = moment(this.utcToDate(loan.expiration)).format('YYYY-MM-DD HH:mm Z');
     },
     relativeTime: function(t){
         if(t == null || t <= 0){
             return 'n/a';
         }
-        var d = new Date(t*1000);
+        var d = this.utcToDate(t);
         var m = moment(d).fromNow();
         return m;
     },
@@ -482,13 +506,9 @@ var vm = new Vue({
         if(t == null || t <= 0){
             return null;
         }
-        var d = new Date(t*1000);
+        var d = this.utcToDate(t);
         var full_d = moment(d).format('DD/MM/YYYY HH:MM');
         return full_d;        
-    },
-    formatFormDate: function(t){
-        
-        return null;
     },
     toggleSecondaryInfo: function(event){
       var $token = $(event.target).closest('.token');
@@ -532,9 +552,29 @@ var vm = new Vue({
         return this.instanceVars.pockets[this.verifiedPocketIndex]; 
       }
       return null;
+    },
+    getCurrentTimeOffset: function(){
+      var offset = new Date().getTimezoneOffset(), o = Math.abs(offset);
+      return (offset < 0 ? "+" : "-") + ("00" + Math.floor(o / 60)).slice(-2) + ":" + ("00" + (o % 60)).slice(-2);
+    },
+    setDateTime: function(datetimeVModel, dateStr, timeStr){
+      timeStr = timeStr || '00:00'
+      var dateTimeStr = dateStr + 'T' + timeStr + ':00' + this.getCurrentTimeOffset();
+      var dateObj = new Date(dateTimeStr);
+      this[datetimeVModel] = moment(dateObj).format('YYYY/MM/DD HH:mm:ss Z');
+    },
+    utcToDate: function(utc){
+      return new Date(utc * 1000);
+    },
+    tokenName: function(token){
+      if (token.bvam && token.bvam.metadata && token.bvam.metadata.name) {
+        return token.bvam.metadata.name
+      } else {
+        return token.name  
+      }
     }
   },
- ready:function(){
+  ready:function(){
     $(this.el).find(['v-cloak']).slideDown();
   }
 });

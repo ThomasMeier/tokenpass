@@ -54,4 +54,11 @@ $(function(){
     });
   });
 
+  // Use jQuery UI datepicker if html5 is unavailable
+  if (!Modernizr.inputtypes.date) {
+      $('input[type=date]').datepicker({
+          // Consistent format with the HTML5 picker
+          dateFormat: 'yy-mm-dd'
+      });
+  }
 });

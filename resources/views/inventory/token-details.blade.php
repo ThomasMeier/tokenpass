@@ -6,6 +6,25 @@
 
 @section('accounts_content')
 
+<?php
+$defaultAvatar = '/img/Tokenly_Logo_Icon_Light.svg' ;
+
+$asset = $bvam['asset']; 
+$name = $bvam['metadata']['name'];
+$shortName = false;
+if(isset($bvam['metadata']['short_name'])){
+    $shortName = $bvam['metadata']['short_name'];
+}
+$description = $bvam['metadata']['description'];
+$website = $bvam['metadata']['website'];
+$supply = round($bvam['assetInfo']['supply'] / 100000000, 8);
+$avatar = null;
+if(isset($bvam['metadata']['images'][0])){
+    $avatar = $bvam['metadata']['images'][0]['data'];
+}
+
+?>
+
 <section class="title">
   <span class="heading">Token Information</span>
   <a href="/inventory" class="btn-dash-title">
@@ -15,66 +34,50 @@
 
 <section class="section__token-details">
   <div class="outer-container">
-    <div class="span-6">
-      <div class="panel-pre-heading">Primary</div>
-      <div class="panel with-padding">
-        <div class="primary">
-          <div class="primary__avatar"></div>
-          <div>
-            <div class="primary__name">Bitcoin</div>
-            <div class="primary__balance">11.024</div>
-          </div>
+    <div class="panel-pre-heading">Asset</div>
+    <div class="panel with-padding panel--details">
+      <div class="primary">
+        <div class="primary__avatar">
+            @if($avatar)
+                <img src="{{ $avatar }}" alt="{{ $asset }} Avatar">
+            @else
+                <img src="/img/Tokenly_Logo_Icon_White.svg" alt="No avatar found" />
+            @endif
         </div>
-      </div>
-
-      <div class="panel-pre-heading">Analytics</div>
-      <div class="panel with-padding">
-        charts and graphs go here
+        <div>
+          <div class="primary__name">{{ $shortName or $name }}</div>
+          <div class="primary__sub">{{ $asset }}</div>
+        </div>
       </div>
     </div>
+  </div>
 
-    <div class="span-6">
+  <div class="outer-container">
+    <div class="span-12">
       <div class="panel-pre-heading">Info</div>
-      <div class="panel with-padding">
+      <div class="panel with-padding panel--details">
         <div class="outer-container">
-          <div class="info__node">
-            <div class="info__node__title span-3">Website</div>
-            <div class="span-9"><a href="#" target="_blank">http://bitcoin.org</a></div>
+          @if ($description)
+          <div class="info__node info__description">
+            {{ $description }}
           </div>
-          <div class="info__node">
-            <div class="info__node__title span-3">Amount</div>
-            <div class="span-9">10 million in circulation</div>
-          </div>
-          <div class="info__node">
-            <div class="info__node__title span-3">Sponser</div>
-            <div class="span-9">Internation House of Pancakes</div>
-          </div>
-          <div class="info__node">
-            <div class="info__node__title span-3">Vendor</div>
-            <div class="span-9"><a href="#" target="_blank">http://bitcoin.org/vend</a></div>
-          </div>
-          <div class="info__node">
-            <div class="info__node__title span-3">Marketplace</div>
-            <div class="span-9"><a href="#" target="_blank">http://bitcoin.org/sell</a></div>
-          </div>
-        </div>
-      </div>
+          @endif
 
-      <div class="panel-pre-heading">Holders</div>
-      <div class="panel with-padding">
-        <div class="outer-container">
-          <div class="info__node">
-            <div class="info__node__title span-5">@raider</div>
-            <div class="span-7">521.2421</div>
-          </div>
-          <div class="info__node">
-            <div class="info__node__title span-5">@adamblevine</div>
-            <div class="span-7">7.52</div>
-          </div>
-          <div class="info__node">
-            <div class="info__node__title span-5">@elonmusk</div>
-            <div class="span-7">10</div>
-          </div>
+          @if ($website)
+            <div class="info__node">
+              <div class="info__node__title span-3">Website</div>
+              <div class="span-9">
+                <a href="{{ $website }}">{{ $website }}</a>
+              </div>
+            </div>
+          @endif
+
+          @if ($supply)
+            <div class="info__node">
+              <div class="info__node__title span-3">Global Supply</div>
+              <div class="span-9">{{ number_format($supply) }}</div>
+            </div>
+          @endif
         </div>
       </div>
     </div>

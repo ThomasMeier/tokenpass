@@ -38,14 +38,21 @@
 
         <label for="verify-address">BTC Address:</label>
         <input type="text" id="verify-sig" readonly value="@{{ currentPocket.address }}" />
-
-        <label for="verify-sig">Enter Message Signature:</label>
+        
+<!--         <label for="verify-sig">Enter Message Signature:</label>
         <textarea name="sig" id="verify-sig" rows="8" required onClick="this.select();"></textarea>
+         <a href=>Sign with Pockets</a> -->
+
+        <div class="signature__wrapper">
+          <textarea name="sig" id="verify-sig" placeholder="cryptographic signature" rows="4"></textarea>
+          <a class="signature__cts" href="{{ env('POCKETS_URI') }}:sign?message=@{{ encodeURIComponent(currentPocket.secure_code) }}&label={{ str_replace('+', '%20', urlencode('Prove ownership of pocket address for Tokenpass')) }}&callback=@{{ encodeURIComponent(currentPocket.click_origin + '/inventory/address/' + currentPocket.address + '/click-verify?msg_hash=' + currentPocket.msg_hash) }}">
+              <img src="/img/pockets-icon-64-light.png" alt="Pockets Icon" width="36px" style="margin-right: 15px">
+            Click To Sign
+          </a>
+        </div>
 
         <button type="submit">Verify</button>
-        <p>
-			<strong><a href="{{ env('POCKETS_URI') }}:sign?message=@{{ encodeURIComponent(currentPocket.secure_code) }}&label={{ str_replace('+', '%20', urlencode('Prove ownership of pocket address for Tokenpass')) }}&callback=@{{ encodeURIComponent(currentPocket.click_origin + '/inventory/address/' + currentPocket.address + '/click-verify?msg_hash=' + currentPocket.msg_hash) }}">Sign with Pockets</a></strong>
-		</p>        
+    			
       </form>
     </div>
   </div> <!-- End Verify Modal  -->
@@ -96,6 +103,10 @@
         <span title="Scan with your mobile device" id="instant-address-qr" data-verify-message="{{ $verify_message }}">
           <?php echo QrCode::size(200)->generate(route('api.instant-verify', $user->username).'?msg='.$verify_message) ?>
         </span>
+        <a class="signature__cts" href="pockets:sign?message={{ $verify_message }}&label=Instant Register Address with Tokenpass&callback={{ urlencode(route('api.instant-verify', $user->username).'?msg='.$verify_message) }}">
+            <img src="/img/pockets-icon-64-light.png" alt="Pockets Icon" width="36px" style="margin-right: 15px">
+            Click To Register
+        </a>        
       </p>
     </div>
   </div> <!-- End Add Pocket Modal  -->
@@ -232,7 +243,8 @@ var vm = new Vue({
       }
     },
 
-    setCurrentPocket: function(pocket, for_verify=false){
+    setCurrentPocket: function(pocket, for_verify){
+      if (typeof for_verify == 'undefined') { for_verify = false; }
       pocket.click_origin = window.click_origin;
       vm.currentPocket = pocket;
       if(for_verify){
@@ -369,7 +381,7 @@ $('.add-pocket-btn').click(function(e){
                     location.reload();
                 }
             });
-        }, 5000);
+        }, 1000);
     }
 });
 
@@ -387,7 +399,7 @@ function startSigWatch(){
                 });
            }
         });
-    }, 2000);
+    }, 1000);
 }
 </script>
 

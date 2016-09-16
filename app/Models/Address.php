@@ -474,6 +474,35 @@ class Address extends Model
             }
         }
     }
+    
+    public static function getUserTokenBalance($user, $token)
+    {
+        $address_list = Address::getAddressList($user->id, null, true);
+        if(!$address_list OR count($address_list) == 0){
+            return false;
+        }
+        $balance = 0;
+        $address_ids = array();
+        $addresses = array();
+        foreach($address_list as $address){
+            $address_ids[] = $address->id;
+            $addresses[] = $address->address;
+        }
+        $balance_list = DB::table('address_balances')->where('asset', $token)->whereIn('address_id', $address_ids)->get();
+        if($balance_list){
+            foreach($balance_list as $item){
+                $balance += $item->balance;
+            }
+        }
+        //subtract promises
+        $promise_list = Provisional::where('asset', $token)->whereIn('source', $addresses)->get();
+        if($promise_list){
+            foreach($promise_list as $promise){
+                $balance -= $promise->quantity;
+            }
+        }
+        return $balance;
+    }
 
 }
 

@@ -4,13 +4,14 @@ namespace TKAccounts\Http\Controllers\Inventory;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
-use Input, \Exception, Session, Response, Cache;
+use Input, \Exception, Session, Response, Cache, Config;
 use TKAccounts\Http\Controllers\Controller;
 use TKAccounts\Models\Address;
 use TKAccounts\Models\Provisional;
 use TKAccounts\Models\UserMeta;
 use TKAccounts\Models\User;
 use DB;
+use Tokenly\BvamApiClient\BVAMClient;
 
 class InventoryController extends Controller
 {
@@ -136,6 +137,14 @@ class InventoryController extends Controller
                 unset($loans[$k]->user_id);
             }
         }
+        $bvam = new BVAMClient(env('BVAM_URL'));
+        $bvam_balances = $balances;
+        unset($bvam_balances['BTC']);
+        $keys = array_keys($bvam_balances);
+        $bvam_data = array();
+        if(count($keys) > 0){
+            $bvam_data = $bvam->getMultipleAssetsInfo($keys);
+        }
         
 		$vars = [
 			'addresses' => $addresses,
@@ -144,6 +153,7 @@ class InventoryController extends Controller
 			'balance_addresses' => $balance_addresses,
 			'disabled_tokens' => $disabled_tokens,
             'loans' => $loans,
+            'bvam' => $bvam_data,
             ];
 
 		return view('inventory.index', $vars);
@@ -703,8 +713,16 @@ class InventoryController extends Controller
     
     public function getTokenDetails($token)
     {
+        $bvam = new BVAMClient(env('BVAM_URL'));
+        $bvam_data = $bvam->getAssetInfo($token);
+        $bvam_labels = Config::get('tokenpass.supported_bvam_labels');
+        $user = Auth::user();
+        $balance = 0;
+        if($user){
+            $balance = Address::getUserTokenBalance($user, $token);
+        }
         
-        return view('inventory.token-details', array('token_name' => $token,));
+        return view('inventory.token-details', array('token_name' => $token, 'bvam' => $bvam_data, 'bvam_labels' => $bvam_labels, 'balance' => $balance));
     }
 
     // ------------------------------------------------------------------------
