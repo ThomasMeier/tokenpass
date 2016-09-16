@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 use InvalidArgumentException;
-use Rhumsaa\Uuid\Uuid;
+use Ramsey\Uuid\Uuid;
 use TKAccounts\Http\Controllers\Controller;
 use TKAccounts\Models\OAuthClient;
 use TKAccounts\Repositories\OAuthClientRepository;

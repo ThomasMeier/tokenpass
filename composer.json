@@ -26,7 +26,8 @@
         "aws/aws-sdk-php-laravel": "~2.0",
         "league/flysystem-aws-s3-v2": "^1.0",
         "intervention/image": "^2.3",
-        "tokenly/bvam-api-client": "dev-master@dev"
+        "tokenly/bvam-api-client": "dev-master@dev",
+        "ramsey/uuid": "^3.5"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
