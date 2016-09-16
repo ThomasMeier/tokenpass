@@ -172,7 +172,7 @@
               <span class="muted">@{{ formatQuantity(token.balance) }}</span>
             </span>
     	    	<span class="nickname">
-              <a href="/token/@{{ token.name }}">@{{ token.name }}</a>
+              <a href="/token/@{{ token.name }}">@{{ tokenName(token) }}</a>
         		</span>
           </div>
           <div class="token-actions">
@@ -337,7 +337,8 @@ var instanceVars = {
   disabledTokens: {!! json_encode($disabled_tokens) !!},
   addressLabels: {!! json_encode($address_labels) !!},
   pockets: {!! json_encode($addresses) !!},
-  loans: {!! json_encode($loans) !!}
+  loans: {!! json_encode($loans) !!},
+  bvam: {!! json_encode($bvam) !!}
 }
 
 Number.prototype.noExponents = function(){
@@ -364,7 +365,15 @@ var data = (function(args){
       BALANCE_ADDRESSES = args['balanceAddresses'], 
       DISABLED_TOKENS = args['disabledTokens'], 
       ADDRESS_LABELS = args['addressLabels'],
-      LOANS = args['loans']
+      LOANS = args['loans'],
+      BVAM = args['bvam']
+
+  // Store BVAM array indeces into assetName/index pair
+  var bvamByIndex = {};
+  for (var index in BVAM) {
+    var assetName = BVAM[index].asset;
+    bvamByIndex[assetName] = index;
+  }
 
   // Convert balances into an array of token objects
   var tokens_arr = [];
@@ -379,7 +388,8 @@ var data = (function(args){
       balanceAddresses: balanceAddress,
       hasPromisedTokens: hasPromisedTokens(balanceAddress),
       hasLoanedTokens: hasLoanedTokens(balanceAddress),
-      toggle: !DISABLED_TOKENS.includes(key)
+      toggle: !DISABLED_TOKENS.includes(key),
+      bvam: BVAM[bvamByIndex[key]]
     });
   }
   
@@ -555,9 +565,16 @@ var vm = new Vue({
     },
     utcToDate: function(utc){
       return new Date(utc * 1000);
+    },
+    tokenName: function(token){
+      if (token.bvam && token.bvam.metadata && token.bvam.metadata.name) {
+        return token.bvam.metadata.name
+      } else {
+        return token.name  
+      }
     }
   },
- ready:function(){
+  ready:function(){
     $(this.el).find(['v-cloak']).slideDown();
   }
 });
