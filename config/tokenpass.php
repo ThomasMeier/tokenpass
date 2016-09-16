@@ -5,8 +5,8 @@ return array(
     'crypto_verify_code_expire' => 3600,
     'instant_verify_code_expire' => 600,
     'supported_bvam_labels' => array(
-        'expiration' => 'Expires',
-        'website' => 'Website',
-        'owner' => 'Issuer'
+        'expiration' => array('label' => 'Expires', 'type' => 'date'),
+        'website' => array('label' => 'Website', 'type' => 'link'),
+        'owner' => array('label' => 'Issuer', 'type' => 'text'),
     ),
 );
