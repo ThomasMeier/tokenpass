@@ -10,13 +10,22 @@
 $defaultAvatar = '/img/Tokenly_Logo_Icon_Light.svg' ;
 
 $asset = $bvam['asset']; 
-$name = $bvam['metadata']['name'];
+$name = $asset;
+if(isset($bvam['metadata']['name'])){
+    $name = $bvam['metadata']['name'];
+}
 $shortName = false;
 if(isset($bvam['metadata']['short_name'])){
     $shortName = $bvam['metadata']['short_name'];
 }
-$description = $bvam['metadata']['description'];
-$website = $bvam['metadata']['website'];
+$description = $bvam['assetInfo']['description'];
+if(isset($bvam['metadata']['description'])){
+    $description = $bvam['metadata']['description'];
+}
+$website = false;
+if(isset($bvam['metadata']['website'])){
+    $website = $bvam['metadata']['website'];
+}
 $supply = round($bvam['assetInfo']['supply'] / 100000000, 8);
 $avatar = null;
 if(isset($bvam['metadata']['images'][0])){
