@@ -2615,23 +2615,23 @@
         },
         {
             "name": "rmccue/requests",
-            "version": "v1.6.1",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rmccue/Requests.git",
-                "reference": "6aac485666c2955077d77b796bbdd25f0013a4ea"
+                "reference": "f7cb82b34ccc74ef060f647ef6bd8d8775762872"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rmccue/Requests/zipball/6aac485666c2955077d77b796bbdd25f0013a4ea",
-                "reference": "6aac485666c2955077d77b796bbdd25f0013a4ea",
+                "url": "https://api.github.com/repos/rmccue/Requests/zipball/f7cb82b34ccc74ef060f647ef6bd8d8775762872",
+                "reference": "f7cb82b34ccc74ef060f647ef6bd8d8775762872",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.2"
             },
             "require-dev": {
-                "satooshi/php-coveralls": "dev-master"
+                "requests/test-server": "dev-master"
             },
             "type": "library",
             "autoload": {
@@ -2660,7 +2660,7 @@
                 "iri",
                 "sockets"
             ],
-            "time": "2014-05-18 04:59:02"
+            "time": "2016-09-16 20:35:58"
         },
         {
             "name": "rych/hash_pbkdf2-compat",
@@ -3850,21 +3850,21 @@
         },
         {
             "name": "tokenly/api-client",
-            "version": "v1.0.2",
+            "version": "v1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tokenly/api-client.git",
-                "reference": "1afb1d2644696778e0fe7be87a28cfa25593cad2"
+                "reference": "3ad01e199c86bca01cf6770579411cd0bbbbb377"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tokenly/api-client/zipball/1afb1d2644696778e0fe7be87a28cfa25593cad2",
-                "reference": "1afb1d2644696778e0fe7be87a28cfa25593cad2",
+                "url": "https://api.github.com/repos/tokenly/api-client/zipball/3ad01e199c86bca01cf6770579411cd0bbbbb377",
+                "reference": "3ad01e199c86bca01cf6770579411cd0bbbbb377",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.5.0",
-                "rmccue/requests": "^1.6",
+                "rmccue/requests": "dev-master",
                 "tokenly/hmac-auth": "^1.0@dev"
             },
             "require-dev": {
@@ -3894,7 +3894,7 @@
                 "client",
                 "tokenly"
             ],
-            "time": "2016-04-05 11:54:52"
+            "time": "2016-09-17 00:04:50"
         },
         {
             "name": "tokenly/bitcoin-currency-lib",
@@ -3942,17 +3942,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tokenly/bvam-api-client.git",
-                "reference": "f51c00be1f9c510ae057845dc213831f2361e351"
+                "reference": "37164de6fa6e6bd319c8cea41e3fab2cb03786e9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tokenly/bvam-api-client/zipball/f51c00be1f9c510ae057845dc213831f2361e351",
-                "reference": "f51c00be1f9c510ae057845dc213831f2361e351",
+                "url": "https://api.github.com/repos/tokenly/bvam-api-client/zipball/37164de6fa6e6bd319c8cea41e3fab2cb03786e9",
+                "reference": "37164de6fa6e6bd319c8cea41e3fab2cb03786e9",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.5.0",
-                "rmccue/requests": "^1.6",
+                "rmccue/requests": "dev-master",
                 "tokenly/api-client": "^1"
             },
             "require-dev": {
@@ -3983,7 +3983,7 @@
                 "client",
                 "tokenly"
             ],
-            "time": "2016-09-15 05:49:03"
+            "time": "2016-09-17 00:15:08"
         },
         {
             "name": "tokenly/consul-health-daemon",
