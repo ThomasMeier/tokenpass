@@ -4,12 +4,9 @@ namespace TKAccounts\Http\Controllers\Auth;
 
 use Exception;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Http\Exception\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Session\SessionManager;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -17,21 +14,12 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
-use InvalidArgumentException;
-use ReCaptcha;
-use TKAccounts\Commands\ImportCMSAccount;
-use TKAccounts\Commands\SendUserConfirmationEmail;
-use TKAccounts\Commands\SyncCMSAccount;
 use TKAccounts\Http\Controllers\Auth\Base\BaseAuthController;
-use TKAccounts\Http\Controllers\Controller;
-use TKAccounts\Http\Controllers\Inventory\InventoryController;
 use TKAccounts\Models\Address;
 use TKAccounts\Models\User;
 use TKAccounts\Models\UserMeta;
-use TKAccounts\Providers\CMSAuth\Util;
 use TKAccounts\Repositories\UserRepository;
 use TKAccounts\Util\BitcoinUtil;
-use Validator;
 
 
 class AuthLoginController extends BaseAuthController
