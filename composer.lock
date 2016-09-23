@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "af53b1eec2c02e2714cdaf8af5987724",
-    "content-hash": "8824c4ef588ca3c16fa73ce34a6772ec",
+    "hash": "00a888a06a341218b593f300b8838ac9",
+    "content-hash": "116dc6a0f6d83078459923e7c04db621",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -4381,16 +4381,16 @@
         },
         {
             "name": "tokenly/platform-admin",
-            "version": "dev-master",
+            "version": "v0.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tokenly/platform-admin.git",
-                "reference": "a48598943ed75f6fca660dcd63b56a95e4e66d96"
+                "reference": "f66007a55fddf5bb360a72de45b13022595ef14b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tokenly/platform-admin/zipball/a48598943ed75f6fca660dcd63b56a95e4e66d96",
-                "reference": "a48598943ed75f6fca660dcd63b56a95e4e66d96",
+                "url": "https://api.github.com/repos/tokenly/platform-admin/zipball/f66007a55fddf5bb360a72de45b13022595ef14b",
+                "reference": "f66007a55fddf5bb360a72de45b13022595ef14b",
                 "shasum": ""
             },
             "require": {
@@ -4420,7 +4420,7 @@
                 }
             ],
             "description": "A platform administration module for Tokenly services",
-            "time": "2016-06-18 19:32:27"
+            "time": "2016-09-23 01:52:13"
         },
         {
             "name": "tokenly/token-controlled-access",
@@ -5929,7 +5929,6 @@
         "tokenly/laravel-api-provider": 20,
         "tokenly/consul-health-daemon": 20,
         "tokenly/token-controlled-access": 20,
-        "tokenly/platform-admin": 20,
         "tokenly/bvam-api-client": 20
     },
     "prefer-stable": true,
