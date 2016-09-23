@@ -1,7 +1,7 @@
 <?php
 
-use TKAccounts\Models\User;
-use TKAccounts\Models\Address;
+use Tokenpass\Models\User;
+use Tokenpass\Models\Address;
 use Illuminate\Foundation\Testing\TestCase;
 use Illuminate\Http\Request;
 use Illuminate\Session\SessionManager;
@@ -43,7 +43,7 @@ class UserHelper
         $user_id = $auth->id();
 
         // get the user just created
-        $user = app('TKAccounts\Repositories\UserRepository')->findByID($user_id);
+        $user = app('Tokenpass\Repositories\UserRepository')->findByID($user_id);
         if (!$user OR !$user->getKey()) {
             return null;
         }
@@ -107,7 +107,7 @@ class UserHelper
         $user_id = $auth->id();
 
         // get the user just updated
-        $user = app('TKAccounts\Repositories\UserRepository')->findByID($user_id);
+        $user = app('Tokenpass\Repositories\UserRepository')->findByID($user_id);
         if (!$user) { throw new Exception("No user found", 1); }
         return $user;
     }
@@ -152,7 +152,7 @@ class UserHelper
 
     public function getOrCreateSampleUser() {
         $email = $this->defaultUserVars()['email'];
-        $user = app('TKAccounts\Repositories\UserRepository')->findByEmail($email);
+        $user = app('Tokenpass\Repositories\UserRepository')->findByEmail($email);
         if (!$user) {
             $user = $this->createNewUser();
         }
@@ -166,7 +166,7 @@ class UserHelper
         foreach($user_override_vars as $key => $val) { if ($val === null) { unset($user_vars[$key]); } }
 
         // create the user (this also hashes the password)
-        $user = app('TKAccounts\Repositories\UserRepository')->create($user_vars);
+        $user = app('Tokenpass\Repositories\UserRepository')->create($user_vars);
         if (!$user->getKey()) { return null; }
 
         // get the user just created
@@ -181,7 +181,7 @@ class UserHelper
         }
 
         // create the user (this also hashes the password)
-        $user = app('TKAccounts\Repositories\UserRepository')->create($user_vars);
+        $user = app('Tokenpass\Repositories\UserRepository')->create($user_vars);
         if (!$user->getKey()) {
         return null;
         }
@@ -203,7 +203,7 @@ class UserHelper
         $user_id = $auth->id();
 
         // get the user just created
-        $user = app('TKAccounts\Repositories\UserRepository')->findByID($user_id);
+        $user = app('Tokenpass\Repositories\UserRepository')->findByID($user_id);
         if (!$user OR !$user->getKey()) {
             return null;
         }
@@ -266,7 +266,7 @@ class UserHelper
 
 
         // // send the login request with the test kernel which does not read the session
-        // $kernel = $app->make('TKAccounts\TestHelpers\TestKernel');
+        // $kernel = $app->make('Tokenpass\TestHelpers\TestKernel');
         // return $kernel->handle($request);
     }
 
@@ -286,7 +286,7 @@ class UserHelper
     }
 
     public function userExistsInDB(User $user) {
-        $loaded_user = app('TKAccounts\Repositories\UserRepository')->findByID($user->getKey());
+        $loaded_user = app('Tokenpass\Repositories\UserRepository')->findByID($user->getKey());
         return ($loaded_user->getKey() AND $loaded_user->getKey() == $user->getKey());
     }
 

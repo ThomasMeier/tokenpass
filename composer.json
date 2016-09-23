@@ -52,7 +52,7 @@
             "database"
         ],
         "psr-4": {
-            "TKAccounts\\": "app/"
+            "Tokenpass\\": "app/"
         }
     },
     "autoload-dev": {

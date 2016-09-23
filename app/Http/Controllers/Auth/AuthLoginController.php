@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Http\Controllers\Auth;
+namespace Tokenpass\Http\Controllers\Auth;
 
 use Exception;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
@@ -14,12 +14,12 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
-use TKAccounts\Http\Controllers\Auth\Base\BaseAuthController;
-use TKAccounts\Models\Address;
-use TKAccounts\Models\User;
-use TKAccounts\Models\UserMeta;
-use TKAccounts\Repositories\UserRepository;
-use TKAccounts\Util\BitcoinUtil;
+use Tokenpass\Http\Controllers\Auth\Base\BaseAuthController;
+use Tokenpass\Models\Address;
+use Tokenpass\Models\User;
+use Tokenpass\Models\UserMeta;
+use Tokenpass\Repositories\UserRepository;
+use Tokenpass\Util\BitcoinUtil;
 
 
 class AuthLoginController extends BaseAuthController

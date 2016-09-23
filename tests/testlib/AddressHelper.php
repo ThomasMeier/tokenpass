@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Log;
-use TKAccounts\Models\Address;
-use TKAccounts\Models\User;
+use Tokenpass\Models\Address;
+use Tokenpass\Models\User;
 
 /*
 * AddressHelper
@@ -27,7 +27,7 @@ class AddressHelper
         }
 
         $address_vars = array_merge($this->defaultAddressVars($user), $address_override_vars);
-        $address = app('TKAccounts\Repositories\AddressRepository')->create($address_vars);
+        $address = app('Tokenpass\Repositories\AddressRepository')->create($address_vars);
 
         return $address;
     }

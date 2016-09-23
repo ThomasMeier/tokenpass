@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Providers;
+namespace Tokenpass\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Broadcast;

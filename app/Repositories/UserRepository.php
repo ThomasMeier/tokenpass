@@ -1,12 +1,12 @@
 <?php
 
-namespace TKAccounts\Repositories;
+namespace Tokenpass\Repositories;
 
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use TKAccounts\Providers\CMSAuth\Util;
+use Tokenpass\Providers\CMSAuth\Util;
 use Tokenly\LaravelApiProvider\Contracts\APIUserRepositoryContract;
 use Tokenly\LaravelApiProvider\Repositories\APIRepository;
 use Tokenly\TokenGenerator\TokenGenerator;
@@ -17,7 +17,7 @@ use Tokenly\TokenGenerator\TokenGenerator;
 class UserRepository extends APIRepository implements APIUserRepositoryContract
 {
 
-    protected $model_type = 'TKAccounts\Models\User';
+    protected $model_type = 'Tokenpass\Models\User';
 
 
     public function findByUser(User $user) {

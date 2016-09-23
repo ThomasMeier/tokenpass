@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'userRepositoryClass' => TKAccounts\Repositories\UserRepository::class,
+    'userRepositoryClass' => Tokenpass\Repositories\UserRepository::class,
 ];

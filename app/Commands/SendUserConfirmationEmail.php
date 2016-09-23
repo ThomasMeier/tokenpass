@@ -1,12 +1,12 @@
 <?php
 
-namespace TKAccounts\Commands;
+namespace Tokenpass\Commands;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use TKAccounts\Commands\Command;
-use TKAccounts\Models\User;
+use Tokenpass\Commands\Command;
+use Tokenpass\Models\User;
 
 class SendUserConfirmationEmail extends Command
 {
@@ -38,7 +38,7 @@ class SendUserConfirmationEmail extends Command
 
 
     protected function resetEmailConfirmationCode() {
-        $user_repository = App('TKAccounts\Repositories\UserRepository');
+        $user_repository = App('Tokenpass\Repositories\UserRepository');
         $token_generator = App('Tokenly\TokenGenerator\TokenGenerator');
 
         $user_repository->update($this->user, [

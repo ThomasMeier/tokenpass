@@ -1,13 +1,13 @@
 <?php
 
-namespace TKAccounts\Commands;
+namespace Tokenpass\Commands;
 
 use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Support\Facades\Log;
-use TKAccounts\Commands\Command;
-use TKAccounts\Models\User;
-use TKAccounts\Models\Address;
-use TKAccounts\Providers\CMSAuth\Util;
+use Tokenpass\Commands\Command;
+use Tokenpass\Models\User;
+use Tokenpass\Models\Address;
+use Tokenpass\Providers\CMSAuth\Util;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class SyncCMSAccount extends Command implements SelfHandling
@@ -19,7 +19,7 @@ class SyncCMSAccount extends Command implements SelfHandling
      */
     public function __construct($user, $cms_credentials)
     {
-		$this->cms_loader = app('TKAccounts\Providers\CMSAuth\CMSAccountLoader');
+		$this->cms_loader = app('Tokenpass\Providers\CMSAuth\CMSAccountLoader');
         $this->accounts_user = $user;
         try{
 			$this->cms_user = $this->cms_loader->getFullUserInfoWithLogin($cms_credentials['username'], $cms_credentials['password']);
@@ -56,7 +56,7 @@ class SyncCMSAccount extends Command implements SelfHandling
 			if(!in_array($row['address'], $used)){
                 $exists = Address::where('address', $row['address'])->first();
                 if(!$exists){
-                    $address = app('TKAccounts\Repositories\AddressRepository')->create([
+                    $address = app('Tokenpass\Repositories\AddressRepository')->create([
                         'user_id'    => $this->accounts_user->id,
                         'type'       => $row['type'],
                         'address'    => $row['address'],

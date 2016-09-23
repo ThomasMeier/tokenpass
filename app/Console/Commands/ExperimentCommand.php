@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Console\Commands;
+namespace Tokenpass\Console\Commands;
 
 use Exception;
 use Illuminate\Console\Command;

@@ -1,5 +1,5 @@
 <?php
-namespace TKAccounts\Http\Controllers\Auth;
+namespace Tokenpass\Http\Controllers\Auth;
 
 use Exception, Input, Session, DB;
 use Illuminate\Support\Facades\Auth;
@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
-use TKAccounts\Http\Controllers\Controller;
-use TKAccounts\Models\OAuthClient;
-use TKAccounts\Repositories\OAuthClientRepository;
+use Tokenpass\Http\Controllers\Controller;
+use Tokenpass\Models\OAuthClient;
+use Tokenpass\Repositories\OAuthClientRepository;
 
 class AppsController extends Controller
 {

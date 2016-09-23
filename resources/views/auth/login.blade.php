@@ -8,11 +8,11 @@
 <div class="everything">
 	<div class="logo"><a href="/">token<strong>pass</strong></a></div>
     <div class="row">@include('partials.alerts')</div>
-    @if(TKAccounts\Models\OAuthClient::getOAuthClientIDFromIntended())
+    @if(Tokenpass\Models\OAuthClient::getOAuthClientIDFromIntended())
         <div>
             <p class="alert-info">
                 You are about to sign into 
-                <strong><a href="{{\TKAccounts\Models\OAuthClient::getOAuthClientDetailsFromIntended()["app_link"]}}" target="_blank">{{\TKAccounts\Models\OAuthClient::getOAuthClientDetailsFromIntended()['name']}}</a></strong>
+                <strong><a href="{{\Tokenpass\Models\OAuthClient::getOAuthClientDetailsFromIntended()["app_link"]}}" target="_blank">{{\Tokenpass\Models\OAuthClient::getOAuthClientDetailsFromIntended()['name']}}</a></strong>
             </p>
         </div>
     @endif    

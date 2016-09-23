@@ -1,9 +1,9 @@
 <?php
 
-namespace TKAccounts\Http\Controllers\Accounts;
+namespace Tokenpass\Http\Controllers\Accounts;
 
 use Illuminate\Support\Facades\Auth;
-use TKAccounts\Http\Controllers\Controller;
+use Tokenpass\Http\Controllers\Controller;
 
 class DashboardController extends Controller
 {

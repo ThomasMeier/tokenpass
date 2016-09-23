@@ -1,6 +1,6 @@
 <?php
 
-use TKAccounts\Util\BitcoinUtil;
+use Tokenpass\Util\BitcoinUtil;
 use \PHPUnit_Framework_Assert as PHPUnit;
 
 /*

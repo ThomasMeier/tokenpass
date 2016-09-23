@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Handlers\Monitoring;
+namespace Tokenpass\Handlers\Monitoring;
 
 use Exception;
 use Illuminate\Support\Facades\Config;
@@ -23,7 +23,7 @@ class MonitoringHandler {
     }
 
     public function subscribe($events) {
-        $events->listen('consul-health.console.check', 'TKAccounts\Handlers\Monitoring\MonitoringHandler@handleConsoleHealthCheck');
+        $events->listen('consul-health.console.check', 'Tokenpass\Handlers\Monitoring\MonitoringHandler@handleConsoleHealthCheck');
     }
 
     ////////////////////////////////////////////////////////////////////////

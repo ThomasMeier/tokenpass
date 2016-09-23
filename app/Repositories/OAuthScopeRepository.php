@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Repositories;
+namespace Tokenpass\Repositories;
 
 use Tokenly\LaravelApiProvider\Repositories\APIRepository;
 use Exception;
@@ -11,6 +11,6 @@ use Exception;
 class OAuthScopeRepository extends APIRepository
 {
 
-    protected $model_type = 'TKAccounts\Models\OAuthScope';
+    protected $model_type = 'Tokenpass\Models\OAuthScope';
 
 }

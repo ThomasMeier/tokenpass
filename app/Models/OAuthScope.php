@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Models;
+namespace Tokenpass\Models;
 
 use Tokenly\LaravelApiProvider\Model\APIModel;
 use Exception;

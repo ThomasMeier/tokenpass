@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Http\Controllers\Auth;
+namespace Tokenpass\Http\Controllers\Auth;
 
 use Exception;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -17,13 +17,13 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use InvalidArgumentException;
 use ReCaptcha;
-use TKAccounts\Commands\SendUserConfirmationEmail;
-use TKAccounts\Http\Controllers\Auth\Base\BaseAuthController;
-use TKAccounts\Models\Address;
-use TKAccounts\Models\User;
-use TKAccounts\Models\UserMeta;
-use TKAccounts\Providers\CMSAuth\Util;
-use TKAccounts\Repositories\UserRepository;
+use Tokenpass\Commands\SendUserConfirmationEmail;
+use Tokenpass\Http\Controllers\Auth\Base\BaseAuthController;
+use Tokenpass\Models\Address;
+use Tokenpass\Models\User;
+use Tokenpass\Models\UserMeta;
+use Tokenpass\Providers\CMSAuth\Util;
+use Tokenpass\Repositories\UserRepository;
 use Validator;
 
 
@@ -87,7 +87,7 @@ class AuthRegisterController extends BaseAuthController
         }
 
         // we can't create a new user with an existing LTB username
-        $loader = app('TKAccounts\Providers\CMSAuth\CMSAccountLoader');
+        $loader = app('Tokenpass\Providers\CMSAuth\CMSAccountLoader');
         if ($loader->usernameExists($register_vars['username'])) {
             $register_error = 'This username was found at LetsTalkBitcoin.com.  Please login with your existing credentials instead of creating a new account.';
             throw new HttpResponseException($this->buildFailedValidationResponse($request, ['username' => $register_error]));

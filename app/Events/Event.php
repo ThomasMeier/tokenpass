@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Events;
+namespace Tokenpass\Events;
 
 abstract class Event
 {

@@ -1,6 +1,6 @@
 <?php 
 
-namespace TKAccounts\Util;
+namespace Tokenpass\Util;
 
 use BitWasp\Bitcoin\Address\AddressFactory;
 use BitWasp\Bitcoin\Bitcoin;

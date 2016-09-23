@@ -1,9 +1,9 @@
 <?php
 
-namespace TKAccounts\Console\Commands;
+namespace Tokenpass\Console\Commands;
 
 use Illuminate\Console\Command;
-use TKAccounts\Models\Address;
+use Tokenpass\Models\Address;
 
 class ScanCoinAddresses extends Command
 {

@@ -11,7 +11,7 @@
 |
 */
 
-$factory->define(TKAccounts\Models\User::class, function ($faker) {
+$factory->define(Tokenpass\Models\User::class, function ($faker) {
     return [
         'name' => $faker->name,
         'email' => $faker->email,

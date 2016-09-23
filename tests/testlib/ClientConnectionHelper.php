@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Log;
-use TKAccounts\Models\OAuthClient;
-use TKAccounts\Models\User;
+use Tokenpass\Models\OAuthClient;
+use Tokenpass\Models\User;
 
 /*
 * ClientConnectionHelper
@@ -12,7 +12,7 @@ class ClientConnectionHelper
 
     public function newSampleConnection(User $user=null, OAuthClient $client=null, $override_vars=[]) {
         $insert_vars = $this->newSampleConnectionVars($user, $client, $override_vars);
-        $connection = app('TKAccounts\Repositories\ClientConnectionRepository')->create($insert_vars);
+        $connection = app('Tokenpass\Repositories\ClientConnectionRepository')->create($insert_vars);
         return $connection;
     }
 

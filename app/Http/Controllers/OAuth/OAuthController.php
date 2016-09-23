@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Http\Controllers\OAuth;
+namespace Tokenpass\Http\Controllers\OAuth;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -10,11 +10,11 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\View;
 use LucaDegasperi\OAuth2Server\Facades\Authorizer;
-use TKAccounts\Http\Controllers\Controller;
-use TKAccounts\Repositories\ClientConnectionRepository;
-use TKAccounts\Repositories\OAuthClientRepository;
-use TKAccounts\Repositories\UserRepository;
-use TKAccounts\Models\OAuthScope;
+use Tokenpass\Http\Controllers\Controller;
+use Tokenpass\Repositories\ClientConnectionRepository;
+use Tokenpass\Repositories\OAuthClientRepository;
+use Tokenpass\Repositories\UserRepository;
+use Tokenpass\Models\OAuthScope;
 
 /**
  */

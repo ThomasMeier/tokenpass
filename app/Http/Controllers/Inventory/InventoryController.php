@@ -1,15 +1,15 @@
 <?php
 
-namespace TKAccounts\Http\Controllers\Inventory;
+namespace Tokenpass\Http\Controllers\Inventory;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 use Input, \Exception, Session, Response, Cache, Config;
-use TKAccounts\Http\Controllers\Controller;
-use TKAccounts\Models\Address;
-use TKAccounts\Models\Provisional;
-use TKAccounts\Models\UserMeta;
-use TKAccounts\Models\User;
+use Tokenpass\Http\Controllers\Controller;
+use Tokenpass\Models\Address;
+use Tokenpass\Models\Provisional;
+use Tokenpass\Models\UserMeta;
+use Tokenpass\Models\User;
 use DB;
 use Tokenly\BvamApiClient\BVAMClient;
 
@@ -209,7 +209,7 @@ class InventoryController extends Controller
 		}
 
 		//register address
-		$new_address = app('TKAccounts\Repositories\AddressRepository')->create([
+		$new_address = app('Tokenpass\Repositories\AddressRepository')->create([
 			'user_id' => $this->user->id,
 			'type' => 'btc',
 			'address' => $address,

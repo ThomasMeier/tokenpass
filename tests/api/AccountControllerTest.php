@@ -1,9 +1,6 @@
 <?php
 
 use PHPUnit_Framework_Assert as PHPUnit;
-use TKAccounts\Models\Address;
-use TKAccounts\Models\OAuthClient;
-use TKAccounts\TestHelpers\UserHelper;
 
 /*
 * AccountControllerTest

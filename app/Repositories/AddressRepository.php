@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Repositories;
+namespace Tokenpass\Repositories;
 
 use Tokenly\LaravelApiProvider\Repositories\APIRepository;
 use Exception;
@@ -11,7 +11,7 @@ use Exception;
 class AddressRepository extends APIRepository
 {
 
-    protected $model_type = 'TKAccounts\Models\Address';
+    protected $model_type = 'Tokenpass\Models\Address';
 
 
     public function findByReceiveMonitorID($monitor_id) {

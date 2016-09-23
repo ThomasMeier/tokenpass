@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Http;
+namespace Tokenpass\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
@@ -13,7 +13,7 @@ class Kernel extends HttpKernel
      */
     protected $middleware = [
         \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
-        \TKAccounts\Http\Middleware\EncryptCookies::class,
+        \Tokenpass\Http\Middleware\EncryptCookies::class,
         \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
         \Illuminate\Session\Middleware\StartSession::class,
         \Illuminate\View\Middleware\ShareErrorsFromSession::class,
@@ -31,22 +31,22 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
-        'auth'                       => \TKAccounts\Http\Middleware\Authenticate::class,
+        'auth'                       => \Tokenpass\Http\Middleware\Authenticate::class,
         'auth.basic'                 => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
-        'guest'                      => \TKAccounts\Http\Middleware\RedirectIfAuthenticated::class,
+        'guest'                      => \Tokenpass\Http\Middleware\RedirectIfAuthenticated::class,
 
         // must be enabled on a per-route basis
-        'csrf'                       => \TKAccounts\Http\Middleware\VerifyCsrfToken::class,
+        'csrf'                       => \Tokenpass\Http\Middleware\VerifyCsrfToken::class,
 
         'oauth'                      => \LucaDegasperi\OAuth2Server\Middleware\OAuthMiddleware::class,
         'oauth-owner'                => \LucaDegasperi\OAuth2Server\Middleware\OAuthOwnerMiddleware::class,
         'check-authorization-params' => \LucaDegasperi\OAuth2Server\Middleware\CheckAuthCodeRequestMiddleware::class,
-        'sign'                       => \TKAccounts\Http\Middleware\SecondFactor::class,
+        'sign'                       => \Tokenpass\Http\Middleware\SecondFactor::class,
 
         // require admin
-        'admin'                      => \TKAccounts\Http\Middleware\AdminAuthenticate::class,
+        'admin'                      => \Tokenpass\Http\Middleware\AdminAuthenticate::class,
 
         // TLS
-        'tls'                        => \TKAccounts\Http\Middleware\RequireTLS::class,
+        'tls'                        => \Tokenpass\Http\Middleware\RequireTLS::class,
     ];
 }

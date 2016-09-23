@@ -24,7 +24,7 @@ class ProvisionalRepositoryTest extends TestCase {
             return app('ProvisionalHelper')->newSampleProvisional();
         };
 
-        $helper = new RepositoryTestHelper($create_model_fn, $this->app->make('TKAccounts\Repositories\ProvisionalRepository'));
+        $helper = new RepositoryTestHelper($create_model_fn, $this->app->make('Tokenpass\Repositories\ProvisionalRepository'));
         $helper->use_uuid = false;
         return $helper;
     }

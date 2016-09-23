@@ -7,7 +7,7 @@
  */
 
 
-namespace TKAccounts\Models;
+namespace Tokenpass\Models;
 
 use Aws\S3\S3Client;
 use Illuminate\Database\Eloquent\Model;

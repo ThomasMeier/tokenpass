@@ -1,12 +1,12 @@
 <?php
 
-namespace TKAccounts\Repositories;
+namespace Tokenpass\Repositories;
 
 use Exception;
 use Illuminate\Support\Facades\Log;
-use TKAccounts\Models\OAuthClient;
-use TKAccounts\Models\OAuthScope;
-use TKAccounts\Models\User;
+use Tokenpass\Models\OAuthClient;
+use Tokenpass\Models\OAuthScope;
+use Tokenpass\Models\User;
 use Tokenly\LaravelApiProvider\Repositories\APIRepository;
 use DB;
 
@@ -16,7 +16,7 @@ use DB;
 class ClientConnectionRepository extends APIRepository
 {
 
-    protected $model_type = 'TKAccounts\Models\ClientConnection';
+    protected $model_type = 'Tokenpass\Models\ClientConnection';
 
 
     public function connectUserToClient(User $user, OAuthClient $client, $scopes = array()) {
@@ -66,7 +66,7 @@ class ClientConnectionRepository extends APIRepository
     }
 
     public function buildConnectedClientDetialsForUser(User $user) {
-        $client_repository = app('TKAccounts\Repositories\OAuthClientRepository');
+        $client_repository = app('Tokenpass\Repositories\OAuthClientRepository');
 
         $out = [];
         foreach ($this->prototype_model->where('user_id', $user['id'])->get() as $client_connection) {

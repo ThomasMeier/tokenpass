@@ -1,6 +1,5 @@
 <?php
 
-use TKAccounts\TestHelpers\UserHelper;
 use Illuminate\Support\Facades\App;
 use \PHPUnit_Framework_Assert as PHPUnit;
 
@@ -15,7 +14,7 @@ class PlatformAdminConnectedApplicationsTest extends TestCase {
         $helper = $this->setupPlatformAdminHelper();
         $helper->beAuthorizedUser();
         // Skip 2 factor
-        \TKAccounts\Models\UserMeta::setMeta($helper->getUser()['id'],'sign_auth','value to sign',0,0,'signed');
+        \Tokenpass\Models\UserMeta::setMeta($helper->getUser()['id'],'sign_auth','value to sign',0,0,'signed');
 
         $helper->testCreate(collect(app('ClientConnectionHelper')->newSampleConnectionVars())->all());
         $helper->testUpdate(['client_id' => 'I123456', 'user_id' => 1001]);
@@ -36,7 +35,7 @@ class PlatformAdminConnectedApplicationsTest extends TestCase {
 
         $platform_admin_helper
             ->setRoutePrefix('connectedapps')
-            ->setRepository(app('TKAccounts\Repositories\ClientConnectionRepository'))
+            ->setRepository(app('Tokenpass\Repositories\ClientConnectionRepository'))
             ->setCreateFunction(function() {
                 return app('ClientConnectionHelper')->newSampleConnection();
             });

@@ -1,10 +1,10 @@
 <?php
 
-namespace TKAccounts\Providers\CMSAuth;
+namespace Tokenpass\Providers\CMSAuth;
 
 use Exception;
 use Illuminate\Support\ServiceProvider;
-use TKAccounts\Providers\CMSAuth\CMSAccountLoader;
+use Tokenpass\Providers\CMSAuth\CMSAccountLoader;
 
 class CMSAuthServiceProvider extends ServiceProvider {
 
@@ -16,7 +16,7 @@ class CMSAuthServiceProvider extends ServiceProvider {
      */
     public function register()
     {
-        $this->app->singleton('TKAccounts\Providers\CMSAuth\CMSAccountLoader', function ($app) {
+        $this->app->singleton('Tokenpass\Providers\CMSAuth\CMSAccountLoader', function ($app) {
             return new CMSAccountLoader(env('CMS_ACCOUNTS_HOST'), env('ENABLE_CMS_ACCOUNT_LOOKUPS', true));
         });
     }
@@ -28,7 +28,7 @@ class CMSAuthServiceProvider extends ServiceProvider {
      */
     public function provides()
     {
-        return ['TKAccounts\Providers\CMSAuth\CMSAccountLoader'];
+        return ['Tokenpass\Providers\CMSAuth\CMSAccountLoader'];
     }
 
 }

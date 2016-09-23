@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Repositories;
+namespace Tokenpass\Repositories;
 
 use Exception;
 use Tokenly\LaravelApiProvider\Repositories\BaseRepository;
@@ -11,7 +11,7 @@ use Tokenly\LaravelApiProvider\Repositories\BaseRepository;
 class ProvisionalWhitelistRepository extends BaseRepository
 {
 
-    protected $model_type = 'TKAccounts\Models\ProvisionalWhitelist';
+    protected $model_type = 'Tokenpass\Models\ProvisionalWhitelist';
 
 
 

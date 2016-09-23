@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Console\Commands\Migrations;
+namespace Tokenpass\Console\Commands\Migrations;
 
 use Exception;
 use Illuminate\Console\Command;
@@ -71,7 +71,7 @@ class SyncUnmanagedAddressesWithXChain extends Command {
     {
         try {
             // get all addresses
-            $all_addresses = app('TKAccounts\Repositories\AddressRepository')->findAll();
+            $all_addresses = app('Tokenpass\Repositories\AddressRepository')->findAll();
             $count = $all_addresses->count();
             foreach ($all_addresses as $offset => $address) {
                 $this->info('Syncing address '.$address['address'].' ('.($offset+1).' of '.$count.')');

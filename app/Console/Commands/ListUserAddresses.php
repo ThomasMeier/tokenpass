@@ -1,10 +1,10 @@
 <?php
 
-namespace TKAccounts\Console\Commands;
+namespace Tokenpass\Console\Commands;
 
 use Illuminate\Console\Command;
-use TKAccounts\Models\User;
-use TKAccounts\Models\Address;
+use Tokenpass\Models\User;
+use Tokenpass\Models\Address;
 
 class ListUserAddresses extends Command
 {

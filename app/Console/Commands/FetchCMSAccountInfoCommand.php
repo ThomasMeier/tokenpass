@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Console\Commands;
+namespace Tokenpass\Console\Commands;
 
 use Exception;
 use Illuminate\Console\Command;
@@ -61,7 +61,7 @@ class FetchCMSAccountInfoCommand extends Command
         $username = $this->argument('username');
         $password = $this->argument('password');
 
-        $loader = app('TKAccounts\Providers\CMSAuth\CMSAccountLoader');
+        $loader = app('Tokenpass\Providers\CMSAuth\CMSAccountLoader');
 
         // $exists = $loader->usernameExists($username);
         // $this->line('$exists: '.json_encode($exists, 192));

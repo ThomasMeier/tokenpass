@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Console\Commands;
+namespace Tokenpass\Console\Commands;
 
 use Exception;
 use Illuminate\Console\Command;
@@ -57,7 +57,7 @@ class PopulateCMSUsernamesCacheCommand extends Command
     {
         $this->info("begin");
         
-        $loader = app('TKAccounts\Providers\CMSAuth\CMSAccountLoader');
+        $loader = app('Tokenpass\Providers\CMSAuth\CMSAccountLoader');
 
         $exists = $loader->populateUsernamesCache();
 

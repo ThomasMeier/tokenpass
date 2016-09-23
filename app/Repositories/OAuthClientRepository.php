@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Repositories;
+namespace Tokenpass\Repositories;
 
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +14,7 @@ use DB, Input;
 class OAuthClientRepository extends APIRepository
 {
 
-    protected $model_type = 'TKAccounts\Models\OAuthClient';
+    protected $model_type = 'Tokenpass\Models\OAuthClient';
 
 
     protected function modifyAttributesBeforeCreate($attributes) {

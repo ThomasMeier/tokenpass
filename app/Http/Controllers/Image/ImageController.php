@@ -6,7 +6,7 @@
  * Time: 12:05
  */
 
-namespace TKAccounts\Http\Controllers\Image;
+namespace Tokenpass\Http\Controllers\Image;
 
 use Aws\S3\S3Client;
 use Illuminate\Contracts\Auth\Guard;
@@ -25,9 +25,9 @@ use Illuminate\Support\Facades\App;
 use InvalidArgumentException;
 use League\Flysystem\AwsS3v2\AwsS3Adapter;
 use Mockery\CountValidator\Exception;
-use TKAccounts\Repositories\ImageRepository;
-use TKAccounts\Http\Controllers\Controller;
-use TKAccounts\Models\Image;
+use Tokenpass\Repositories\ImageRepository;
+use Tokenpass\Http\Controllers\Controller;
+use Tokenpass\Models\Image;
 use Tokenly\LaravelEventLog\EventLog;
 
 

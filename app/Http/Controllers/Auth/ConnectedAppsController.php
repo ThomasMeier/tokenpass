@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Http\Controllers\Auth;
+namespace Tokenpass\Http\Controllers\Auth;
 
 use Exception;
 use Illuminate\Http\Exception\HttpResponseException;
@@ -9,10 +9,10 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
-use TKAccounts\Http\Controllers\Controller;
-use TKAccounts\Models\User;
-use TKAccounts\Repositories\ClientConnectionRepository;
-use TKAccounts\Repositories\OAuthClientRepository;
+use Tokenpass\Http\Controllers\Controller;
+use Tokenpass\Models\User;
+use Tokenpass\Repositories\ClientConnectionRepository;
+use Tokenpass\Repositories\OAuthClientRepository;
 
 class ConnectedAppsController extends Controller
 {

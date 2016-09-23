@@ -1,8 +1,8 @@
 <?php
 
-namespace TKAccounts\Http\Controllers\Auth\Base;
+namespace Tokenpass\Http\Controllers\Auth\Base;
 
-use TKAccounts\Http\Controllers\Controller;
+use Tokenpass\Http\Controllers\Controller;
 use Exception;
 
 

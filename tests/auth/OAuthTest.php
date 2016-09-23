@@ -1,8 +1,7 @@
 <?php
 
-use TKAccounts\TestHelpers\UserHelper;
 use Illuminate\Support\Facades\App;
-use TKAccounts\Models\OAuthClient;
+use Tokenpass\Models\OAuthClient;
 
 
 /*

@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Http\Middleware;
+namespace Tokenpass\Http\Middleware;
 
 use Illuminate\Cookie\Middleware\EncryptCookies as BaseEncrypter;
 

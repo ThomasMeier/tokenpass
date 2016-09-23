@@ -1,16 +1,16 @@
 <?php
 
-namespace TKAccounts\Commands;
+namespace Tokenpass\Commands;
 
 use Carbon\Carbon;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use TKAccounts\Commands\Command;
-use TKAccounts\Commands\SendUserConfirmationEmail;
-use TKAccounts\Commands\SyncCMSAccount;
-use TKAccounts\Models\User;
-use TKAccounts\Providers\CMSAuth\Util;
+use Tokenpass\Commands\Command;
+use Tokenpass\Commands\SendUserConfirmationEmail;
+use Tokenpass\Commands\SyncCMSAccount;
+use Tokenpass\Models\User;
+use Tokenpass\Providers\CMSAuth\Util;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class ImportCMSAccount extends Command implements SelfHandling
@@ -37,13 +37,13 @@ class ImportCMSAccount extends Command implements SelfHandling
      */
     public function handle()
     {
-        $user_repository = App('TKAccounts\Repositories\UserRepository');
+        $user_repository = App('Tokenpass\Repositories\UserRepository');
 
         $existing_user = $user_repository->findBySlug(Util::slugify($this->username));
         if ($existing_user) { throw new \Exception('Invalid credentials'); }
 
         // load user info from CMS
-        $loader = app('TKAccounts\Providers\CMSAuth\CMSAccountLoader');
+        $loader = app('Tokenpass\Providers\CMSAuth\CMSAccountLoader');
 
         // get the full user info
         $cms_user_info = $loader->getFullUserInfoWithLogin($this->username, $this->password);

@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Http\Controllers;
+namespace Tokenpass\Http\Controllers;
 
 use Exception;
 use Illuminate\Support\Facades\Auth;

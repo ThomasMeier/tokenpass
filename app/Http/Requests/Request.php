@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Http\Requests;
+namespace Tokenpass\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 

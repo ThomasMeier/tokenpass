@@ -1,13 +1,13 @@
 <?php
 
-namespace TKAccounts\Http\Controllers\PlatformAdmin;
+namespace Tokenpass\Http\Controllers\PlatformAdmin;
 
 use Illuminate\Support\Facades\Log;
-use TKAccounts\Repositories\ProvisionalRepository;
-use TKAccounts\Models\OAuthClient;
+use Tokenpass\Repositories\ProvisionalRepository;
+use Tokenpass\Models\OAuthClient;
 use Tokenly\CurrencyLib\CurrencyUtil;
 use Tokenly\PlatformAdmin\Controllers\ResourceController;
-use TKAccounts\Models\User;
+use Tokenpass\Models\User;
 
 class PromisesController extends ResourceController
 {

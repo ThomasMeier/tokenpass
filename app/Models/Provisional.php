@@ -1,5 +1,5 @@
 <?php
-namespace TKAccounts\Models;
+namespace Tokenpass\Models;
 use Exception, DB;
 use Illuminate\Database\Eloquent\Model;
 

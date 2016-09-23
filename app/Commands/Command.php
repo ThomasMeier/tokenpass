@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Commands;
+namespace Tokenpass\Commands;
 
 abstract class Command
 {

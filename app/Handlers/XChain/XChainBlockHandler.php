@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Handlers\XChain;
+namespace Tokenpass\Handlers\XChain;
 
 use Exception;
 use Tokenly\LaravelEventLog\Facade\EventLog;

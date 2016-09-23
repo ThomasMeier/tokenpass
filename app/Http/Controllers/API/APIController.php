@@ -1,5 +1,5 @@
 <?php
-namespace TKAccounts\Http\Controllers\API;
+namespace Tokenpass\Http\Controllers\API;
 use DB, Exception, Response, Input, Hash;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\JsonResponse;
@@ -7,19 +7,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Log;
 use LucaDegasperi\OAuth2Server\Facades\Authorizer;
-use TKAccounts\Commands\ImportCMSAccount;
-use TKAccounts\Commands\SendUserConfirmationEmail;
-use TKAccounts\Commands\SyncCMSAccount;
-use TKAccounts\Http\Controllers\Controller;
-use TKAccounts\Models\OAuthClient as AuthClient;
-use TKAccounts\Models\OAuthScope as Scope;
-use TKAccounts\Models\Provisional;
-use TKAccounts\Models\User, TKAccounts\Models\Address, TKAccounts\Models\UserMeta;
-use TKAccounts\Providers\CMSAuth\CMSAccountLoader;
-use TKAccounts\Repositories\ClientConnectionRepository;
-use TKAccounts\Repositories\OAuthClientRepository;
-use TKAccounts\Repositories\UserRepository;
-use TKAccounts\Util\BitcoinUtil;
+use Tokenpass\Commands\ImportCMSAccount;
+use Tokenpass\Commands\SendUserConfirmationEmail;
+use Tokenpass\Commands\SyncCMSAccount;
+use Tokenpass\Http\Controllers\Controller;
+use Tokenpass\Models\OAuthClient as AuthClient;
+use Tokenpass\Models\OAuthScope as Scope;
+use Tokenpass\Models\Provisional;
+use Tokenpass\Models\User, Tokenpass\Models\Address, Tokenpass\Models\UserMeta;
+use Tokenpass\Providers\CMSAuth\CMSAccountLoader;
+use Tokenpass\Repositories\ClientConnectionRepository;
+use Tokenpass\Repositories\OAuthClientRepository;
+use Tokenpass\Repositories\UserRepository;
+use Tokenpass\Util\BitcoinUtil;
 use Tokenly\TCA\Access;
 
 class APIController extends Controller
@@ -549,7 +549,7 @@ class APIController extends Controller
 			return Response::json($output, 400);	
 		}
 		
-        $new = app('TKAccounts\Repositories\AddressRepository')->create([
+        $new = app('Tokenpass\Repositories\AddressRepository')->create([
 			'user_id'       => $user->id,
 			'type'          => $type,
 			'address'       => $address,
@@ -1047,7 +1047,7 @@ class APIController extends Controller
 		}	
 		
         // we can't create a new user with an existing LTB username
-        $loader = app('TKAccounts\Providers\CMSAuth\CMSAccountLoader');
+        $loader = app('Tokenpass\Providers\CMSAuth\CMSAccountLoader');
         if ($loader->usernameExists($data['username'])) {
 			$error = true;
             $output['error'] = 'This username was found at LetsTalkBitcoin.com.  Please login with your existing credentials instead of creating a new account.';
@@ -1239,7 +1239,7 @@ class APIController extends Controller
 		}
 
 		$credentials = $request->only(['username','password']);
-		$auth_controller = app('TKAccounts\Http\Controllers\Auth\AuthLoginController');
+		$auth_controller = app('Tokenpass\Http\Controllers\Auth\AuthLoginController');
 		list($login_error, $was_logged_in) = $auth_controller->performLoginLogic($credentials, false);
 		if ($was_logged_in) {
 			$user = Auth::user();
@@ -1465,7 +1465,7 @@ class APIController extends Controller
 		$address = Address::where('user_id', $user->id)->where('address', $verify_address)->first();
 		if(!$address){
 			//register new address
-			$address = app('TKAccounts\Repositories\AddressRepository')->create([
+			$address = app('Tokenpass\Repositories\AddressRepository')->create([
 				'user_id'  => $user->id,
 				'type'     => 'btc',
 				'address'  => $verify_address,
@@ -1475,7 +1475,7 @@ class APIController extends Controller
 		}
 		else{
 			//verify existing address
-			$save = app('TKAccounts\Repositories\AddressRepository')->update($address, [
+			$save = app('Tokenpass\Repositories\AddressRepository')->update($address, [
 				'verified' => true,
 			]);
 		}

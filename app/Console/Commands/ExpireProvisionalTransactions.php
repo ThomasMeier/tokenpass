@@ -1,9 +1,9 @@
 <?php
 
-namespace TKAccounts\Console\Commands;
+namespace Tokenpass\Console\Commands;
 
 use Illuminate\Console\Command;
-use DB, TKAccounts\Models\Provisional, TKAccounts\Models\User, TKAccounts\Models\Address;
+use DB, Tokenpass\Models\Provisional, Tokenpass\Models\User, Tokenpass\Models\Address;
 
 class ExpireProvisionalTransactions extends Command
 {

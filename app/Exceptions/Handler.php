@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Exceptions;
+namespace Tokenpass\Exceptions;
 
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;

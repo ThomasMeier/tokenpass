@@ -67,7 +67,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => TKAccounts\Models\User::class,
+            'model' => Tokenpass\Models\User::class,
         ],
 
         // 'users' => [

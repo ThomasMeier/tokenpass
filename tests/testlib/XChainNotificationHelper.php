@@ -27,7 +27,7 @@ class XChainNotificationHelper {
         $content = ['payload' => json_encode($notification_data)];
         $request = Request::create('http://localhost/_xchain_client_receive', 'POST', [], [], [], ['Content-Type' => 'application/json'], json_encode($content));
 
-        $controller = app('TKAccounts\Http\Controllers\XChain\XChainWebhookController');
+        $controller = app('Tokenpass\Http\Controllers\XChain\XChainWebhookController');
         $controller->receive(app('Tokenly\XChainClient\WebHookReceiver'), $request);
     }
 

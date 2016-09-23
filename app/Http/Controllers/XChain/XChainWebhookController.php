@@ -1,12 +1,12 @@
 <?php 
 
-namespace TKAccounts\Http\Controllers\XChain;
+namespace Tokenpass\Http\Controllers\XChain;
 
 use Illuminate\Http\Exception\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Input;
-use TKAccounts\Http\Controllers\Controller;
+use Tokenpass\Http\Controllers\Controller;
 use Tokenly\LaravelEventLog\Facade\EventLog;
 use Tokenly\XChainClient\WebHookReceiver;
 
@@ -44,13 +44,13 @@ class XChainWebhookController extends Controller {
         switch ($payload['event']) {
             case 'block':
                 // new block event
-                app('TKAccounts\Handlers\XChain\XChainBlockHandler')->handleBlock($payload);
+                app('Tokenpass\Handlers\XChain\XChainBlockHandler')->handleBlock($payload);
                 break;
 
             case 'send':
             case 'receive':
                 // new send or receive event
-                app('TKAccounts\Handlers\XChain\XChainTransactionHandler')->handleTransaction($payload);
+                app('Tokenpass\Handlers\XChain\XChainTransactionHandler')->handleTransaction($payload);
                 break;
 
             case 'invalidation':

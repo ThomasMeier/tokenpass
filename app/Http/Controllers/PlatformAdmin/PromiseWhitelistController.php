@@ -1,10 +1,10 @@
 <?php
-namespace TKAccounts\Http\Controllers\PlatformAdmin;
+namespace Tokenpass\Http\Controllers\PlatformAdmin;
 
 use Illuminate\Support\Facades\Log;
-use TKAccounts\Repositories\ProvisionalWhitelistRepository;
+use Tokenpass\Repositories\ProvisionalWhitelistRepository;
 use Tokenly\PlatformAdmin\Controllers\ResourceController;
-use TKAccounts\Models\OAuthClient;
+use Tokenpass\Models\OAuthClient;
 
 class PromiseWhitelistController extends ResourceController
 {

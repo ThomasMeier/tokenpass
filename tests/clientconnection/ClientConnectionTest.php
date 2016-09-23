@@ -1,6 +1,5 @@
 <?php
 
-use TKAccounts\TestHelpers\UserHelper;
 use Illuminate\Support\Facades\App;
 use \PHPUnit_Framework_Assert as PHPUnit;
 
@@ -16,8 +15,8 @@ class ClientConnectionTest extends TestCase {
         $this->seed('OAuthScopesTableSeeder');
 
         $user_helper = app('UserHelper')->setTestCase($this);
-        $client_repository = app('TKAccounts\Repositories\OAuthClientRepository');
-        $connection_repository = app('TKAccounts\Repositories\ClientConnectionRepository');
+        $client_repository = app('Tokenpass\Repositories\OAuthClientRepository');
+        $connection_repository = app('Tokenpass\Repositories\ClientConnectionRepository');
         $client = $client_repository->findById('client1id');
         $client_two = $client_repository->findById('client2id');
         PHPUnit::assertNotEmpty($client);

@@ -2,9 +2,7 @@
 <?php
 
 use \PHPUnit_Framework_Assert as PHPUnit;
-use TKAccounts\Models\Address;
-use TKAccounts\TestHelpers\UserHelper;
-use TKAccounts\TestHelpers\AddressHelper;
+use Tokenpass\Models\Address;
 
 class InventoryTest extends TestCase
 {

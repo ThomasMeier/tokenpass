@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Models;
+namespace Tokenpass\Models;
 
 use DB, Mail;
 use Illuminate\Auth\Authenticatable;

@@ -1,13 +1,13 @@
 <?php
 
-namespace TKAccounts\Http\Middleware;
+namespace Tokenpass\Http\Middleware;
 
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
-use TKAccounts\Models\Address;
-use TKAccounts\Models\UserMeta;
+use Tokenpass\Models\Address;
+use Tokenpass\Models\UserMeta;
 use Tokenly\LaravelApiProvider\Contracts\APIPermissionedUserContract;
 
 class SecondFactor

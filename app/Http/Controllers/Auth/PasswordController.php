@@ -1,11 +1,11 @@
 <?php
 
-namespace TKAccounts\Http\Controllers\Auth;
+namespace Tokenpass\Http\Controllers\Auth;
 
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Support\Facades\Auth;
-use TKAccounts\Http\Controllers\Controller;
-use TKAccounts\Repositories\UserRepository;
+use Tokenpass\Http\Controllers\Controller;
+use Tokenpass\Repositories\UserRepository;
 
 class PasswordController extends Controller
 {

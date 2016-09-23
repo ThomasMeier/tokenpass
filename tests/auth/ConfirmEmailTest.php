@@ -4,8 +4,7 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\App;
 use PHPUnit_Framework_Assert as PHPUnit;
-use TKAccounts\Commands\SendUserConfirmationEmail;
-use TKAccounts\TestHelpers\UserHelper;
+use Tokenpass\Commands\SendUserConfirmationEmail;
 
 /*
 * ConfirmEmailTest
@@ -33,7 +32,7 @@ class ConfirmEmailTest extends TestCase {
         $user_helper->sendConfirmEmailRequest($token);
 
         // reload the user
-        $user = app('TKAccounts\Repositories\UserRepository')->findById($user['id']);
+        $user = app('Tokenpass\Repositories\UserRepository')->findById($user['id']);
 
         // make sure the email is confirmed and other variables are reset
         PHPUnit::assertEquals($user['email'], $user['confirmed_email']);
@@ -59,7 +58,7 @@ class ConfirmEmailTest extends TestCase {
         PHPUnit::assertContains('This email confirmation link has already been used or was not found', $contents);
 
         // expire link
-        $user_repository = app('TKAccounts\Repositories\UserRepository');
+        $user_repository = app('Tokenpass\Repositories\UserRepository');
         $user_repository->update($user, ['confirmation_code_expires_at' => Carbon::now()->modify('-13 hours')]);
 
         // check expired link
@@ -67,7 +66,7 @@ class ConfirmEmailTest extends TestCase {
         PHPUnit::assertContains('confirmation link has expired', $contents);
 
         // reload the user
-        $user = app('TKAccounts\Repositories\UserRepository')->findById($user['id']);
+        $user = app('Tokenpass\Repositories\UserRepository')->findById($user['id']);
 
         // make sure the email is confirmed and other variables are reset
         PHPUnit::assertNotEquals($user['email'], $user['confirmed_email']);

@@ -1,10 +1,10 @@
 <?php
-namespace TKAccounts\Models;
+namespace Tokenpass\Models;
 
 use DB, Config;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
-use TKAccounts\Models\Address;
+use Tokenpass\Models\Address;
 use Tokenly\CurrencyLib\CurrencyUtil;
 use Tokenly\LaravelEventLog\Facade\EventLog;
 
@@ -342,7 +342,7 @@ class Address extends Model
             }
 
             // update the address with the new data
-            $address_repository = app('TKAccounts\Repositories\AddressRepository');
+            $address_repository = app('Tokenpass\Repositories\AddressRepository');
             $address_repository->update($this, $update_vars);
         }
 

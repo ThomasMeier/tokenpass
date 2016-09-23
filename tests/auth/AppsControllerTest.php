@@ -1,9 +1,8 @@
 <?php
 
-use TKAccounts\TestHelpers\UserHelper;
 use \PHPUnit_Framework_Assert as PHPUnit;
 use Illuminate\Support\Facades\App;
-use TKAccounts\Models\OAuthClient;
+use Tokenpass\Models\OAuthClient;
 
 
 /*

@@ -30,7 +30,7 @@ return [
     ],
 
     'stripe' => [
-        'model'  => TKAccounts\Models\User::class,
+        'model'  => Tokenpass\Models\User::class,
         'key'    => '',
         'secret' => '',
     ],

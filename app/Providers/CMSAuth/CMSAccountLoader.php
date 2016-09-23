@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Providers\CMSAuth;
+namespace Tokenpass\Providers\CMSAuth;
 
 use Exception;
 use GuzzleHttp\Client as GuzzleClient;
@@ -8,8 +8,8 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use TKAccounts\Providers\CMSAuth\CMSException;
-use TKAccounts\Providers\CMSAuth\Util;
+use Tokenpass\Providers\CMSAuth\CMSException;
+use Tokenpass\Providers\CMSAuth\Util;
 use GuzzleHttp\Psr7\Request;
 
 class CMSAccountLoader {

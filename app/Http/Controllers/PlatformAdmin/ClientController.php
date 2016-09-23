@@ -1,9 +1,9 @@
 <?php
 
-namespace TKAccounts\Http\Controllers\PlatformAdmin;
+namespace Tokenpass\Http\Controllers\PlatformAdmin;
 
 use Illuminate\Support\Facades\Log;
-use TKAccounts\Repositories\OAuthClientRepository;
+use Tokenpass\Repositories\OAuthClientRepository;
 use Tokenly\CurrencyLib\CurrencyUtil;
 use Tokenly\PlatformAdmin\Controllers\ResourceController;
 use Input;

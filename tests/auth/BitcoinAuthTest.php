@@ -2,7 +2,6 @@
 <?php
 
 use \PHPUnit_Framework_Assert as PHPUnit;
-use TKAccounts\TestHelpers\UserHelper;
 
 class BitcoinAuthTest extends TestCase {
 
@@ -57,10 +56,10 @@ class BitcoinAuthTest extends TestCase {
         $user = $user_helper->createNewUser();
         $address_helper->createNewAddress($user);
 
-        $incorrect = \TKAccounts\Models\User::getByVerifiedAddress('1WrongAddy');
+        $incorrect = \Tokenpass\Models\User::getByVerifiedAddress('1WrongAddy');
         $this->assertFalse($incorrect);
 
-        $correct = \TKAccounts\Models\User::getByVerifiedAddress('1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD');
+        $correct = \Tokenpass\Models\User::getByVerifiedAddress('1JztLWos5K7LsqW5E78EASgiVBaCe6f7cD');
         $this->assertEquals('1', $correct->user_id);
     }
 

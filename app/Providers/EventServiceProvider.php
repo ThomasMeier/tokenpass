@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Providers;
+namespace Tokenpass\Providers;
 
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -13,8 +13,8 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        'TKAccounts\Events\SomeEvent' => [
-            'TKAccounts\Listeners\EventListener',
+        'Tokenpass\Events\SomeEvent' => [
+            'Tokenpass\Listeners\EventListener',
         ],
     ];
 

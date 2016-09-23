@@ -1,10 +1,9 @@
 <?php
 
 use PHPUnit_Framework_Assert as PHPUnit;
-use TKAccounts\Models\Address;
-use TKAccounts\Models\OAuthClient;
-use TKAccounts\Models\Provisional;
-use TKAccounts\TestHelpers\UserHelper;
+use Tokenpass\Models\Address;
+use Tokenpass\Models\OAuthClient;
+use Tokenpass\Models\Provisional;
 
 /*
 * APIControllerTest
@@ -50,7 +49,7 @@ class APIControllerTest extends TestCase {
         $oauth_client = app('OAuthClientHelper')->createSampleOAuthClient();
 
         // add the scope
-        $oauth_scope = app('TKAccounts\Repositories\OAuthScopeRepository')->create([
+        $oauth_scope = app('Tokenpass\Repositories\OAuthScopeRepository')->create([
             'id'          => 'tca',
             'description' => 'TCA Access',
         ]);
@@ -124,15 +123,15 @@ class APIControllerTest extends TestCase {
 
         // create an oauth client
         $oauth_client = app('OAuthClientHelper')->createSampleOAuthClient();
-        $oauth_scope_tca = app('TKAccounts\Repositories\OAuthScopeRepository')->create([
+        $oauth_scope_tca = app('Tokenpass\Repositories\OAuthScopeRepository')->create([
             'id'          => 'tca',
             'description' => 'TCA Access',
         ]);
-        $oauth_scope_pa = app('TKAccounts\Repositories\OAuthScopeRepository')->create([
+        $oauth_scope_pa = app('Tokenpass\Repositories\OAuthScopeRepository')->create([
             'id'          => 'private-address',
             'description' => 'Private-Address',
         ]);
-        $oauth_scope_ma = app('TKAccounts\Repositories\OAuthScopeRepository')->create([
+        $oauth_scope_ma = app('Tokenpass\Repositories\OAuthScopeRepository')->create([
             'id'          => 'manage-address',
             'description' => 'manage-Address',
         ]);        
@@ -870,15 +869,15 @@ class APIControllerTest extends TestCase {
     protected function buildOAuthScope() {
         // create an oauth client
         $oauth_client = app('OAuthClientHelper')->createSampleOAuthClient();
-        $oauth_scope_tca = app('TKAccounts\Repositories\OAuthScopeRepository')->create([
+        $oauth_scope_tca = app('Tokenpass\Repositories\OAuthScopeRepository')->create([
             'id'          => 'tca',
             'description' => 'TCA Access',
         ]);
-        $oauth_scope_pa = app('TKAccounts\Repositories\OAuthScopeRepository')->create([
+        $oauth_scope_pa = app('Tokenpass\Repositories\OAuthScopeRepository')->create([
             'id'          => 'private-address',
             'description' => 'Private-Address',
         ]);
-        $oauth_scope_ma = app('TKAccounts\Repositories\OAuthScopeRepository')->create([
+        $oauth_scope_ma = app('Tokenpass\Repositories\OAuthScopeRepository')->create([
             'id'          => 'manage-address',
             'description' => 'Manage Addresses',
         ]);        

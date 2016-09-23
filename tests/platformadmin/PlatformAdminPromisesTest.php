@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\App;
-use TKAccounts\TestHelpers\UserHelper;
 use Tokenly\CurrencyLib\CurrencyUtil;
 use \PHPUnit_Framework_Assert as PHPUnit;
 
@@ -20,7 +19,7 @@ class PlatformAdminPromisesTest extends TestCase {
         $helper->beAuthorizedUser();
         
         // Skip 2 factor
-        \TKAccounts\Models\UserMeta::setMeta($helper->getUser()['id'],'sign_auth','value to sign',0,0,'signed');
+        \Tokenpass\Models\UserMeta::setMeta($helper->getUser()['id'],'sign_auth','value to sign',0,0,'signed');
 
         $post_vars = collect(app('ProvisionalHelper')->defaultVars())->only(['source', 'destination', 'quantity', 'asset',])->all();
         $check_vars = $post_vars;
@@ -44,7 +43,7 @@ class PlatformAdminPromisesTest extends TestCase {
 
         $platform_admin_helper
             ->setRoutePrefix('promise')
-            ->setRepository(app('TKAccounts\Repositories\ProvisionalRepository'))
+            ->setRepository(app('Tokenpass\Repositories\ProvisionalRepository'))
             ->setCreateFunction(function() {
                 return app('ProvisionalHelper')->newSampleProvisional();
             });

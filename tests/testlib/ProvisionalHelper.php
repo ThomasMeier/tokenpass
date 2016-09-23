@@ -13,7 +13,7 @@ class ProvisionalHelper
 
     public function newSampleProvisional($override_vars=[]) {
         $provisional_vars = array_merge($this->defaultVars(), $override_vars);
-        $provisional = app('TKAccounts\Repositories\ProvisionalRepository')->create($provisional_vars);
+        $provisional = app('Tokenpass\Repositories\ProvisionalRepository')->create($provisional_vars);
         return $provisional;
     }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Providers\CMSAuth;
+namespace Tokenpass\Providers\CMSAuth;
 
 use Exception;
 

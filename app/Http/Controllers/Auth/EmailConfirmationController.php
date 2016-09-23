@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Http\Controllers\Auth;
+namespace Tokenpass\Http\Controllers\Auth;
 
 use Carbon\Carbon;
 use Exception;
@@ -15,10 +15,10 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\ViewErrorBag;
 use InvalidArgumentException;
-use TKAccounts\Commands\SendUserConfirmationEmail;
-use TKAccounts\Http\Controllers\Controller;
-use TKAccounts\Models\User;
-use TKAccounts\Repositories\UserRepository;
+use Tokenpass\Commands\SendUserConfirmationEmail;
+use Tokenpass\Http\Controllers\Controller;
+use Tokenpass\Models\User;
+use Tokenpass\Repositories\UserRepository;
 use Validator;
 
 class EmailConfirmationController extends Controller

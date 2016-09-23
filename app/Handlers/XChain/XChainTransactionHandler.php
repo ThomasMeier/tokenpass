@@ -1,12 +1,12 @@
 <?php
 
-namespace TKAccounts\Handlers\XChain;
+namespace Tokenpass\Handlers\XChain;
 
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use TKAccounts\Models\Address;
-use TKAccounts\Repositories\AddressRepository;
+use Tokenpass\Models\Address;
+use Tokenpass\Repositories\AddressRepository;
 use Tokenly\LaravelEventLog\Facade\EventLog;
 use Tokenly\XChainClient\Client as XChainClient;
 

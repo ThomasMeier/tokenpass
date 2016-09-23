@@ -33,7 +33,7 @@
             <div class="form-group">
                 <label for="user_id">Owner</label>
                 <select name="user_id" id="user_id" class="form-control">
-                    @foreach(TKAccounts\Models\User::all() as $user)
+                    @foreach(Tokenpass\Models\User::all() as $user)
                         <option value="{{ $user->id }}" >{{ $user->username }}</option>
                     @endforeach
                 </select>

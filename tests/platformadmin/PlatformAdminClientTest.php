@@ -1,6 +1,5 @@
 <?php
 
-use TKAccounts\TestHelpers\UserHelper;
 use Illuminate\Support\Facades\App;
 use \PHPUnit_Framework_Assert as PHPUnit;
 
@@ -16,7 +15,7 @@ class PlatformAdminClientTest extends TestCase {
         $helper->beAuthorizedUser();
         
         // Skip 2 factor
-        \TKAccounts\Models\UserMeta::setMeta($helper->getUser()['id'],'sign_auth','value to sign',0,0,'signed');
+        \Tokenpass\Models\UserMeta::setMeta($helper->getUser()['id'],'sign_auth','value to sign',0,0,'signed');
 
         $helper->testCreate(collect(app('OAuthClientHelper')->getRandomOAuthClientVars())->forget(['id'])->all());
         $helper->testUpdate(['name' => 'foobar2']);
@@ -36,7 +35,7 @@ class PlatformAdminClientTest extends TestCase {
         $platform_admin_helper = app('Tokenly\PlatformAdmin\TestHelper\PlatformAdminTestHelper');
         $platform_admin_helper
             ->setRoutePrefix('client')
-            ->setRepository(app('TKAccounts\Repositories\OAuthClientRepository'))
+            ->setRepository(app('Tokenpass\Repositories\OAuthClientRepository'))
             ->setCreateFunction(function() {
                 return app('OAuthClientHelper')->createRandomOAuthClient();
             });

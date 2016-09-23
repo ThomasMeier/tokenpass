@@ -1,13 +1,13 @@
 <?php
 
-namespace TKAccounts\Http\Controllers\PlatformAdmin;
+namespace Tokenpass\Http\Controllers\PlatformAdmin;
 
 use Illuminate\Support\Facades\Log;
-use TKAccounts\Repositories\AddressRepository;
+use Tokenpass\Repositories\AddressRepository;
 use Tokenly\PlatformAdmin\Controllers\ResourceController;
 use Input;
-use TKAccounts\Models\User;
-use TKAccounts\Repositories\UserRepository;
+use Tokenpass\Models\User;
+use Tokenpass\Repositories\UserRepository;
 
 class AddressController extends ResourceController
 {

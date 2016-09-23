@@ -1,11 +1,9 @@
 <?php
 
 use \PHPUnit_Framework_Assert as PHPUnit;
-use TKAccounts\Models\Address;
-use TKAccounts\Models\User;
-use TKAccounts\Models\Provisional;
-use TKAccounts\TestHelpers\UserHelper;
-use TKAccounts\TestHelpers\AddressHelper;
+use Tokenpass\Models\Address;
+use Tokenpass\Models\User;
+use Tokenpass\Models\Provisional;
 
 class LendingTest extends TestCase
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Http\Middleware;
+namespace Tokenpass\Http\Middleware;
 
 use Closure;
 use Illuminate\Support\Facades\Log;

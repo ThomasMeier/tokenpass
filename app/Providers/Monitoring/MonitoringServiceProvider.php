@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Providers\Monitoring;
+namespace Tokenpass\Providers\Monitoring;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -13,7 +13,7 @@ class MonitoringServiceProvider extends ServiceProvider {
      */
     public function register()
     {
-        $this->app->make('events')->subscribe('TKAccounts\Handlers\Monitoring\MonitoringHandler');
+        $this->app->make('events')->subscribe('Tokenpass\Handlers\Monitoring\MonitoringHandler');
     }
 
 

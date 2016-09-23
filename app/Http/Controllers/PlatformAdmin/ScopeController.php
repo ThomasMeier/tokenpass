@@ -1,9 +1,9 @@
 <?php
 
-namespace TKAccounts\Http\Controllers\PlatformAdmin;
+namespace Tokenpass\Http\Controllers\PlatformAdmin;
 
 use Illuminate\Support\Facades\Log;
-use TKAccounts\Repositories\OAuthScopeRepository;
+use Tokenpass\Repositories\OAuthScopeRepository;
 use Tokenly\PlatformAdmin\Controllers\ResourceController;
 
 class ScopeController extends ResourceController

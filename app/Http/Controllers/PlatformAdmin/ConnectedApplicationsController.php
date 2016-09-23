@@ -1,13 +1,13 @@
 <?php
 
-namespace TKAccounts\Http\Controllers\PlatformAdmin;
+namespace Tokenpass\Http\Controllers\PlatformAdmin;
 
 use Illuminate\Support\Facades\Log;
-use TKAccounts\Repositories\ClientConnectionRepository;
+use Tokenpass\Repositories\ClientConnectionRepository;
 use Tokenly\PlatformAdmin\Controllers\ResourceController;
 use Input, DB;
 use Illuminate\Http\Request;
-use TKAccounts\Models\OAuthScope;
+use Tokenpass\Models\OAuthScope;
 
 class ConnectedApplicationsController extends ResourceController
 {
@@ -41,10 +41,10 @@ class ConnectedApplicationsController extends ResourceController
     }
 
     protected function addClientAndUserOptions($view_data) {
-        $clients = app('TKAccounts\Repositories\OAuthClientRepository')->findAll();
+        $clients = app('Tokenpass\Repositories\OAuthClientRepository')->findAll();
         $view_data['client_options'] = $clients->pluck('id')->combine($clients->pluck('name'));
 
-        $users = app('TKAccounts\Repositories\UserRepository')->findAll();
+        $users = app('Tokenpass\Repositories\UserRepository')->findAll();
         $view_data['user_options'] = $users->pluck('id')->combine($users->pluck('username'));
         
         if(isset($view_data['model']) AND is_object($view_data['model'])){

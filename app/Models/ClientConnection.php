@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Models;
+namespace Tokenpass\Models;
 
 use Tokenly\LaravelApiProvider\Model\APIModel;
 use Exception, DB;
@@ -10,11 +10,11 @@ class ClientConnection extends APIModel {
     protected $api_attributes = ['id',];
 
     public function client() {
-        return $this->belongsTo('TKAccounts\Models\OAuthClient');
+        return $this->belongsTo('Tokenpass\Models\OAuthClient');
     }
 
     public function user() {
-        return $this->belongsTo('TKAccounts\Models\User');
+        return $this->belongsTo('Tokenpass\Models\User');
     }
     
     public function scopes()

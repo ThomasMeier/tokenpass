@@ -23,7 +23,7 @@ class ClientConnectionRepositoryTest extends TestCase {
             return app('ClientConnectionHelper')->newSampleConnection();
         };
 
-        $helper = new RepositoryTestHelper($create_model_fn, $this->app->make('TKAccounts\Repositories\ClientConnectionRepository'));
+        $helper = new RepositoryTestHelper($create_model_fn, $this->app->make('Tokenpass\Repositories\ClientConnectionRepository'));
         return $helper;
     }
 

@@ -27,7 +27,7 @@ class OAuthClientHelper
 
     public function createSampleOAuthClient($override_vars=[]) {
         // create an oauth client
-        $oauth_client = app('TKAccounts\Repositories\OAuthClientRepository')->create(array_merge([
+        $oauth_client = app('Tokenpass\Repositories\OAuthClientRepository')->create(array_merge([
             'id'     => 'MY_API_TOKEN',
             'secret' => 'MY_SECRET',
             'name'   => 'client one',

@@ -1,6 +1,6 @@
 <?php
 
-namespace TKAccounts\Console;
+namespace Tokenpass\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -16,16 +16,16 @@ class Kernel extends ConsoleKernel
         \Tokenly\LaravelApiProvider\Commands\MakeAPIModelCommand::class,
         \Tokenly\LaravelApiProvider\Commands\MakeAPIRespositoryCommand::class,
 
-        \TKAccounts\Console\Commands\PopulateCMSUsernamesCacheCommand::class,
-        \TKAccounts\Console\Commands\FetchCMSAccountInfoCommand::class,
-        \TKAccounts\Console\Commands\ScanCoinAddresses::class,
-        \TKAccounts\Console\Commands\ExpireProvisionalTransactions::class,
-        \TKAccounts\Console\Commands\ListUserAddresses::class,
-        \TKAccounts\Console\Commands\ListUsers::class,
-        \TKAccounts\Console\Commands\GetUser::class,
+        \Tokenpass\Console\Commands\PopulateCMSUsernamesCacheCommand::class,
+        \Tokenpass\Console\Commands\FetchCMSAccountInfoCommand::class,
+        \Tokenpass\Console\Commands\ScanCoinAddresses::class,
+        \Tokenpass\Console\Commands\ExpireProvisionalTransactions::class,
+        \Tokenpass\Console\Commands\ListUserAddresses::class,
+        \Tokenpass\Console\Commands\ListUsers::class,
+        \Tokenpass\Console\Commands\GetUser::class,
 
         // Migration Commands
-        \TKAccounts\Console\Commands\Migrations\SyncUnmanagedAddressesWithXChain::class,
+        \Tokenpass\Console\Commands\Migrations\SyncUnmanagedAddressesWithXChain::class,
 
         // Monitor Health
         \Tokenly\ConsulHealthDaemon\Console\ConsulHealthMonitorCommand::class,

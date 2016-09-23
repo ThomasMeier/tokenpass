@@ -1,6 +1,6 @@
 <?php
 
-use TKAccounts\Providers\CMSAuth\CMSAccountLoaderMockBuilder;
+use Tokenpass\Providers\CMSAuth\CMSAccountLoaderMockBuilder;
 
 class TestCase extends Illuminate\Foundation\Testing\TestCase
 {
