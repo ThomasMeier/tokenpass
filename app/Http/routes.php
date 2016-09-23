@@ -21,27 +21,27 @@ Route::get('/', [
 // User login and registration
 
 // Authentication routes...
-Route::get('auth/login',                               ['middleware' => 'tls', 'as' => 'auth.login', 'uses' => 'Auth\AuthController@getLogin']);
-Route::get('auth/login/_check',                        ['middleware' => 'tls', 'as' => 'auth.login.check-sig', 'uses' => 'Auth\AuthController@checkForLoginSignature']);
-Route::post('auth/login',                              ['middleware' => 'tls', 'uses' => 'Auth\AuthController@postLogin']);
-Route::get('auth/logout',                              ['middleware' => 'tls', 'uses' => 'Auth\AuthController@getLogout']);
+Route::get('auth/login',                               ['middleware' => 'tls', 'as' => 'auth.login', 'uses' => 'Auth\AuthLoginController@getLogin']);
+Route::get('auth/login/_check',                        ['middleware' => 'tls', 'as' => 'auth.login.check-sig', 'uses' => 'Auth\AuthLoginController@checkForLoginSignature']);
+Route::post('auth/login',                              ['middleware' => 'tls', 'uses' => 'Auth\AuthLoginController@postLogin']);
+Route::get('auth/logout',                              ['middleware' => 'tls', 'uses' => 'Auth\AuthLoginController@logout']);
 
 // Bitcoin Authentication routes...
-Route::get('auth/bitcoin',                             ['middleware' => 'tls', 'as' => 'auth.bitcoin', 'uses' => 'Auth\AuthController@getBitcoinLogin']);
-Route::post('auth/bitcoin',                            ['middleware' => 'tls', 'as' => 'auth.bitcoin.post', 'uses' => 'Auth\AuthController@postBitcoinLogin']);
-Route::get('auth/sign',                                ['middleware' => 'tls', 'as' => 'auth.sign', 'uses' => 'Auth\AuthController@getSignRequirement']);
-Route::post('auth/signed',                             ['middleware' => 'tls', 'as' => 'auth.signed', 'uses' => 'Auth\AuthController@setSigned']);
+Route::get('auth/bitcoin',                             ['middleware' => 'tls', 'as' => 'auth.bitcoin', 'uses' => 'Auth\AuthLoginController@getBitcoinLogin']);
+Route::post('auth/bitcoin',                            ['middleware' => 'tls', 'as' => 'auth.bitcoin.post', 'uses' => 'Auth\AuthLoginController@postBitcoinLogin']);
+Route::get('auth/sign',                                ['middleware' => 'tls', 'as' => 'auth.sign', 'uses' => 'Auth\AuthLoginController@getSignRequirement']);
+Route::post('auth/signed',                             ['middleware' => 'tls', 'as' => 'auth.signed', 'uses' => 'Auth\AuthLoginController@setSigned']);
 
 // Registration routes...
-Route::get('auth/register',                            ['middleware' => 'tls', 'uses' => 'Auth\AuthController@getRegister']);
-Route::post('auth/register',                           ['middleware' => 'tls', 'uses' => 'Auth\AuthController@postRegister']);
+Route::get('auth/register',                            ['middleware' => 'tls', 'uses' => 'Auth\AuthRegisterController@showRegistrationForm']);
+Route::post('auth/register',                           ['middleware' => 'tls', 'uses' => 'Auth\AuthRegisterController@register']);
 
 // Update routes...
-Route::get('auth/update',                              ['middleware' => 'tls', 'as' => 'auth.update', 'uses' => 'Auth\AuthController@getUpdate']);
-Route::post('auth/update',                             ['middleware' => 'tls', 'uses' => 'Auth\AuthController@postUpdate']);
+Route::get('auth/update',                              ['middleware' => 'tls', 'as' => 'auth.update', 'uses' => 'Auth\AuthRegisterController@getUpdate']);
+Route::post('auth/update',                             ['middleware' => 'tls', 'uses' => 'Auth\AuthRegisterController@postUpdate']);
 
 // Email confirmations...
-Route::get('auth/sendemail',                           ['middleware' => 'tls', 'uses' => 'Auth\EmailConfirmationController@getSendEmail']);
+Route::get('auth/sendemail',                           ['middleware' => 'tls', 'as' => 'auth.sendemail', 'uses' => 'Auth\EmailConfirmationController@getSendEmail']);
 Route::post('auth/sendemail',                          ['middleware' => 'tls', 'uses' => 'Auth\EmailConfirmationController@postSendEmail']);
 Route::get('auth/verify/{token}',                      ['middleware' => 'tls', 'as' => 'auth.verify', 'uses' => 'Auth\EmailConfirmationController@verifyEmail']);
 
@@ -63,7 +63,7 @@ Route::get('inventory',                                ['middleware' => 'tls', '
 Route::post('inventory/address/new',                   ['middleware' => 'tls', 'as' => 'inventory.pockets.new', 'uses' => 'Inventory\InventoryController@registerAddress']);
 Route::post('inventory/address/{address}/edit',        ['middleware' => 'tls', 'as' => 'inventory.pockets.edit', 'uses' => 'Inventory\InventoryController@editAddress']);
 Route::post('inventory/address/{address}/verify',      ['middleware' => 'tls', 'as' => 'inventory.pockets.verify', 'uses' => 'Inventory\InventoryController@verifyAddressOwnership']);
-Route::post('inventory/address/{address}/click-verify',['middleware' => 'tls', 'as' => 'inventory.pockets.verify', 'uses' => 'Auth\AuthController@clickVerifyAddress']);
+Route::post('inventory/address/{address}/click-verify',['middleware' => 'tls', 'as' => 'inventory.pockets.verify', 'uses' => 'Auth\AuthRegisterController@clickVerifyAddress']);
 Route::get('inventory/_check',                         ['middleware' => 'tls', 'as' => 'inventory.check-sig', 'uses' => 'Inventory\InventoryController@checkForVerifySignature']);
 Route::get('inventory/address/{address}/delete',       ['middleware' => 'tls', 'as' => 'inventory.pockets.delete', 'uses' => 'Inventory\InventoryController@deleteAddress']);
 Route::get('inventory/refresh',                        ['middleware' => 'tls', 'as' => 'inventory.force-update', 'uses' => 'Inventory\InventoryController@refreshBalances']);

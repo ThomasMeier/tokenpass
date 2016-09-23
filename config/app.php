@@ -137,12 +137,12 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-
-        Illuminate\Html\HtmlServiceProvider::class,
+        Illuminate\Notifications\NotificationServiceProvider::class,
 
         /*
          * Vendor Service Providers...
          */
+        Collective\Html\HtmlServiceProvider::class,
         Fideloper\Proxy\TrustedProxyServiceProvider::class,
         LucaDegasperi\OAuth2Server\Storage\FluentStorageServiceProvider::class,
         LucaDegasperi\OAuth2Server\OAuth2ServerServiceProvider::class,
@@ -158,6 +158,7 @@ return [
         TKAccounts\Providers\AppServiceProvider::class,
         TKAccounts\Providers\EventServiceProvider::class,
         TKAccounts\Providers\RouteServiceProvider::class,
+        TKAccounts\Providers\BroadcastServiceProvider::class,
         TKAccounts\Providers\CMSAuth\CMSAuthServiceProvider::class,
         TKAccounts\Providers\Monitoring\MonitoringServiceProvider::class,
         
@@ -213,8 +214,8 @@ return [
         'Validator'  => Illuminate\Support\Facades\Validator::class,
         'View'       => Illuminate\Support\Facades\View::class,
 
-        'Form'       => Illuminate\Html\FormFacade::class,
-        'Html'       => Illuminate\Html\HtmlFacade::class,
+        'Form'       => Collective\Html\FormFacade::class,
+        'Html'       => Collective\Html\HtmlFacade::class,
 
         'Authorizer' => LucaDegasperi\OAuth2Server\Facades\Authorizer::class,
         'QrCode' => SimpleSoftwareIO\QrCode\Facades\QrCode::class,

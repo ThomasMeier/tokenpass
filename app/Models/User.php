@@ -2,20 +2,21 @@
 
 namespace TKAccounts\Models;
 
+use DB, Mail;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
 use Tokenly\LaravelApiProvider\Contracts\APIPermissionedUserContract;
 use Tokenly\LaravelApiProvider\Model\APIUser;
 use Tokenly\LaravelApiProvider\Model\Traits\Permissioned;
-use DB, Mail;
 
 class User extends APIUser implements AuthenticatableContract, CanResetPasswordContract, APIPermissionedUserContract
 {
-    use Authenticatable, CanResetPassword, Permissioned;
+    use Notifiable, Authenticatable, CanResetPassword, Permissioned;
 
     /**
      * The database table used by the model.

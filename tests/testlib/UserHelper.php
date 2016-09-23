@@ -219,12 +219,12 @@ class UserHelper
     public function sendBitcoinLoginRequest($data) {
 
         if($data == true) {
-            $response = $this->test_case->action('POST', 'Auth\AuthController@postBitcoinLogin', array(), array(
+            $response = $this->test_case->action('POST', 'Auth\AuthLoginController@postBitcoinLogin', array(), array(
                 'sigval' => 'Y7d8f868f2879aaf5ed4e0fefd4472ff',
                 'address' => '17jt7kJJQPMqJwTVCKRWjLBdYcS888t3CU',
                 'sig' => 'G1Cm1DlfG85N81Fjle6bxxq4U84NhBe392JP6qawk0iuN2exif7IRvlQ4C54N9iEASYsi4qKeMEjovavPmn10sE='));
         } else {
-            $response = $this->test_case->action('POST', 'Auth\AuthController@postBitcoinLogin', array(), array(
+            $response = $this->test_case->action('POST', 'Auth\AuthLoginController@postBitcoinLogin', array(), array(
                 'sigval' => 'Invalid Sigval',
                 'address' => '1FakeAddressYes',
                 'sig' => 'NotARealSigoesnorbgairbgirbdgih43t35'));

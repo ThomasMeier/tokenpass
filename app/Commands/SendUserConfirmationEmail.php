@@ -3,13 +3,12 @@
 namespace TKAccounts\Commands;
 
 use Carbon\Carbon;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use TKAccounts\Commands\Command;
 use TKAccounts\Models\User;
 
-class SendUserConfirmationEmail extends Command implements SelfHandling
+class SendUserConfirmationEmail extends Command
 {
     /**
      * Create a new command instance.

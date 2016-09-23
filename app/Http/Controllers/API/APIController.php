@@ -1,11 +1,11 @@
 <?php
 namespace TKAccounts\Http\Controllers\API;
 use DB, Exception, Response, Input, Hash;
-use BitWasp\BitcoinLib\BitcoinLib;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Log;
 use LucaDegasperi\OAuth2Server\Facades\Authorizer;
 use TKAccounts\Commands\ImportCMSAccount;
 use TKAccounts\Commands\SendUserConfirmationEmail;
@@ -13,14 +13,14 @@ use TKAccounts\Commands\SyncCMSAccount;
 use TKAccounts\Http\Controllers\Controller;
 use TKAccounts\Models\OAuthClient as AuthClient;
 use TKAccounts\Models\OAuthScope as Scope;
+use TKAccounts\Models\Provisional;
 use TKAccounts\Models\User, TKAccounts\Models\Address, TKAccounts\Models\UserMeta;
 use TKAccounts\Providers\CMSAuth\CMSAccountLoader;
 use TKAccounts\Repositories\ClientConnectionRepository;
 use TKAccounts\Repositories\OAuthClientRepository;
 use TKAccounts\Repositories\UserRepository;
-use TKAccounts\Models\Provisional;
+use TKAccounts\Util\BitcoinUtil;
 use Tokenly\TCA\Access;
-use Log;
 
 class APIController extends Controller
 {
@@ -228,7 +228,7 @@ class APIController extends Controller
         $user = User::where('username', $input['username'])->orWhere('slug', $input['username'])->first();
 		$verification = Address::getUserVerificationCode($user);
 
-        $address = BitcoinLib::deriveAddressFromSignature($input['signature'], $verification['user_meta']);
+        $address = BitcoinUtil::deriveAddressFromSignature($input['signature'], $verification['user_meta']);
         if(!$address) {
             $output['result'] = false;
             $output['error'] = 'Signature derive function failed';
@@ -1239,7 +1239,7 @@ class APIController extends Controller
 		}
 
 		$credentials = $request->only(['username','password']);
-		$auth_controller = app('TKAccounts\Http\Controllers\Auth\AuthController');
+		$auth_controller = app('TKAccounts\Http\Controllers\Auth\AuthLoginController');
 		list($login_error, $was_logged_in) = $auth_controller->performLoginLogic($credentials, false);
 		if ($was_logged_in) {
 			$user = Auth::user();
