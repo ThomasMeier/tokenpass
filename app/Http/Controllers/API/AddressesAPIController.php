@@ -103,6 +103,8 @@ class AddressesAPIController extends Controller
         if ($address_is_valid AND !$address->public) { $address_is_valid = false; }
         // inactive
         if ($address_is_valid AND !$address->active_toggle) { $address_is_valid = false; }
+        // verified
+        if ($address_is_valid AND !$address->verified) { $address_is_valid = false; }
         
         if (!$address_is_valid) {
             $output['error'] = 'Address details not found';
