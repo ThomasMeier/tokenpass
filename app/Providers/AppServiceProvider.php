@@ -41,7 +41,7 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton('oauthguard', function ($app) {
-            return app('Tokenpass\OAuth\OauthGuard');
+            return app('Tokenpass\OAuth\OAuthGuard');
         });
         $this->app->singleton('oauthclientguard', function ($app) {
             return app('Tokenpass\OAuth\OAuthClientGuard');
