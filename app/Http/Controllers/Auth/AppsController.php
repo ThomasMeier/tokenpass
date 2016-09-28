@@ -3,6 +3,7 @@ namespace Tokenpass\Http\Controllers\Auth;
 
 use Exception, Input, Session, DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 use InvalidArgumentException;
@@ -18,12 +19,12 @@ class AppsController extends Controller
     {
 		$this->repository = $repository;
         $this->middleware('auth');
-		$this->user = Auth::user();
     }
     
     public function index()
     {
-		$clients = OAuthClient::getUserClients($this->user->id);
+        $user = Auth::user();
+		$clients = OAuthClient::getUserClients($user->id);
 		if($clients){
 			foreach($clients as &$client){
 				$client->endpoints = $this->loadEndpoints($client);
@@ -40,7 +41,8 @@ class AppsController extends Controller
     public function registerApp()
     {
 		$input = Input::all();
-		
+		$user = Auth::user();
+
 		if(!isset($input['name']) OR trim($input['name']) == ''){
             return $this->ajaxEnabledErrorResponse('Client name required', route('auth.apps'));
 		}
@@ -67,7 +69,7 @@ class AppsController extends Controller
 		$client->secret = $token_generator->generateToken(40, 'K');
 		$client->name = $name;
 		$client->uuid = Uuid::uuid4()->toString();
-		$client->user_id = $this->user->id;
+		$client->user_id = $user->id;
         $client->app_link = $app_link;
 		$save = $client->save();
 		
@@ -87,9 +89,10 @@ class AppsController extends Controller
 	}
 
     public function regenerateApp($app_id) {
-        
+        $user = Auth::user();
+
         $client = OAuthClient::where('id', $app_id)->first();
-        if(!$client OR $client->user_id != $this->user->id){
+        if(!$client OR $client->user_id != $user->id){
             return $this->ajaxEnabledErrorResponse('Client application not found', route('auth.apps'));
         }
 
@@ -110,8 +113,9 @@ class AppsController extends Controller
 	public function updateApp($app_id)
 	{
 		$client = OAuthClient::where('id', $app_id)->first();
+        $user = Auth::user();
 
-		if(!$client OR $client->user_id != $this->user->id){
+		if(!$client OR $client->user_id != $user->id){
             return $this->ajaxEnabledErrorResponse('Client application not found', route('auth.apps'));
 		}	
 		else{
@@ -152,8 +156,10 @@ class AppsController extends Controller
 	
 	public function deleteApp($app_id)
 	{
+        $user = Auth::user();
+
 		$get = OAuthClient::where('id', $app_id)->first();
-		if(!$get OR $get->user_id != $this->user->id){
+		if(!$get OR $get->user_id != $user->id){
 			Session::flash('message', 'Client application not found');
 			Session::flash('message-class', 'alert-danger');
 		}

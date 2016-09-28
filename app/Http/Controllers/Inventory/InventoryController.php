@@ -24,14 +24,14 @@ class InventoryController extends Controller
 	public function __construct()
 	{
 		$this->middleware('auth');
-		$this->user = Auth::user();
 	}
 
 
 	public function index()
 	{
+        $authed_user = Auth::user();
 
-		$addresses = Address::getAddressList($this->user->id, null, true);
+		$addresses = Address::getAddressList($authed_user->id, null, true);
         foreach($addresses as $address){
             //remove some fields that the view doesnt need to know about
             unset($address->user_id);
@@ -39,10 +39,10 @@ class InventoryController extends Controller
             unset($address->receive_monitor_id);
             unset($address->send_monitor_id);
         }
-		$balances = Address::getAllUserBalances($this->user->id);
+		$balances = Address::getAllUserBalances($authed_user->id);
 		ksort($balances);
-		$disabled_tokens = Address::getDisabledTokens($this->user->id);
-        $loans = Provisional::getUserOwnedPromises($this->user->id);
+		$disabled_tokens = Address::getDisabledTokens($authed_user->id);
+        $loans = Provisional::getUserOwnedPromises($authed_user->id);
 		$balance_addresses = array();
 		$address_labels = array();
         if($addresses){
@@ -163,6 +163,7 @@ class InventoryController extends Controller
 	{
 		//get input
 		$input = Input::all();
+        $authed_user = Auth::user();
 
 
 		//check required fields
@@ -194,7 +195,7 @@ class InventoryController extends Controller
 		}
 
 		//check if they have this address registered already
-		$user_addresses = Address::getAddressList($this->user->id, null, null);
+		$user_addresses = Address::getAddressList($authed_user->id, null, null);
 		if ($user_addresses AND count($user_addresses) > 0) {
 			$found = false;
 			foreach ($user_addresses as $addr) {
@@ -210,7 +211,7 @@ class InventoryController extends Controller
 
 		//register address
 		$new_address = app('Tokenpass\Repositories\AddressRepository')->create([
-			'user_id' => $this->user->id,
+			'user_id' => $authed_user->id,
 			'type' => 'btc',
 			'address' => $address,
 			'label' => $label,
@@ -231,7 +232,9 @@ class InventoryController extends Controller
 
 	public function deleteAddress($address)
 	{
-		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
+        $authed_user = Auth::user();
+
+		$get = Address::where('user_id', $authed_user->id)->where('address', $address)->first();
 		if (!$get) {
 			return $this->ajaxEnabledErrorResponse('Address not found', route('inventory.pockets'), 404);
 		} else {
@@ -246,7 +249,9 @@ class InventoryController extends Controller
 
 	public function editAddress($address)
 	{
-		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
+        $authed_user = Auth::user();
+
+		$get = Address::where('user_id', $authed_user->id)->where('address', $address)->first();
 
 		if (!$get) {
 			return $this->ajaxEnabledErrorResponse('Address not found', route('inventory.pockets'), 404);
@@ -297,10 +302,11 @@ class InventoryController extends Controller
 
 	public function toggleAsset($asset)
 	{
+        $authed_user = Auth::user();
 		$output = array('result' => false);
 		$response_code = 200;
 
-		$disabled_tokens = json_decode(UserMeta::getMeta($this->user->id, 'disabled_tokens'), true);
+		$disabled_tokens = json_decode(UserMeta::getMeta($authed_user->id, 'disabled_tokens'), true);
 		if (!is_array($disabled_tokens)) {
 			$disabled_tokens = array();
 		}
@@ -324,7 +330,7 @@ class InventoryController extends Controller
 			} elseif ($toggle_val == 0 AND !in_array($asset, $disabled_tokens)) {
 				$disabled_tokens[] = $asset;
 			}
-			$save = UserMeta::setMeta($this->user->id, 'disabled_tokens', json_encode($disabled_tokens));
+			$save = UserMeta::setMeta($authed_user->id, 'disabled_tokens', json_encode($disabled_tokens));
 			if (!$save) {
 				$output['error'] = 'Error updating list of disabled tokens';
 				$response_code = 500;
@@ -338,6 +344,8 @@ class InventoryController extends Controller
 
 	public function verifyAddressOwnership($address)
 	{
+        $authed_user = Auth::user();
+
         $existing_addresses = Address::where('address', $address)->get();
         foreach($existing_addresses as $item) {
             if ($item->user_id != Auth::user()->id) {
@@ -345,7 +353,7 @@ class InventoryController extends Controller
             }
         }
 
-		$get = Address::where('user_id', $this->user->id)->where('address', $address)->first();
+		$get = Address::where('user_id', $authed_user->id)->where('address', $address)->first();
 
 		if(!$get){
             return $this->ajaxEnabledErrorResponse('Address not found', route('inventory.pockets'), 404);
@@ -383,7 +391,7 @@ class InventoryController extends Controller
                         return $this->ajaxEnabledErrorResponse('Error updating address '.$address, route('inventory.pockets'), 400);
 					}
 					else{
-						//Address::updateUserBalances($this->user->id); //do a fresh inventory update (disabled for now, too slow)
+						//Address::updateUserBalances($authed_user->id); //do a fresh inventory update (disabled for now, too slow)
                         return $this->ajaxEnabledSuccessResponse('Address '.$address.' ownership proved successfully!', route('inventory.pockets'));
 					}
 				}
@@ -418,7 +426,9 @@ class InventoryController extends Controller
 
 	public function refreshBalances()
 	{
-        app('Tokenpass\Repositories\AddressRepository')->updateUserBalances($this->user->id);
+        $authed_user = Auth::user();
+
+        app('Tokenpass\Repositories\AddressRepository')->updateUserBalances($authed_user->id);
 		if(!$update){
 			Session::flash('message', 'Error updating balances');
 			Session::flash('message-class', 'alert-danger');
@@ -451,7 +461,9 @@ class InventoryController extends Controller
 
     public function getPockets()
     {
-		$addresses = Address::getAddressList($this->user->id, null, null);
+        $authed_user = Auth::user();
+
+		$addresses = Address::getAddressList($authed_user->id, null, null);
 		foreach($addresses as $address) {
 
 			// Generate message for signing and flash for POST results
@@ -460,7 +472,7 @@ class InventoryController extends Controller
                 $address['msg_hash'] = hash('sha256', $address['secure_code']);
 				Session::set($address->address, $address['secure_code']);
                 Cache::put($address['msg_hash'].'_msg', $address['secure_code'], 600);
-                Cache::put($address['msg_hash'], $this->user->id, 600);
+                Cache::put($address['msg_hash'], $authed_user->id, 600);
 			}
             //remove some fields that the view doesnt need to know about
             unset($address->user_id);
