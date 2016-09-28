@@ -13,8 +13,9 @@ use Illuminate\Support\Facades\Log;
 */
 class UserHelper
 {
-    public function __construct(SessionManager $session_manager) {
+    public function __construct(SessionManager $session_manager, OAuthClientHelper $oauth_helper) {
         $this->session_manager = $session_manager;
+        $this->oauth_helper    = $oauth_helper;
     }
 
     public function setTestCase(TestCase $test_case) {
@@ -173,23 +174,51 @@ class UserHelper
         return $user;
     }
 
-    public function createAltUser($user_override_vars = []) {
-        $user_vars = array_merge($this->altUserVars(), $user_override_vars);
+    public function createRandomUser($user_override_vars = []) {
+        $user_vars = array_merge($this->randomUserVars(), $user_override_vars);
 
         // unset null vars
-        foreach($user_override_vars as $key => $val) { if ($val === null) { unset($user_vars[$key]); }
+        foreach($user_override_vars as $key => $val) {
+            if ($val === null) { unset($user_vars[$key]); }
         }
 
         // create the user (this also hashes the password)
         $user = app('Tokenpass\Repositories\UserRepository')->create($user_vars);
         if (!$user->getKey()) {
-        return null;
+            return null;
         }
 
         // get the user just created
         return $user;
 
     }
+
+    public function createAltUser($user_override_vars = []) {
+        $user_vars = array_merge($this->altUserVars(), $user_override_vars);
+
+        // unset null vars
+        foreach($user_override_vars as $key => $val) {
+            if ($val === null) { unset($user_vars[$key]); }
+        }
+
+        // create the user (this also hashes the password)
+        $user = app('Tokenpass\Repositories\UserRepository')->create($user_vars);
+        if (!$user->getKey()) {
+            return null;
+        }
+
+        // get the user just created
+        return $user;
+
+    }
+
+    public function createRandomUserWithOAuthSession($user_override_vars = [], $scope_ids=null) {
+        $user = $this->createRandomUser();
+        $oauth_client = $this->oauth_helper->createConnectedOAuthClientWithTCAScopes($user);
+        $user_token = $this->oauth_helper->connectUserSession($user, $oauth_client, $scope_ids);
+        return [$user, $user_token, $oauth_client];
+    }
+
 
     public function loginWithForm($app, $user_override_vars = [])
     {
@@ -321,4 +350,5 @@ class UserHelper
             'password'        => 'abc123456',
         ];
     }
+
 }

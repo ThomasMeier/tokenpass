@@ -23,7 +23,7 @@ class InventoryTest extends TestCase
         $this->assertContains('>Inventory</', $response->getContent());
     }
 
-    public function testRegisterAddress() {
+    public function testRegisterInventoryAddress() {
         $this->setupXChainMock();
         $address_helper = app('AddressHelper');
         $user_helper = app('UserHelper')->setTestCase($this);

@@ -359,7 +359,7 @@ class InventoryController extends Controller
                 return $this->ajaxEnabledErrorResponse('Signature required', route('inventory.pockets'), 400);
 			}
 			else{
-				$sig = Address::extract_signature($input['sig']);
+				$sig = Address::extractSignature($input['sig']);
 				$xchain = app('Tokenly\XChainClient\Client');
                 $message = Session::get($address);
                 Session::set($address, '');
@@ -418,7 +418,7 @@ class InventoryController extends Controller
 
 	public function refreshBalances()
 	{
-		$update = Address::updateUserBalances($this->user->id);
+        app('Tokenpass\Repositories\AddressRepository')->updateUserBalances($this->user->id);
 		if(!$update){
 			Session::flash('message', 'Error updating balances');
 			Session::flash('message-class', 'alert-danger');

@@ -64,9 +64,13 @@ class Kernel extends HttpKernel
         'csrf'                       => \Tokenpass\Http\Middleware\VerifyCsrfToken::class,
 
         'oauth'                      => \LucaDegasperi\OAuth2Server\Middleware\OAuthMiddleware::class,
-        'oauth-owner'                => \LucaDegasperi\OAuth2Server\Middleware\OAuthOwnerMiddleware::class,
         'check-authorization-params' => \LucaDegasperi\OAuth2Server\Middleware\CheckAuthCodeRequestMiddleware::class,
         'sign'                       => \Tokenpass\Http\Middleware\SecondFactor::class,
+
+        // requires a valid access token and user
+        //   can also restrict to a scope like this: oauth-user-guard:tca
+        'oauth-user-guard'           => \Tokenpass\Http\Middleware\ProtectAPIRequestWithOauthToken::class,
+        'oauth-client-guard'         => \Tokenpass\Http\Middleware\AuthenticateClientAPIRequest::class,
 
         // require admin
         'admin'                      => \Tokenpass\Http\Middleware\AdminAuthenticate::class,

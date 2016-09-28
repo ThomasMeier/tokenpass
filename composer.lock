@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "cb6998432e98d9156969725ce00c41bf",
-    "content-hash": "f3e76d19e093d63850e42f8a698f4042",
+    "hash": "44570156d56590af8ca3e974aad6fd87",
+    "content-hash": "2c324f97513fece89066c0b498fd4313",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -4428,12 +4428,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tokenly/token-controlled-access.git",
-                "reference": "522967578e036a450a9b3403ae6b2a4ea5947b79"
+                "reference": "2d5e9d4efe470e2fa534c698616205b9bd01dcf3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tokenly/token-controlled-access/zipball/522967578e036a450a9b3403ae6b2a4ea5947b79",
-                "reference": "522967578e036a450a9b3403ae6b2a4ea5947b79",
+                "url": "https://api.github.com/repos/tokenly/token-controlled-access/zipball/2d5e9d4efe470e2fa534c698616205b9bd01dcf3",
+                "reference": "2d5e9d4efe470e2fa534c698616205b9bd01dcf3",
                 "shasum": ""
             },
             "require": {
@@ -4460,7 +4460,7 @@
                 }
             ],
             "description": "Library for providing Token Controlled Access functionality",
-            "time": "2016-06-06 11:32:41"
+            "time": "2016-09-28 02:40:19"
         },
         {
             "name": "tokenly/token-generator",

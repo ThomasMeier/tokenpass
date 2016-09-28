@@ -24,11 +24,6 @@ class UserRepository extends APIRepository implements APIUserRepositoryContract
         return $this->findByUserID($user['id']);
     }
 
-    public function findByUserID($user_id) {
-        return call_user_func([$this->model_type, 'where'], 'user_id', $user_id)->get();
-    }
-
-
     public function findByEmail($email) {
         return call_user_func([$this->model_type, 'where'], 'email', $email)->first();
     }
@@ -50,7 +45,7 @@ class UserRepository extends APIRepository implements APIUserRepositoryContract
     public function findByConfirmationCode($confirmation_code) {
         return call_user_func([$this->model_type, 'where'], 'confirmation_code', $confirmation_code)->first();
     }
-
+    
 
     protected function modifyAttributesBeforeCreate($attributes) {
         $token_generator = new TokenGenerator();

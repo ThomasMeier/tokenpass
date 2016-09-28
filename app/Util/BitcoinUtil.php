@@ -9,6 +9,7 @@ use BitWasp\Bitcoin\Crypto\EcAdapter\Serializer\Signature\CompactSignatureSerial
 use BitWasp\Bitcoin\MessageSigner\MessageSigner;
 use BitWasp\Buffertools\Buffer;
 use Exception;
+use LinusU\Bitcoin\AddressValidator;
 
 /**
 * Bitcoin Utilities
@@ -33,6 +34,10 @@ class BitcoinUtil
 
         $address = AddressFactory::fromKey($pubkey);
         return $address->getAddress();
+    }
+
+    public static function isValidBitcoinAddress($address) {
+        return AddressValidator::isValid($address);
     }
 
 }

@@ -239,7 +239,7 @@ public function setSigned(Request $request) {
     }    
 
     $sigval = Address::getUserVerificationCode($user, 'simple');
-    $sig = Address::extract_signature($request->request->get('signed_message'));
+    $sig = Address::extractSignature($request->request->get('signed_message'));
     try {
         $address = BitcoinUtil::deriveAddressFromSignature($sig, $sigval['user_meta']);
     } catch(Exception $e) {
@@ -293,7 +293,7 @@ public function getBitcoinLogin(Request $request) {
 
 public function postBitcoinLogin(Request $request) {
     
-    $sig = Address::extract_signature($request->request->get('signed_message'));
+    $sig = Address::extractSignature($request->request->get('signed_message'));
     $input_msg_hash = $request->request->get('msg_hash');
     $msg_hash = null;
     if($input_msg_hash != null){
@@ -397,7 +397,7 @@ public function checkForLoginSignature(Request $request)
 
 
 protected function verifySignature($data) {
-    $sig = Address::extract_signature($data['sig']);
+    $sig = Address::extractSignature($data['sig']);
     $xchain = app('Tokenly\XChainClient\Client');
 
     $verify_message = $xchain->verifyMessage($data['address'], $sig, $data['sigval']);

@@ -27,7 +27,8 @@
         "league/flysystem-aws-s3-v2": "^1.0",
         "intervention/image": "^2.3",
         "tokenly/bvam-api-client": "dev-master@dev",
-        "ramsey/uuid": "^3.5"
+        "ramsey/uuid": "^3.5",
+        "tokenly/hmac-auth": "^1.1"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

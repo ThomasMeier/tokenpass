@@ -5,8 +5,10 @@ namespace Tokenpass\Providers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Tokenpass\Util\BitcoinUtil;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,6 +27,10 @@ class AppServiceProvider extends ServiceProvider
         if (env('USE_SSL', false)) {
             URL::forceSchema('https');
         }
+
+        Validator::extend('bitcoin', function($attribute, $value, $parameters, $validator) {
+            return BitcoinUtil::isValidBitcoinAddress($value);
+        });
     }
 
     /**
@@ -34,6 +40,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->singleton('oauthguard', function ($app) {
+            return app('Tokenpass\OAuth\OauthGuard');
+        });
+        $this->app->singleton('oauthclientguard', function ($app) {
+            return app('Tokenpass\OAuth\OAuthClientGuard');
+        });
     }
 }

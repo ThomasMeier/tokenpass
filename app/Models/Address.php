@@ -262,28 +262,6 @@ class Address extends Model
         return (string) $verify_prefix.$dictionary[$one]. ' ' .$dictionary[$two]. ' ' .$code;
     }
     
-    public static function updateUserBalances($user_id)
-    {
-        $xchain = app('Tokenly\XChainClient\Client');
-
-        $address_list = Address::where('user_id', $user_id)->where('verified', '=', 1)->get();
-        if(!$address_list OR count($address_list) == 0){
-            return false;
-        }
-        $stamp = date('Y-m-d H:i:s');
-        foreach($address_list as $row){
-            $balances = $xchain->getBalances($row->address, true);
-            if($balances AND count($balances) > 0){
-                $update = Address::updateAddressBalances($row->id, $balances);
-                if(!$update){
-                    return false;
-                }
-            }
-            $row->invalidateOverdrawnPromises();
-        }
-        return true;        
-        
-    }
     
     public static function getDisabledTokens($user_id)
     {
@@ -426,7 +404,7 @@ class Address extends Model
         return $get;
     }
     
-	public static function extract_signature($text,$start = '-----BEGIN BITCOIN SIGNATURE-----', $end = '-----END BITCOIN SIGNATURE-----')
+	public static function extractSignature($text,$start = '-----BEGIN BITCOIN SIGNATURE-----', $end = '-----END BITCOIN SIGNATURE-----')
 	{
 		$inputMessage = trim($text);
 		if(strpos($inputMessage, $start) !== false){

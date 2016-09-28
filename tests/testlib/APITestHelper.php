@@ -16,13 +16,8 @@ class APITestHelper
         $this->app = $app;
     }
 
-    public function callAPIWithoutAuthenticationAndReturnJSONContent($method, $uri_or_url_extension, $parameters = [], $expected_response_code=200, $cookies = [], $files = [], $server = [], $content = null) {
-        if (substr($uri_or_url_extension, 0, 1) == '/' or substr($uri_or_url_extension, 0, 7) == 'http://' ) {
-            $uri = $uri_or_url_extension;
-        } else {
-            $uri = $this->extendURL($this->url_base, $uri_or_url_extension);
-        }
-        $request = $this->createAPIRequest($method, $uri, $parameters, $cookies, $files, $server, $content);
+    public function callAPIWithoutAuthenticationAndReturnJSONContent($method, $url, $parameters = [], $expected_response_code=200, $cookies = [], $files = [], $server = [], $content = null) {
+        $request = $this->createAPIRequest($method, $url, $parameters, $cookies, $files, $server, $content);
         $response = $this->runRequest($request);
         PHPUnit::assertEquals($expected_response_code, $response->getStatusCode(), "Response was: ".$response->getContent());
         return json_decode($response->getContent(), true);

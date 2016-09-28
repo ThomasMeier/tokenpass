@@ -10,7 +10,7 @@ class AccountControllerTest extends TestCase {
     protected $use_database = true;
 
     public function testLoginWithUsernameAndPassword() {
-        $user_helper = $this->buildUserHelper();
+        $user_helper = app('UserHelper')->setTestCase($this);
 
         // create a user
         $user = $user_helper->createNewUser();
@@ -32,7 +32,7 @@ class AccountControllerTest extends TestCase {
     }
 
     public function testLoginAPIErrors() {
-        $user_helper = $this->buildUserHelper();
+        $user_helper = app('UserHelper')->setTestCase($this);
 
         // create a user
         $user = $user_helper->createNewUser();
