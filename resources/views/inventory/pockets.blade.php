@@ -29,6 +29,7 @@
       </p>
 
       <form class="js-auto-ajax" action="/inventory/address/@{{ currentPocket.address }}/verify" method="POST" id="verify-form-@{{ currentPocket.address }}">
+        {!! csrf_field() !!}
 
         <div class="error-placeholder panel-danger"></div>
 
@@ -52,7 +53,7 @@
         </div>
 
         <button type="submit">Verify</button>
-    			
+
       </form>
     </div>
   </div> <!-- End Verify Modal  -->
@@ -65,6 +66,7 @@
         <i class="material-icons">clear</i>
       </div>
       <form class="js-auto-ajax" action="/inventory/address/new" method="POST">
+        {!! csrf_field() !!}
 
         <div class="error-placeholder panel-danger"></div>
 
@@ -160,6 +162,7 @@
         </div><!-- End Pocket Information -->
         <div class="pocket-settings">
           <form v-on:submit="editPocket" action="/inventory/address/@{{ pocket.address }}/edit" method="POST">
+            {!! csrf_field() !!}
 
             <div class="error-placeholder panel-danger"></div>
 

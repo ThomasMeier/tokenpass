@@ -29,6 +29,7 @@
 
             {{-- inline delete form --}}
             <form onsubmit="return confirm('Are you sure you want to delete this whitlisted address?')" action="{{ route('platform.admin.whitelist.destroy', ['id' => $model['id']]) }}" method="POST" style="margin-bottom: 0; display: inline;">
+            {!! csrf_field() !!}
             <input type="hidden" name="_method" value="DELETE">
               <button type="submit" class="button-primary">Delete</button>
             </form>

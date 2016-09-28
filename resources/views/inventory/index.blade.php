@@ -38,6 +38,7 @@
         if your balance falls below the loan total. This is a free service.
       </p>
       <form method="POST" action="/inventory/lend/@{{ currentPocket.address }}/@{{ currentToken.name }}">
+        {!! csrf_field() !!}
         <p>
             <strong>Pocket:</strong> @{{ currentPocket.address }}
         </p>
@@ -112,6 +113,7 @@
         <i class="material-icons">clear</i>
       </div>
       <form method="POST" action="/inventory/lend/@{{ currentLoan.id }}/edit">
+        {!! csrf_field() !!}
         <div class="outer-container">
           <input name="end_date" v-model="lendEditEndDateTime" type="hidden">
 

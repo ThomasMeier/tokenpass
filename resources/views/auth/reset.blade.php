@@ -20,9 +20,9 @@
         <p>Please check your email and click the link sent to you.</p>
       @else
       <form method="POST" action="/password/reset">
+        {!! csrf_field() !!}
         <input type="hidden" name="token" value="{{ $token }}">
 
-        {!! csrf_field() !!}
 
         <input name="email" type="text" id="email" placeholder="me@myisp.com" value="{{ old('email') }}" required>
 

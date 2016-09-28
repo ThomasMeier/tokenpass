@@ -59,6 +59,7 @@
 			</div>
 
 		  <form class="js-auto-ajax" action="/auth/apps/new" method="POST">
+                {!! csrf_field() !!}
 
 		        <div class="error-placeholder panel-danger"></div>
 
@@ -110,7 +111,8 @@
  			<hr> 
       <div class="input-group">
 		  <form class="js-auto-ajax" action="/auth/apps/@{{ currentApp.id }}/regen" method="PATCH">
-			  <button type="submit">Regenerate Keys</button>
+                {!! csrf_field() !!}
+		        <button type="submit">Regenerate Keys</button>
 		  </form>
       </div>
 		</div>
@@ -126,7 +128,7 @@
 			</div>
 
 		  <form class="js-auto-ajax" action="/auth/apps/@{{ currentApp.id }}/edit" method="POST">
-
+              {!! csrf_field() !!}
 					<div class="error-placeholder panel-danger"></div>
 
 					<label for="client-name">Client Name:</label>
