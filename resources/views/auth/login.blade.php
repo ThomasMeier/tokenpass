@@ -18,7 +18,7 @@
     @endif    
 	<div class="logins-wrapper">
 		<div class="login-with-email">
-			<h1 class="login-heading">Login with Email</h1>
+			<h1 class="login-heading">Login with Password</h1>
 			<div class="form-wrapper">
 				<form method="POST" action="/auth/login">
 					{!! csrf_field() !!}
