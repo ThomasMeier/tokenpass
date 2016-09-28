@@ -4,6 +4,7 @@ use DB, Exception, Response, Input;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Log;
 use Tokenpass\Http\Controllers\Controller;
 use Tokenpass\Models\Address;
@@ -138,7 +139,7 @@ class AddressesAPIController extends Controller
         }
 
         // return the address
-        return $this->buildAddressObjectResponse($address);
+        return $this->buildAddressObjectResponse($address, true);
     }
 
 
@@ -207,7 +208,7 @@ class AddressesAPIController extends Controller
         $result['label']       = $label;
         $result['public']      = $public;
         $result['active']      = $active;
-        $result['verify_code'] = Address::getSecureCodeGeneration();
+        $result['verify_code'] = $this->regenerateAddressSecureCode($address);
         $output['result']      = $result;
         
         return Response::json($output);
@@ -252,7 +253,7 @@ class AddressesAPIController extends Controller
         }
         
         // return the address
-        return $this->buildAddressObjectResponse($address_model);
+        return $this->buildAddressObjectResponse($address_model, true);
     }
     
     public function deleteAddress($address)
@@ -304,12 +305,12 @@ class AddressesAPIController extends Controller
             return Response::json($output, 400);
         }
         
-        $verify_code = Address::getSecureCodeGeneration();
+        $expected_verify_code = $this->fetchAddressSecureCode($address);
         
         $sig = Address::extractSignature($input['signature']);
         $xchain = app('Tokenly\XChainClient\Client');
         
-        $verify_message = $xchain->verifyMessage($address_model->address, $sig, $verify_code);
+        $verify_message = $xchain->verifyMessage($address_model->address, $sig, $expected_verify_code);
         $verified = false;
         if($verify_message AND $verify_message['result']){
             $verified = true;
@@ -367,7 +368,7 @@ class AddressesAPIController extends Controller
         return Response::json($output, $http_code);
     }
     
-    protected function buildAddressObjectResponse(Address $address, $result=[]) {
+    protected function buildAddressObjectResponse(Address $address, $private=false, $result=[]) {
         $result['type'] = $address->type;
         $result['address'] = $address->address;
         $result['label'] = $address->label;
@@ -375,12 +376,23 @@ class AddressesAPIController extends Controller
         $result['active'] = boolval($address->active_toggle);
         $result['verified'] = boolval($address->verified);
         $result['balances'] = Address::getAddressBalances($address->id, true);
-        if(!$result['verified']){
-            $result['verify_code'] = Address::getSecureCodeGeneration();
+        if(!$result['verified'] AND $private) {
+            $result['verify_code'] = $this->regenerateAddressSecureCode($address->address);
+            Cache::put(hash('sha256', $address->address), $result['verify_code'], 600);
         }       
         $output['result'] = $result;
         
         return Response::json($output);
+    }
+
+    protected function regenerateAddressSecureCode($address) {
+        $verify_code = Address::getSecureCodeGeneration();
+        Cache::put(hash('sha256', $address), $verify_code, 600);
+        return $verify_code;
+    }
+
+    protected function fetchAddressSecureCode($address) {
+        return Cache::get(hash('sha256', $address));
     }
 
 
