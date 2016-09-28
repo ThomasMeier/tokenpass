@@ -45,6 +45,12 @@ class Kernel extends HttpKernel
             'api.logApiCalls',
             'api.catchErrors',
         ],
+
+
+        'other' => [
+            'bindings',
+            'tls',
+        ],
     ];
 
     /**
