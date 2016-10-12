@@ -63,6 +63,16 @@ Route::group(['middleware' => 'oauth-user-guard:manage-address'], function () {
     Route::delete('api/v1/tca/address/{address}',              ['as' => 'api.tca.address.delete',          'uses' => 'AddressesAPIController@deleteAddress']);
 });
 
+Route::group(['middleware' => 'oauth-user-guard:tca'], function () {
+    // all balances, including private balances
+    Route::get   ('api/v1/tca/public/balances',             ['as' => 'api.tca.public.balances',      'uses' => 'BalancesAPIController@getPublicBalances']);
+});
+
+Route::group(['middleware' => 'oauth-user-guard:private-balances'], function () {
+    // all balances, including private balances
+    Route::get   ('api/v1/tca/protected/balances',             ['as' => 'api.tca.protected.balances',      'uses' => 'BalancesAPIController@getProtectedBalances']);
+});
+
 
 // oAuth Flow
 Route::post  ('api/v1/oauth/request',                          ['as' => 'api.oauth.request',               'uses' => 'APIController@requestOAuth', 'middleware' => ['check-authorization-params']]);

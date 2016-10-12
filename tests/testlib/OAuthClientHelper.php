@@ -145,6 +145,10 @@ class OAuthClientHelper
                 'id'          => 'manage-address',
                 'description' => 'Manage Addresses',
             ],
+            [
+                'id'          => 'private-balances',
+                'description' => 'Private Balances',
+            ],
         ];
     }
 

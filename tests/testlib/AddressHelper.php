@@ -9,6 +9,9 @@ use Tokenpass\Models\User;
 */
 class AddressHelper
 {
+
+    const SATOSHI = 100000000;
+
     public function __construct() {
     }
 
@@ -56,4 +59,14 @@ class AddressHelper
         return $default;
     }
     
+    public function addBalancesToAddress($balances, Address $address) {
+        foreach($balances as $token => $balance) {
+            DB::Table('address_balances')->insert([
+                'address_id' => $address['id'],
+                'asset'      => $token,
+                'balance'    => $balance * self::SATOSHI,
+                'updated_at' => time(),
+            ]);
+        }
+    }
 }
