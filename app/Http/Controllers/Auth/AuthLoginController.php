@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Hash;
 use Tokenpass\Http\Controllers\Auth\Base\BaseAuthController;
 use Tokenpass\Models\Address;
 use Tokenpass\Models\User;
@@ -78,6 +79,11 @@ class AuthLoginController extends BaseAuthController
         $credentials = $this->credentials($request);
 
         $user = DB::table('users')->where('users.username', '=', $credentials['username'])->first();
+        
+        $check_pass = Hash::check($credentials['password'], $user->password);
+        if(!$check_pass){
+             return $this->sendFailedLoginResponse($request);
+        }
 
         try {
             if(Address::checkUser2FAEnabled($user)) {
