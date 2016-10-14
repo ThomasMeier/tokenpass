@@ -36,6 +36,9 @@
             <br><br>
             {!! Form::label('app_link', 'App URL') !!}
             {!! Form::text('app_link', $model['app_link'], ['class' => 'u-full-width']) !!}    
+            <br><br>
+            {!! Form::label('privileges', 'Extra API Privileges') !!}
+            {!! Form::textarea('privileges', $model->privileges, ['class' => 'u-full-width']) !!}                   
         </div>
 
         <div class="six columns">

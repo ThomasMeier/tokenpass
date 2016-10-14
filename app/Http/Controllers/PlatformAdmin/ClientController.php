@@ -24,6 +24,7 @@ class ClientController extends ResourceController
         return [
             'name' => 'required|max:255',
             'app_link' => 'url',
+            'privileges' => '',
         ];
     }    
 

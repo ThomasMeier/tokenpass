@@ -28,7 +28,7 @@ class OAuthClientRepository extends APIRepository
         if (!isset($attributes['secret'])) {
             $attributes['secret'] = $token_generator->generateToken(40, 'K');
         }
-
+        
         return $attributes;
     }
     

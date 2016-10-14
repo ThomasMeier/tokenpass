@@ -11,7 +11,7 @@ class OAuthClient extends APIModel {
 
     public $incrementing = false;
 
-    protected $api_attributes = ['id','name'];
+    protected $api_attributes = ['id','name','privileges'];
 
     public static function getOAuthClientDetailsFromURL($url)
     {
@@ -109,6 +109,15 @@ class OAuthClient extends APIModel {
             }
         }
         return $text;
+    }
+    
+    public function privileges()
+    {
+        $decode = json_decode($this->privileges, true);
+        if(!is_array($decode)){
+            return array();
+        }
+        return $decode;
     }
 	
 
