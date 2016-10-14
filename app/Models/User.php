@@ -100,8 +100,21 @@ class User extends APIUser implements AuthenticatableContract, CanResetPasswordC
         });
     }
     
-    public function notify($view, $subject, $data)
+    public function notify($view, $subject = null, $data = array())
     {
+        if(is_object($view)){
+            $class = get_class($view);
+            switch($class){
+                case 'Illuminate\Auth\Notifications\ResetPassword':
+                    $token = $view->token;
+                    $view = 'emails.password';
+                    $subject = 'Tokenpass Password Reset';
+                    $data['token'] = $token;
+                    break;
+                default:
+                    return false;
+            }
+        }
         return self::notifyUser($this->id, $view, $subject, $data);
     }
 

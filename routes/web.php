@@ -41,12 +41,12 @@ Route::post('auth/sendemail',                          ['uses' => 'Auth\EmailCon
 Route::get('auth/verify/{token}',                      ['as' => 'auth.verify', 'uses' => 'Auth\EmailConfirmationController@verifyEmail']);
 
 // Password reset link request routes...
-Route::get('password/email',                           ['uses' => 'Auth\PasswordController@getEmail']);
-Route::post('password/email',                          ['uses' => 'Auth\PasswordController@postEmail']);
+Route::get('password/email',                           ['uses' => 'Auth\ForgotPasswordController@showLinkRequestForm']);
+Route::post('password/email',                          ['uses' => 'Auth\ForgotPasswordController@sendResetLinkEmail']);
 
 // Password reset routes...
-Route::get('password/reset/{token}',                   ['uses' => 'Auth\PasswordController@getReset']);
-Route::post('password/reset',                          ['uses' => 'Auth\PasswordController@postReset']);
+Route::get('password/reset/{token}',                   ['uses' => 'Auth\PasswordController@showResetForm']);
+Route::post('password/reset',                          ['uses' => 'Auth\PasswordController@reset']);
 
 // Connected apps routes...
 Route::get('auth/connectedapps',                       ['uses' => 'Auth\ConnectedAppsController@getConnectedApps']);

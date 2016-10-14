@@ -1,3 +1,4 @@
+
 @extends('layouts.guest')
 
 @section('htmltitle', 'Password Reset')
