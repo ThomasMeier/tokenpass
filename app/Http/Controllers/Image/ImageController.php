@@ -34,7 +34,10 @@ use Tokenly\LaravelEventLog\EventLog;
 class ImageController extends Controller {
 
     public function store(Request $request){
-
+        
+        if($request->file('file') == null){
+            return response()->json('Only image type files are accepted as an avatar.', 400);
+        }
         $type = substr($request->file('file')->getClientMimeType(), 0, 5);
         try {
             if ($type == 'image') {
