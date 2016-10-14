@@ -119,6 +119,15 @@ class OAuthClient extends APIModel {
         }
         return $decode;
     }
+    
+    public function hasPrivilege($key, $compare_val = true)
+    {
+        $privs = $this->privileges();
+        if(isset($privs[$key]) AND $privs[$key] === $compare_val){
+            return true;
+        }
+        return false;
+    }
 	
 
 }

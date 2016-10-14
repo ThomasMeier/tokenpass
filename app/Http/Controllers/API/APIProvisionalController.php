@@ -41,23 +41,29 @@ class APIProvisionalController extends Controller
             return Response::json($output, 400);
         }
         
-        if(!isset($input['proof'])){
-            $output['error'] = 'Proof required';
-            return Response::json($output, 400);
-        }        
+        //check for proof of ownership unless they have special API privilege
+        if(!$oauth_client->hasPrivilege('bypass-source-proof')){
+            if(!isset($input['proof'])){
+                $output['error'] = 'Proof required';
+                return Response::json($output, 400);
+            }        
 
-        //verify signed message on xchain
-        $sig_message = Provisional::getProofMessage($input['address'], $oauth_client['id']);
-        $xchain = app('Tokenly\XChainClient\Client');
-        try{
-            $verify = $xchain->verifyMessage($input['address'], $input['proof'], $sig_message);
+            //verify signed message on xchain
+            $sig_message = Provisional::getProofMessage($input['address'], $oauth_client['id']);
+            $xchain = app('Tokenly\XChainClient\Client');
+            try{
+                $verify = $xchain->verifyMessage($input['address'], $input['proof'], $sig_message);
+            }
+            catch(Exception $e){
+                $verify = false;
+            }
+            if(!$verify OR !isset($verify['result']) OR !$verify['result']){
+                $output['error'] = 'Proof signature invalid';
+                return Response::json($output, 400);
+            }
         }
-        catch(Exception $e){
-            $verify = false;
-        }
-        if(!$verify OR !isset($verify['result']) OR !$verify['result']){
-            $output['error'] = 'Proof signature invalid';
-            return Response::json($output, 400);
+        else{
+            $input['proof'] = 'bypassed';
         }
         
         $asset_list = null;
