@@ -80,10 +80,13 @@ class AuthLoginController extends BaseAuthController
 
         $user = DB::table('users')->where('users.username', '=', $credentials['username'])->first();
         
-        $check_pass = Hash::check($credentials['password'], $user->password);
+        $check_pass=  false;
+        if($user){
+            $check_pass = Hash::check($credentials['password'], $user->password);
+        }
         if(!$check_pass){
              return $this->sendFailedLoginResponse($request);
-        }
+        }        
 
         try {
             if(Address::checkUser2FAEnabled($user)) {

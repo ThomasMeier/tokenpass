@@ -10,6 +10,7 @@ use Tokenpass\Models\Address;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 
 class PasswordController extends Controller
 {
@@ -26,7 +27,7 @@ class PasswordController extends Controller
 
     use ResetsPasswords;
 
-    protected $redirectTo = '/dashboard';
+    protected $redirectTo = '/auth/login';
 
     /**
      * Create a new password controller instance.
@@ -41,7 +42,6 @@ class PasswordController extends Controller
     }
 
 
-
     /**
      * Reset the given user's password.
      *
@@ -51,28 +51,13 @@ class PasswordController extends Controller
      */
     protected function resetPassword($user, $password)
     {
-        try {
-            if(Address::checkUser2FAEnabled($user)) {
-                Session::flash('user', $user);
-                return redirect()->action('Auth\AuthLoginController@getSignRequirement');
-            }
-        } catch(Exception $e) {}		
-		
-        try {
-            // update the user (the repository will hash the password)
-            $this->user_repository->update($user, ['password' => $password]);            
-            Auth::login($user);
-        } catch (Exception $e)
-        {
-            return redirect()->route('auth.login')->withErrors(['Error logging in']);
-        }
+        $user->forceFill([
+            'password' => bcrypt($password),
+            'remember_token' => Str::random(60),
+        ])->save();        
+        Session::flash('message', 'Password reset, you may now login');
+        Session::flash('message-class', 'alert-success');
     }
     
-   /* public function getEmail(Request $request)
-    {
-
-        
-    }
-    */
 
 }
