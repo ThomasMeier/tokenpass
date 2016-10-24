@@ -30,7 +30,7 @@ return [
     'grant_types' => [
         'authorization_code' => [
             'class'            => 'League\OAuth2\Server\Grant\AuthCodeGrant',
-            'access_token_ttl' => 86400,
+            'access_token_ttl' => 86400*30,
 
             // the authorization code time to live
             'auth_token_ttl'   => 3600,
