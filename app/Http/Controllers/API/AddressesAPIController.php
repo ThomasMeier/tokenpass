@@ -37,13 +37,20 @@ class AddressesAPIController extends Controller
 
         $user = OAuthGuard::user();
         $priv_scope = OAuthGuard::hasScope('private-address');
+        $manage_scope = OAuthGuard::hasScope('manage-address');
 
         if ($priv_scope) {
             $use_public = null;
+        }
+        else{
+            $use_public = 1;
+        }
+        if($manage_scope){
             $and_active = null;
             $and_verified = false;
-        } else {
-            $use_public = 1;
+            $use_public = null;
+        }
+        else {
             $and_active = 1;
             $and_verified = 1;
         }
@@ -72,10 +79,6 @@ class AddressesAPIController extends Controller
         }
 
         $use_public = 1;
-        $priv_scope = OAuthGuard::hasScope('private-address');
-        if($priv_scope){
-            $use_public = 0;
-        }
         $and_active = 1;
         $and_verified = 1;
         
@@ -124,6 +127,7 @@ class AddressesAPIController extends Controller
     public function getPrivateAddressDetails($address) {
         $user       = OAuthGuard::user();
         $priv_scope = OAuthGuard::hasScope('private-address');
+        $manage_scope = OAuthGuard::hasScope('manage-address');
 
         // lookup the address
         $address = Address::where('user_id', $user['id'])->where('address', $address)->first();
@@ -132,9 +136,9 @@ class AddressesAPIController extends Controller
         // not found
         if (!$address) { $address_is_valid = false; }
         // private
-        if ($address_is_valid AND !$priv_scope AND !$address->public) { $address_is_valid = false; }
-        // inactive
-        if ($address_is_valid AND !$address->active_toggle) { $address_is_valid = false; }
+        if ($address_is_valid AND !$priv_scope AND !$manage_scope AND !$address->public) { $address_is_valid = false; }
+        // inactive or unverified
+        if ($address_is_valid AND !$manage_scope AND (!$address->active_toggle OR !$address->verified)) { $address_is_valid = false; }
 
         if (!$address_is_valid) {
             $output['error'] = 'Address details not found';
