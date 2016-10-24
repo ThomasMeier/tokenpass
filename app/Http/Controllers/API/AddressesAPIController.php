@@ -72,6 +72,10 @@ class AddressesAPIController extends Controller
         }
 
         $use_public = 1;
+        $priv_scope = OAuthGuard::hasScope('private-address');
+        if($priv_scope){
+            $use_public = 0;
+        }
         $and_active = 1;
         $and_verified = 1;
         
