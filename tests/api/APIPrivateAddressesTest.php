@@ -156,10 +156,6 @@ class APIPrivateAddressesTest extends TestCase {
         PHPUnit::assertContains('1AAAA4444xxxxxxxxxxxxxxxxxxxxjbqeD', $response['result']['address']);
         PHPUnit::assertTrue($response['result']['verified']);
 
-        // inactive address is not found
-        $response = $api_tester->expectAuthenticatedResponse('GET', route('api.tca.private.address.details', [
-            'address'  => '1AAAA5555xxxxxxxxxxxxxxxxxxxwEhYkL'
-        ]), [], 404);
     }
 
 }

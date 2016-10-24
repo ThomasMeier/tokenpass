@@ -19,8 +19,12 @@ class APITCAControllerTest extends TestCase {
         $user = $user_helper->createNewUser();
 
         // setup api client
-        $oauth_client = app('OAuthClientHelper')->createConnectedOAuthClientWithTCAScopes($user);
-        $api_tester = app('OAuthClientAPITester')->be($oauth_client);
+        $oauth_helper = app('OAuthClientHelper');
+        $oauth_client = $oauth_helper->createConnectedOAuthClientWithTCAScopes($user);
+        //$api_tester = app('OAuthClientAPITester')->be($oauth_client);
+
+        $token = $oauth_helper->connectUserSession($user, $oauth_client);
+        $api_tester = new OauthUserAPITester($token);
 
         // create a new address
         $new_address = $address_helper->createNewAddress($user, [
@@ -47,41 +51,36 @@ class APITCAControllerTest extends TestCase {
 
         $route = route('api.tca.check', ['username' => $user['username']]);
 
-        // require authentication
-        $response = $api_tester->testRequireAuth('GET', $route);
-        PHPUnit::assertContains('Missing authentication credentials', $response['message']);
-
-
         // check 10 TOKENLY (should be true)
         $token = 'TOKENLY';
         $query_params = ['TOKENLY' => 10];
-        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('GET', $route, $query_params);
+        $response = $api_tester->expectAuthenticatedResponse('GET', $route, $query_params);
         PHPUnit::assertTrue($response['result']);
 
         // check 11 TOKENLY (should be false)
         $token = 'TOKENLY';
         $query_params = ['TOKENLY' => 11];
-        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('GET', $route, $query_params);
+        $response = $api_tester->expectAuthenticatedResponse('GET', $route, $query_params);
         PHPUnit::assertFalse($response['result']);
 
         // check 10 TOKENLY AND 5000 LTBCOIN (should be true)
         $query_params = ['TOKENLY' => 10, 'LTBCOIN' => 5000];
-        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('GET', $route, $query_params);
+        $response = $api_tester->expectAuthenticatedResponse('GET', $route, $query_params);
         PHPUnit::assertTrue($response['result']);
 
         // check 10 TOKENLY AND 5001 LTBCOIN (should be false)
         $query_params = ['TOKENLY' => 10, 'LTBCOIN' => 5001];
-        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('GET', $route, $query_params);
+        $response = $api_tester->expectAuthenticatedResponse('GET', $route, $query_params);
         PHPUnit::assertFalse($response['result']);
 
         // check 10 TOKENLY OR 5001 LTBCOIN (should be true)
         $query_params = ['TOKENLY' => 10, 'LTBCOIN' => 5001, 'stackop_1' => 'OR'];
-        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('GET', $route, $query_params);
+        $response = $api_tester->expectAuthenticatedResponse('GET', $route, $query_params);
         PHPUnit::assertTrue($response['result']);
 
         // check 11 TOKENLY OR 5001 LTBCOIN (should be false)
         $query_params = ['TOKENLY' => 11, 'LTBCOIN' => 5001, 'stackop_1' => 'OR'];
-        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('GET', $route, $query_params);
+        $response = $api_tester->expectAuthenticatedResponse('GET', $route, $query_params);
         PHPUnit::assertFalse($response['result']);
     }
 
