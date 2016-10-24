@@ -42,8 +42,8 @@ Route::group(['middleware' => 'oauth-user-guard'], function () {
     Route::get   ('api/v1/oauth/logout',                           ['as' => 'api.oauth.logout',                'uses' => 'APIController@invalidateOAuth']);
 });
 
-Route::group(['middleware' => 'oauth-user-guard:private-address'], function () {
-    // get a list of all addresses for the user - including inactive and private addresses
+Route::group(['middleware' => 'oauth-user-guard:tca'], function () {
+    // get a list of all addresses for the user - including inactive and private addresses (if private-address and/or manage-address scope applied)
     Route::get   ('api/v1/tca/addresses',                     ['as' => 'api.tca.private.addresses',       'uses' => 'AddressesAPIController@getPrivateAddresses']);
 
     // private address details
