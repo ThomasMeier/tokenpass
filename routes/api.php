@@ -10,8 +10,6 @@ Route::post  ('api/v1/instant-verify/{username}',              ['as' => 'api.ins
 
 // requires client_id and signed request
 Route::group(['middleware' => 'oauth-client-guard'], function () {
-    // TCA checks
-    Route::get   ('api/v1/tca/check/{username}',                   ['as' => 'api.tca.check',                   'uses' => 'APITCAController@checkTokenAccess']);
 
     // get a list of public addresses for a user
     Route::get   ('api/v1/tca/addresses/{username}',           ['as' => 'api.tca.addresses',               'uses' => 'AddressesAPIController@getPublicAddresses']);
@@ -64,7 +62,10 @@ Route::group(['middleware' => 'oauth-user-guard:manage-address'], function () {
 });
 
 Route::group(['middleware' => 'oauth-user-guard:tca'], function () {
-    // all balances, including private balances
+    // TCA checks
+    Route::get   ('api/v1/tca/check/{username}',                   ['as' => 'api.tca.check',                   'uses' => 'APITCAController@checkTokenAccess']);
+
+    // all balances, public only unless private-address or private-balances scope included
     Route::get   ('api/v1/tca/public/balances',             ['as' => 'api.tca.public.balances',      'uses' => 'BalancesAPIController@getPublicBalances']);
 });
 
