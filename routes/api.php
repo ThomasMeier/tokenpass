@@ -22,9 +22,6 @@ Route::group(['middleware' => 'oauth-client-guard'], function () {
     Route::post  ('api/v1/lookup/addresses',                       ['as' => 'api.lookup.addresses',            'uses' => 'APILookupsController@lookupMultipleUsersByAddresses']);
     Route::get   ('api/v1/lookup/user/{username}',                 ['as' => 'api.lookup.user',                 'uses' => 'APILookupsController@lookupAddressByUser']);
 
-    //Route:get  ('api/v1/oneclick',                               ['as' => 'api.one.click','uses' => 'APIConroller@OneCliCk']);
-
-
     // provisional transaction routes
     Route::post  ('api/v1/tca/provisional/register',               ['as' => 'api.tca.provisional.register',    'uses' => 'APIProvisionalController@registerProvisionalTCASourceAddress']);
     Route::get   ('api/v1/tca/provisional',                        ['as' => 'api.tca.provisional.list',        'uses' => 'APIProvisionalController@getProvisionalTCASourceAddressList']);
@@ -37,7 +34,7 @@ Route::group(['middleware' => 'oauth-client-guard'], function () {
 });
 
 Route::group(['middleware' => 'oauth-user-guard'], function () {
-    // check and set sign
+    // check and set sign (BTC 2FA)
     Route::get   ('api/v1/tca/check-sign/{address}',               ['as' => 'api.tca.check-sign',              'uses' => 'APIController@checkSignRequirement']);
     Route::post  ('api/v1/tca/set-sign',                           ['as' => 'api.tca.set-sign',                'uses' => 'APIController@setSignRequirement']);
 
@@ -45,7 +42,7 @@ Route::group(['middleware' => 'oauth-user-guard'], function () {
     Route::get   ('api/v1/oauth/logout',                           ['as' => 'api.oauth.logout',                'uses' => 'APIController@invalidateOAuth']);
 });
 
-Route::group(['middleware' => 'oauth-user-guard:tca'], function () {
+Route::group(['middleware' => 'oauth-user-guard:private-address'], function () {
     // get a list of all addresses for the user - including inactive and private addresses
     Route::get   ('api/v1/tca/addresses',                     ['as' => 'api.tca.private.addresses',       'uses' => 'AddressesAPIController@getPrivateAddresses']);
 
