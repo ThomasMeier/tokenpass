@@ -428,8 +428,8 @@ class InventoryController extends Controller
 	{
         $authed_user = Auth::user();
 
-        app('Tokenpass\Repositories\AddressRepository')->updateUserBalances($authed_user->id);
-		if(!$update){
+        $update_success = app('Tokenpass\Repositories\AddressRepository')->updateUserBalances($authed_user->id);
+		if(!$update_success){
 			Session::flash('message', 'Error updating balances');
 			Session::flash('message-class', 'alert-danger');
 		}
