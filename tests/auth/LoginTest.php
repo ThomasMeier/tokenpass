@@ -31,6 +31,29 @@ class LoginTest extends TestCase {
         PHPUnit::assertTrue($user_helper->userExistsInDB($user));
     }
 
+    public function testUserEmailBasedLogin() {
+        $user_helper = app('UserHelper')->setTestCase($this);
+
+        // create a user
+        $user = $user_helper->createNewUser();
+        PHPUnit::assertNotNull($user);
+
+        $form_vars = [
+            'username' => $user['email'],
+            'password' => $user_helper->defaultUserVars()['password'],
+        ];
+
+        $response = $this->call('POST', '/auth/login', array_merge($form_vars, ['_token' => true,]));
+        if ($response instanceof Illuminate\Http\RedirectResponse) {
+            if ($errors_bag = $response->getSession()->get('errors')) {
+                $errors = implode(", ", $errors_bag->all());
+                throw new Exception("Login Found RedirectResponse with errors: ".$errors, 1);
+            }
+        }
+        if (substr($response->getStatusCode(), 0, 1) == '5') { throw new Exception("Found unexpected response with status code ".$response->getStatusCode(), 1); }
+
+    }
+
     public function testUserLoginError() {
         $user_helper = app('UserHelper')->setTestCase($this);
 

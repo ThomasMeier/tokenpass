@@ -78,12 +78,21 @@ class AuthLoginController extends BaseAuthController
 
         $credentials = $this->credentials($request);
 
-        $user = DB::table('users')->where('users.username', '=', $credentials['username'])->first();
+        $user = $user_repository->findByUsername($credentials['username']);
+        if (!$user AND strstr($credentials['username'], '@') !== false) {
+            // try email if username was not a match
+            $user = $user_repository->findByEmail($credentials['username']);
+
+            // change credentials to use email
+            $credentials['email'] = $credentials['username'];
+            unset($credentials['username']);
+        }
         
-        $check_pass=  false;
+        $check_pass = false;
         if($user){
             $check_pass = Hash::check($credentials['password'], $user->password);
         }
+
         if(!$check_pass){
              return $this->sendFailedLoginResponse($request);
         }        
