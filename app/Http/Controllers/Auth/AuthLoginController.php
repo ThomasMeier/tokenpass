@@ -83,9 +83,15 @@ class AuthLoginController extends BaseAuthController
             // try email if username was not a match
             $user = $user_repository->findByEmail($credentials['username']);
 
-            // change credentials to use email
-            $credentials['email'] = $credentials['username'];
-            unset($credentials['username']);
+            if ($user->emailIsConfirmed()) {
+                // change credentials to use email
+                $credentials['email'] = $credentials['username'];
+                unset($credentials['username']);
+            } else {
+                // email is not confirmed
+                $user = false;
+            }
+
         }
         
         $check_pass = false;
