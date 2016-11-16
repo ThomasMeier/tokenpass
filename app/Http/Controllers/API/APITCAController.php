@@ -175,6 +175,7 @@ class APITCAController extends Controller
                 $user_results[] = [
                     'id'       => $user['uuid'],
                     'username' => $user['username'],
+                    'channel'  => $user->getChannelName(),
                 ];
             }
         }

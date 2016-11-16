@@ -58,6 +58,10 @@ class User extends APIUser implements AuthenticatableContract, CanResetPasswordC
         return ($this['confirmed_email'] == $this['email']);
     }
 
+    public function getChannelName() {
+        return hash('sha256', $this['uuid'].env('PUBNUB_CHANNEL_SALT'));
+    }
+
     public static function getByVerifiedAddress($data)
     {
         $get_user = DB::table('users')
