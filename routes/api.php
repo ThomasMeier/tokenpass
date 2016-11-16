@@ -83,3 +83,8 @@ Route::post  ('api/v1/oauth/token',                            ['as' => 'api.oau
 Route::post  ('api/v1/register',                               ['as' => 'api.register',                    'uses' => 'APIController@registerAccount']);
 Route::post  ('api/v1/login',                                  ['as' => 'api.login',                       'uses' => 'APIController@loginWithUsernameAndPassword']);
 
+
+// privileged client endpoint - finds all public and protected usernames/user ids by TCA rules
+Route::group(['middleware' => 'api.protectedAuth'], function () {
+    Route::get('api/v1/tca/users', ['as' => 'api.tca.usersbytca', 'uses' => 'APITCAController@findUsersByTCARules']);
+});

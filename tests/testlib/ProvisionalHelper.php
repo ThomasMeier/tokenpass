@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Log;
+use Tokenly\CurrencyLib\CurrencyUtil;
+use Tokenpass\Models\Address;
 
 /*
 * ProvisionalHelper
@@ -15,6 +17,16 @@ class ProvisionalHelper
         $provisional_vars = array_merge($this->defaultVars(), $override_vars);
         $provisional = app('Tokenpass\Repositories\ProvisionalRepository')->create($provisional_vars);
         return $provisional;
+    }
+
+    public function lend(Address $source, Address $destination, $quantity, $asset) {
+        return $this->newSampleProvisional([
+            'user_id'     => $source['user_id'],
+            'source'      => $source['address'],
+            'destination' => $destination['address'],
+            'quantity'    => CurrencyUtil::valueToSatoshis($quantity),
+            'asset'       => $asset,
+        ]);
     }
 
     public function defaultVars() {

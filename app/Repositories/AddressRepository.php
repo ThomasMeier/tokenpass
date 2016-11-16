@@ -74,5 +74,32 @@ class AddressRepository extends APIRepository
         
     }
 
+    // find all user IDs that have at least one of any of the tokens listed
+    public function findUserIDsWithToken($tokens, $public_only=false, $active_only=true, $verified_only=true) {
+        if (!is_array($tokens)) {
+            $tokens = [$tokens];
+        }
+
+        $query = DB::Table('coin_addresses')
+            ->join('address_balances', 'coin_addresses.id', '=', 'address_balances.address_id')
+            ->select('coin_addresses.user_id')
+            ->whereIn('address_balances.asset', $tokens)
+            ->where('address_balances.balance', '>', 0);
+
+        if ($public_only) {
+            $query->where('coin_addresses.public', '=', 1);
+        }
+        if ($active_only) {
+            $query->where('coin_addresses.active_toggle', '=', 1);
+        }
+        if ($verified_only) {
+            $query->where('coin_addresses.verified', '=', 1);
+        }
+
+        $query->groupBy('user_id');
+
+        return $query->get()->pluck('user_id');
+    }
+
 
 }

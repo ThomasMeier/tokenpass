@@ -137,6 +137,173 @@ class APITCAControllerTest extends TestCase {
         PHPUnit::assertFalse($response['result']);
     }
 
+
+    public function testRequiresAuthForFindUsersByTCARules() {
+        $api_tester = app('APITestHelper');
+        $response = $api_tester->callAPIWithoutAuthenticationAndReturnJSONContent('GET', route('api.tca.usersbytca'), [], 403);
+    }
+
+    public function testFindUsersByTCARules() {
+        $user_helper    = app('UserHelper')->setTestCase($this);
+        $address_helper = app('AddressHelper');
+
+        // create a user
+        $users = [];
+        $users[0] = $user_helper->createRandomUser();
+        $users[1] = $user_helper->createRandomUser();
+        $users[2] = $user_helper->createRandomUser();
+
+        // setup api client
+        $api_tester = app('APITestHelper');
+        $api_tester->be($users[0]);
+
+        // create new addresses
+        $addresses = [];
+
+        // user 0, Address 0
+        $user_offset = 0; $address_offset = 0;
+        $addresses[$address_offset] = $address_helper->createNewAddress($users[$user_offset], [
+            'type'     => 'BTC',
+            'address'  => '1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j',
+            'label'    => 'Addr One',
+            'verified' => 1,
+            'public'   => 1,
+        ]);
+        $address_helper->addBalancesToAddress([
+            'COINAAA' => 1,
+            'COINBBB' => 2,
+            'COINCCC' => 3,
+        ], $addresses[$address_offset]);
+
+        // user 0, Address 1
+        $user_offset = 0; $address_offset = 1;
+        $addresses[$address_offset] = $address_helper->createNewAddress($users[$user_offset], [
+            'type'     => 'BTC',
+            'address'  => '1AAAA2222xxxxxxxxxxxxxxxxxxy4pQ3tU',
+            'label'    => 'Addr One',
+            'verified' => 1,
+            'public'   => 1,
+        ]);
+        $address_helper->addBalancesToAddress([
+            'COINAAA'  => 1,
+            'COINBBB'  => 1,
+            'COINCCC'  => 1,
+            'USERZERO' => 1,
+        ], $addresses[$address_offset]);
+
+        // user 1, Address 2
+        $user_offset = 1; $address_offset = 2;
+        $addresses[$address_offset] = $address_helper->createNewAddress($users[$user_offset], [
+            'type'     => 'BTC',
+            'address'  => '1AAAA3333xxxxxxxxxxxxxxxxxxxsTtS6v',
+            'label'    => 'Addr One',
+            'verified' => 1,
+            'public'   => 1,
+        ]);
+        $address_helper->addBalancesToAddress([
+            'COINBBB' => 50,
+            'COINCCC' => 50,
+            'USERONE' => 1,
+        ], $addresses[$address_offset]);
+
+        // user 2, Address 3 (inactive)
+        $user_offset = 2; $address_offset = 3;
+        $addresses[$address_offset] = $address_helper->createNewAddress($users[$user_offset], [
+            'type'     => 'BTC',
+            'address'  => '1AAAA4444xxxxxxxxxxxxxxxxxxxxjbqeD',
+            'label'    => 'Addr One',
+            'verified' => 1,
+            'public'   => 1,
+            'active_toggle' => 0,
+        ]);
+        $address_helper->addBalancesToAddress([
+            'COINAAA' => 50,
+            'COINBBB' => 50,
+            'COINCCC' => 50,
+            'USERTWO' => 1,
+        ], $addresses[$address_offset]);
+
+        // user 2, Address 4 (private)
+        $user_offset = 2; $address_offset = 4;
+        $addresses[$address_offset] = $address_helper->createNewAddress($users[$user_offset], [
+            'type'     => 'BTC',
+            'address'  => '1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j',
+            'label'    => 'Addr One',
+            'verified' => 1,
+            'public'   => 0,
+        ]);
+        $address_helper->addBalancesToAddress([
+            'COINCCC' => 50,
+        ], $addresses[$address_offset]);
+
+
+        // check 1 COINAAA (should be user 0 only)
+        $query_params = ['COINAAA' => 1];
+        $response = $api_tester->callJSON('GET', route('api.tca.usersbytca'), $query_params);
+        PHPUnit::assertEquals(1, $response['count']);
+        PHPUnit::assertEquals($users[0]['uuid'], $response['results'][0]['id']);
+
+        // check 2 COINAAA (should be user 0 only)
+        $query_params = ['COINAAA' => 2];
+        $response = $api_tester->callJSON('GET', route('api.tca.usersbytca'), $query_params);
+        PHPUnit::assertEquals(1, $response['count']);
+        PHPUnit::assertEquals($users[0]['uuid'], $response['results'][0]['id']);
+
+        // check 3 COINAAA (should be none)
+        $query_params = ['COINAAA' => 3];
+        $response = $api_tester->callJSON('GET', route('api.tca.usersbytca'), $query_params);
+        PHPUnit::assertEquals(0, $response['count']);
+
+        // check 1 COINBBB (should be user 0,1)
+        $query_params = ['COINBBB' => 1];
+        $response = $api_tester->callJSON('GET', route('api.tca.usersbytca'), $query_params);
+        PHPUnit::assertEquals(2, $response['count']);
+        PHPUnit::assertEquals($users[0]['uuid'], $response['results'][0]['id']);
+        PHPUnit::assertEquals($users[1]['uuid'], $response['results'][1]['id']);
+
+        // check 50 COINBBB (should be user 1)
+        $query_params = ['COINBBB' => 50];
+        $response = $api_tester->callJSON('GET', route('api.tca.usersbytca'), $query_params);
+        PHPUnit::assertEquals(1, $response['count']);
+        PHPUnit::assertEquals($users[1]['uuid'], $response['results'][0]['id']);
+
+        // check 50 COINCCC (should be user 1,2)
+        $query_params = ['COINCCC' => 50];
+        $response = $api_tester->callJSON('GET', route('api.tca.usersbytca'), $query_params);
+        PHPUnit::assertEquals(2, $response['count']);
+        PHPUnit::assertEquals($users[1]['uuid'], $response['results'][0]['id']);
+        PHPUnit::assertEquals($users[2]['uuid'], $response['results'][1]['id']);
+
+        // check 1 COINCCC (should be user 1,2,3)
+        $query_params = ['COINCCC' => 1];
+        $response = $api_tester->callJSON('GET', route('api.tca.usersbytca'), $query_params);
+        PHPUnit::assertEquals(3, $response['count']);
+        PHPUnit::assertEquals($users[0]['uuid'], $response['results'][0]['id']);
+        PHPUnit::assertEquals($users[1]['uuid'], $response['results'][1]['id']);
+        PHPUnit::assertEquals($users[2]['uuid'], $response['results'][2]['id']);
+
+        // loan 50 COINBBB from user 1 to user 0
+        app('ProvisionalHelper')->lend($addresses[2], $addresses[0], 50, 'COINBBB');
+
+        // check 50 COINBBB (should be user 0)
+        $query_params = ['COINBBB' => 50];
+        $response = $api_tester->callJSON('GET', route('api.tca.usersbytca'), $query_params);
+        PHPUnit::assertEquals(1, $response['count'], "Expected only {$users[0]['uuid']}.  Found ".json_encode($response, 192));
+        PHPUnit::assertEquals($users[0]['uuid'], $response['results'][0]['id']);
+
+        // complicated query
+        $query_params = ['USERONE' => 1, 'USERZERO' => 1, 'stackop_1' => 'OR'];
+        $response = $api_tester->callJSON('GET', route('api.tca.usersbytca'), $query_params);
+        PHPUnit::assertEquals(2, $response['count']);
+        PHPUnit::assertEquals($users[0]['uuid'], $response['results'][0]['id']);
+        PHPUnit::assertEquals($users[1]['uuid'], $response['results'][1]['id']);
+
+        // complicated query 2
+        $query_params = ['USERONE' => 1, 'NOTEXISTS' => 1, 'USERZERO' => 1, 'stackop_1' => 'AND', 'stackop_2' => 'OR'];
+        $response = $api_tester->callJSON('GET', route('api.tca.usersbytca'), $query_params);
+        PHPUnit::assertEquals(1, $response['count']);
+        PHPUnit::assertEquals($users[0]['uuid'], $response['results'][0]['id']);
+    }
     // ------------------------------------------------------------------------
     
     protected function buildXChainMock() {
