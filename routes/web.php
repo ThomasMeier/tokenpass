@@ -97,13 +97,11 @@ Route::get('dashboard', [
     'uses'       => 'Accounts\DashboardController@getDashboard'
 ]);
 
+// launch TCA messenger interface
 Route::get('messenger', [
     'as'         => 'user.messenger',
     'middleware' => ['auth'],
-    'uses'       => function() {
-        $user = Auth::user();
-        return redirect('http://messenger-stage.tokenly.com?c='.$user->getChannelName().'&username='.$user['username']);
-    }
+    'uses'       => 'Messenger\MessengerLaunchController@launch',
 ]);
 
 
