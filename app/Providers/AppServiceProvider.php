@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Tokenly\BvamApiClient\BVAMClient;
 use Tokenpass\Util\BitcoinUtil;
 
 class AppServiceProvider extends ServiceProvider
@@ -46,5 +47,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton('oauthclientguard', function ($app) {
             return app('Tokenpass\OAuth\OAuthClientGuard');
         });
+
+        $this->app->bind('Tokenly\BvamApiClient\BVAMClient', function ($app) {
+            return new BVAMClient(env('BVAM_URL'));
+        });
+        
     }
 }

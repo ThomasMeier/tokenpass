@@ -48,6 +48,9 @@ Route::group(['middleware' => 'oauth-user-guard:tca'], function () {
 
     // private address details
     Route::get   ('api/v1/tca/address/{address}',              ['as' => 'api.tca.private.address.details', 'uses' => 'AddressesAPIController@getPrivateAddressDetails']);
+
+    // check messenger privileges for a token
+    Route::get   ('api/v1/tca/messenger/privileges/{token}',   ['as' => 'api.messenger.token.privileges', 'uses' => 'MessengerAPIController@getTokenPrivileges']);
 });
 
 Route::group(['middleware' => 'oauth-user-guard:manage-address'], function () {

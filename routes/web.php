@@ -97,6 +97,15 @@ Route::get('dashboard', [
     'uses'       => 'Accounts\DashboardController@getDashboard'
 ]);
 
+Route::get('messenger', [
+    'as'         => 'user.messenger',
+    'middleware' => ['auth'],
+    'uses'       => function() {
+        $user = Auth::user();
+        return redirect('http://messenger-stage.tokenly.com?c='.$user->getChannelName().'&username='.$user['username']);
+    }
+]);
+
 
 
 // -------------------------------------------------------------------------
