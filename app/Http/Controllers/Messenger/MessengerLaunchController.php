@@ -22,7 +22,7 @@ class MessengerLaunchController extends Controller
             return response("Error launching messenger", 500);
         }
 
-        return redirect(env('MESSENGER_URL').'?c='.$user->getChannelName().'&t='.$messenger_oauth_token.'username='.$user['username']);
+        return redirect(env('MESSENGER_URL').'?c='.$user->getChannelName().'&t='.$messenger_oauth_token.'&username='.$user['username']);
     }
 
     protected function issueMessengerOauthToken(User $user) {
