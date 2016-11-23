@@ -28,7 +28,9 @@
         "intervention/image": "^2.3",
         "tokenly/bvam-api-client": "dev-master@dev",
         "ramsey/uuid": "^3.5",
-        "tokenly/hmac-auth": "^1.1"
+        "tokenly/hmac-auth": "^1.1",
+        "pubnub/pubnub": "^3.8",
+        "tokenly/asset-name-utils": "^0.2.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

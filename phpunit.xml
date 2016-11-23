@@ -27,5 +27,8 @@
         <env name="DATABASE_DRIVER" value="testing"/>
         <env name="MAIL_DRIVER" value="log"/>
         <env name="PLATFORM_ADMIN_DEVELOPMENT_MODE_ENABLED" value="false"/>
+
+        <env name="PUBNUB_SUBSCRIBE_KEY" value="foo"/>
+        <env name="PUBNUB_PUBLISH_KEY" value="foo"/>
     </php>
 </phpunit>

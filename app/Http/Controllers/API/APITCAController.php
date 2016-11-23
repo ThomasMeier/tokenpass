@@ -12,6 +12,7 @@ use Tokenpass\Http\Controllers\Controller;
 use Tokenpass\Models\Address;
 use Tokenpass\Models\User;
 use Tokenpass\Models\UserMeta;
+use Tokenpass\Providers\TCAMessenger\TCAMessenger;
 use Tokenpass\Repositories\AddressRepository;
 use Tokenpass\Repositories\ClientConnectionRepository;
 use Tokenpass\Repositories\OAuthClientRepository;
@@ -150,36 +151,19 @@ class APITCAController extends Controller
         return Response::json($output);
     }
 
-    public function findUsersByTCARules(AddressRepository $address_repository, UserRepository $user_repository, APIControllerHelper $api_controller_helper) {
+    public function findUsersByTCARules(TCAMessenger $tca_messenger, APIControllerHelper $api_controller_helper) {
         $input = Input::all();
 
         $tca_stack = $this->buildTCAStack($input);
-        $tokens = collect($tca_stack)->pluck('asset')->unique()->toArray();
 
-        // rough 1st pass filter
-        $possible_user_ids = $address_repository->findUserIDsWithToken($tokens, $public_only=false, $active_only=true, $verified_only=true);
-
-        // detailed tca check
         $user_results = [];
-
-        $tca = new Access();
-        foreach($possible_user_ids as $possible_user_id) {
-            $balances = Address::getAllUserBalances($possible_user_id, $filter_disabled = true, $and_provisional = true, $subtract_loans = true);
-            $has_access = $tca->checkAccess($tca_stack, $balances);
-
-            if ($has_access) {
-                // load the user
-                $user = $user_repository->findById($possible_user_id);
-
-                // add to the results
-                $user_results[] = [
-                    'id'       => $user['uuid'],
-                    'username' => $user['username'],
-                    'channel'  => $user->getChannelName(),
-                ];
-            }
+        foreach ($tca_messenger->findUsersWithTokens($tca_stack) as $user) {
+            $user_results[] = [
+                'id'       => $user['uuid'],
+                'username' => $user['username'],
+                'channel'  => $user->getChannelName(),
+            ];
         }
-
 
         return $api_controller_helper->transformValueForOutput([
             'count'   => count($user_results),

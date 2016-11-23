@@ -32,6 +32,10 @@ class OauthUserAPITester
         return $this->callAPIAndReturnJSONContent($method, $route_spec, $parameters, $expected_response_code);
     }
 
+    public function callJSON($method, $route_spec, $parameters = [], $expected_response_code=200, $cookies = [], $files = [], $server = [], $content = null) {
+        return $this->callAPIAndReturnJSONContent($method, $route_spec, $parameters, $expected_response_code, $cookies, $files, $server, $content);
+    }
+
     public function callAPIAndReturnJSONContent($method, $route_spec, $parameters = [], $expected_response_code=200, $cookies = [], $files = [], $server = [], $content = null) {
         if ($this->token) { $parameters['oauth_token'] = $this->token; }
         $url = $this->resolveRouteSpec($route_spec);
