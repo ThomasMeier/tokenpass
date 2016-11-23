@@ -49,16 +49,16 @@ Route::group(['middleware' => 'oauth-client-guard'], function () {
     Route::match(['GET',    'OPTIONS'], 'api/v1/tca/provisional/tx', [
                                         'as'   => 'api.tca.provisional.tx.list',     
                                         'uses' => 'APIProvisionalController@getProvisionalTCATransactionList']);
-    Route::match(['POST',   'OPTIONS'], 'api/v1/tca/provisional/tx', [
+    Route::match(['POST',            ], 'api/v1/tca/provisional/tx', [
                                         'as'   => 'api.tca.provisional.tx.register', 
                                         'uses' => 'APIProvisionalController@registerProvisionalTCATransaction']);
     Route::match(['GET',    'OPTIONS'], 'api/v1/tca/provisional/tx/{id}', [
                                         'as'   => 'api.tca.provisional.tx.get',      
                                         'uses' => 'APIProvisionalController@getProvisionalTCATransaction']);
-    Route::match(['PATCH',  'OPTIONS'], 'api/v1/tca/provisional/tx/{id}', [
+    Route::match(['PATCH',           ], 'api/v1/tca/provisional/tx/{id}', [
                                         'as'   => 'api.tca.provisional.tx.update',   
                                         'uses' => 'APIProvisionalController@updateProvisionalTCATransaction']);
-    Route::match(['DELETE', 'OPTIONS'], 'api/v1/tca/provisional/tx/{id}', [
+    Route::match(['DELETE',          ], 'api/v1/tca/provisional/tx/{id}', [
                                         'as'   => 'api.tca.provisional.tx.delete',   
                                         'uses' => 'APIProvisionalController@deleteProvisionalTCATransaction']);
 });
@@ -110,10 +110,10 @@ Route::group(['middleware' => 'oauth-user-guard:manage-address'], function () {
     Route::match(['POST',   'OPTIONS'], 'api/v1/tca/address/{address}', [
                                         'as'   => 'api.tca.address.verify',          
                                         'uses' => 'AddressesAPIController@verifyAddress']);
-    Route::match(['PATCH',  'OPTIONS'], 'api/v1/tca/address/{address}', [
+    Route::match(['PATCH',           ], 'api/v1/tca/address/{address}', [
                                         'as'   => 'api.tca.address.edit',            
                                         'uses' => 'AddressesAPIController@editAddress']);
-    Route::match(['DELETE', 'OPTIONS'], 'api/v1/tca/address/{address}', [
+    Route::match(['DELETE',          ], 'api/v1/tca/address/{address}', [
                                         'as'   => 'api.tca.address.delete',          
                                         'uses' => 'AddressesAPIController@deleteAddress']);
 });
