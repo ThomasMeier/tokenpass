@@ -2,6 +2,7 @@
 namespace Tokenpass\Http\Controllers\API;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Tokenly\LaravelApiProvider\Helpers\APIControllerHelper;
 use Tokenpass\Http\Controllers\Controller;
 use Tokenpass\Models\Address;
@@ -45,8 +46,10 @@ class MessengerAPIController extends Controller
         $this->validate($request, $rules);
         $attributes = $request->only(array_keys($rules));
 
-        if (!$tca_messenger->userCanSendMessages($user, $attributes['token'])) {
-            return $api_controller_helper->newJsonResponseWithErrors('Not authorized to send to holders of this token.', 403);
+        if (env('DEBUG_ANYONE_CAN_SEND_TOKEN', null) == $attributes['token']) {
+            Log::debug("DEBUG: allowing anyone to send to token {$attributes['token']}.");
+        } else if (!$tca_messenger->userCanSendMessages($user, $attributes['token'])) {
+            return $api_controller_helper->newJsonResponseWithErrors('You are not authorized to send to holders of this token.', 403);
         }
 
         $count = $tca_messenger->broadcast($attributes['quantity'], $attributes['token'], $attributes['message']);
