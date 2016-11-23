@@ -44,6 +44,7 @@ class Kernel extends HttpKernel
 
             'api.logApiCalls',
             'api.catchErrors',
+            'cors',
         ],
 
 
@@ -83,5 +84,8 @@ class Kernel extends HttpKernel
 
         // TLS
         'tls'                        => \Tokenpass\Http\Middleware\RequireTLS::class,
+
+        // CORS
+        'cors'                       => \Tokenpass\Http\Middleware\Cors::class,
     ];
 }
