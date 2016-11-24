@@ -6,6 +6,7 @@ return [
     'json'     => 'The :attribute must be in a valid json format.',
     'asset'    => 'The :attribute must be a valid token name.',
     'bitcoin'  => 'The :attribute must be a valid address.',
+    'token'    => 'The :attribute must be a valid token name.',
 
     /*
     |--------------------------------------------------------------------------

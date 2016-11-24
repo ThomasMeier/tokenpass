@@ -4392,18 +4392,18 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tokenly/laravel-api-provider.git",
-                "reference": "31d4ababa79767471bfdfbc77e8c65f8da6f9a5f"
+                "reference": "5e54f53d4a0bf65bc0ef0c8fa4797c25610cb4fd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tokenly/laravel-api-provider/zipball/31d4ababa79767471bfdfbc77e8c65f8da6f9a5f",
-                "reference": "31d4ababa79767471bfdfbc77e8c65f8da6f9a5f",
+                "url": "https://api.github.com/repos/tokenly/laravel-api-provider/zipball/5e54f53d4a0bf65bc0ef0c8fa4797c25610cb4fd",
+                "reference": "5e54f53d4a0bf65bc0ef0c8fa4797c25610cb4fd",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.5.0",
                 "ramsey/uuid": "^3",
-                "tokenly/hmac-auth": "^1",
+                "tokenly/hmac-auth": "^1.1.2",
                 "tokenly/laravel-event-log": "^1",
                 "tokenly/token-generator": "dev-master"
             },
@@ -4428,7 +4428,7 @@
                 }
             ],
             "description": "An API service provider for Laravel",
-            "time": "2016-09-30 17:15:39"
+            "time": "2016-11-11 07:10:50"
         },
         {
             "name": "tokenly/laravel-event-log",

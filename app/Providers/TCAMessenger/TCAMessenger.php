@@ -64,8 +64,8 @@ class TCAMessenger
 
     }
 
-    public function broadcast($quantity, $token, $message_contents) {
-        $tca_stack = [
+    public function makeSimpleTCAStack($quantity, $token) {
+        return [
             [
                 'asset'   => $token,
                 'amount'  => CurrencyUtil::valueToSatoshis($quantity),
@@ -73,6 +73,10 @@ class TCAMessenger
                 'stackOp' => 'AND',
             ]
         ];
+    }
+
+    public function broadcast($quantity, $token, $message_contents) {
+        $tca_stack = $this->makeSimpleTCAStack($quantity, $token);
 
         $count = 0;
         $recipient_users = $this->findUsersWithTokens($tca_stack);

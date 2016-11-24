@@ -87,6 +87,12 @@ Route::post('auth/apps/{app}/edit',                    ['uses' => 'Auth\AppsCont
 Route::patch('auth/apps/{app}/regen',                  ['uses' => 'Auth\AppsController@regenerateApp']);
 Route::get('auth/apps/{app}/delete',                   ['uses' => 'Auth\AppsController@deleteApp']);
 
+// token chats
+Route::get('tokenchats',                                ['as' => 'tokenchats.index',  'uses' => 'Tokenchats\TokenchatsController@index']);
+Route::post('tokenchats/new',                           ['as' => 'tokenchats.create', 'uses' => 'Tokenchats\TokenchatsController@create']);
+Route::post('tokenchats/edit/{id}',                     ['as' => 'tokenchats.edit',   'uses' => 'Tokenchats\TokenchatsController@edit']);
+Route::delete('tokenchats/delete/{id}',                 ['as' => 'tokenchats.delete',   'uses' => 'Tokenchats\TokenchatsController@destroy']);
+
 // -------------------------------------------------------------------------
 // User routes
 
