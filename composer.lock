@@ -4336,16 +4336,16 @@
         },
         {
             "name": "tokenly/hmac-auth",
-            "version": "v1.1.1",
+            "version": "v1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tokenly/hmac-auth.git",
-                "reference": "4221c2ca98f40e16c0153641549784d67aee21ba"
+                "reference": "27349d60878749a4b1e7dc8b88a3a65ba43b12ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tokenly/hmac-auth/zipball/4221c2ca98f40e16c0153641549784d67aee21ba",
-                "reference": "4221c2ca98f40e16c0153641549784d67aee21ba",
+                "url": "https://api.github.com/repos/tokenly/hmac-auth/zipball/27349d60878749a4b1e7dc8b88a3a65ba43b12ba",
+                "reference": "27349d60878749a4b1e7dc8b88a3a65ba43b12ba",
                 "shasum": ""
             },
             "require": {
@@ -4384,7 +4384,7 @@
                 }
             ],
             "description": "HMAC authentication for Tokenly APIs",
-            "time": "2016-05-18 11:51:14"
+            "time": "2016-10-29 14:10:50"
         },
         {
             "name": "tokenly/laravel-api-provider",
@@ -4392,12 +4392,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tokenly/laravel-api-provider.git",
-                "reference": "5e54f53d4a0bf65bc0ef0c8fa4797c25610cb4fd"
+                "reference": "bb14fe55a22274bfdd1ddfcf5ef28af913c940de"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tokenly/laravel-api-provider/zipball/5e54f53d4a0bf65bc0ef0c8fa4797c25610cb4fd",
-                "reference": "5e54f53d4a0bf65bc0ef0c8fa4797c25610cb4fd",
+                "url": "https://api.github.com/repos/tokenly/laravel-api-provider/zipball/bb14fe55a22274bfdd1ddfcf5ef28af913c940de",
+                "reference": "bb14fe55a22274bfdd1ddfcf5ef28af913c940de",
                 "shasum": ""
             },
             "require": {
@@ -4428,7 +4428,7 @@
                 }
             ],
             "description": "An API service provider for Laravel",
-            "time": "2016-11-11 07:10:50"
+            "time": "2016-11-24 02:24:18"
         },
         {
             "name": "tokenly/laravel-event-log",
