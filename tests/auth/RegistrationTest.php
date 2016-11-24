@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\App;
+use \PHPUnit_Framework_Assert as PHPUnit;
 
 /*
 * RegistrationTest
@@ -18,6 +19,9 @@ class RegistrationTest extends TestCase {
 
         // make sure the user exists
         $this->assertTrue($user_helper->userExistsInDB($user));
+
+        // ensure an ecc key was created
+        PHPUnit::assertGreaterThan(20, strlen($user['ecc_key']));
     }
 
     public function testRegistrationLogsInUser() {

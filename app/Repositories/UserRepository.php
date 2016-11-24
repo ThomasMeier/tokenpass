@@ -6,10 +6,11 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Tokenpass\Providers\CMSAuth\Util;
 use Tokenly\LaravelApiProvider\Contracts\APIUserRepositoryContract;
 use Tokenly\LaravelApiProvider\Repositories\APIRepository;
 use Tokenly\TokenGenerator\TokenGenerator;
+use Tokenpass\Providers\CMSAuth\Util;
+use Tokenpass\Util\ECCUtil;
 
 /*
 * UserRepository
@@ -75,6 +76,9 @@ class UserRepository extends APIRepository implements APIUserRepositoryContract
         if (!isset($attributes['slug'])) {
             $attributes['slug'] = Util::slugify($attributes['username']);
         }
+
+        // add an ECC private key
+        $attributes['ecc_key'] = ECCUtil::generateEncodedPrivateKey();
 
         return $attributes;
     }
