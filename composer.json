@@ -30,7 +30,8 @@
         "ramsey/uuid": "^3.5",
         "tokenly/hmac-auth": "^1.1",
         "pubnub/pubnub": "^3.8",
-        "tokenly/asset-name-utils": "^0.2.0"
+        "tokenly/asset-name-utils": "^0.2.0",
+        "stephenhill/base58": "^1.1"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

@@ -10,6 +10,8 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
+use StephenHill\Base58;
+use StephenHill\GMPService;
 use Tokenly\LaravelApiProvider\Contracts\APIPermissionedUserContract;
 use Tokenly\LaravelApiProvider\Model\APIUser;
 use Tokenly\LaravelApiProvider\Model\Traits\Permissioned;
@@ -59,7 +61,13 @@ class User extends APIUser implements AuthenticatableContract, CanResetPasswordC
     }
 
     public function getChannelName() {
-        return hash('sha256', $this['uuid'].env('PUBNUB_CHANNEL_SALT'));
+        $base58 = new Base58(null, new GMPService());
+        return $base58->encode(hash('sha256', $this['uuid'].env('PUBNUB_CHANNEL_SALT'), true));
+    }
+
+    public function getChannelAuthKey() {
+        $base58 = new Base58(null, new GMPService());
+        return $base58->encode(hash('sha256', $this['uuid'].$this['ecc_key'].env('PUBNUB_CHANNEL_SALT')));
     }
 
     public static function getByVerifiedAddress($data)

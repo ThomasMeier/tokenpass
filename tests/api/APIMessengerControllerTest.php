@@ -306,136 +306,136 @@ class APIMessengerControllerTest extends TestCase {
     }
 
 
-    public function testMessengerBroadcast() {
-        $pubnub_mock      = $this->mockPubnub();
-        $bvam_client_mock = $this->mockBVAMClient();
-        $bvam_client_mock->shouldIgnoreMissing();
+    // public function testMessengerBroadcast() {
+    //     $pubnub_mock      = $this->mockPubnub();
+    //     $bvam_client_mock = $this->mockBVAMClient();
+    //     $bvam_client_mock->shouldIgnoreMissing();
 
-        $user_helper    = app('UserHelper')->setTestCase($this);
-        $address_helper = app('AddressHelper');
+    //     $user_helper    = app('UserHelper')->setTestCase($this);
+    //     $address_helper = app('AddressHelper');
 
-        // create sending user
-        $sending_user = $user_helper->createRandomUser();
-        $address_helper->createNewAddress($sending_user, [
-            'type'     => 'BTC',
-            'address'  => '1AAAA9999xxxxxxxxxxxxxxxxxxxtA4f45',
-            'label'    => 'Issuing Addr Nine',
-            'verified' => 1,
-            'public'   => 1,
-        ]);
-        $bvam_client_mock->shouldReceive('getAssetInfo')->withArgs(['COINBBB'])->andReturn([
-            'asset' => 'COINBBB',
-            'assetInfo' => [
-                'issuer' => '1AAAA9999xxxxxxxxxxxxxxxxxxxtA4f45',
-            ],
-        ]);
-        $bvam_client_mock->shouldReceive('getAssetInfo')->withArgs(['COINCCC'])->andReturn([
-            'asset' => 'COINCCC',
-            'assetInfo' => [
-                'issuer' => '1AAAA9999xxxxxxxxxxxxxxxxxxxtA4f45',
-            ],
-        ]);
+    //     // create sending user
+    //     $sending_user = $user_helper->createRandomUser();
+    //     $address_helper->createNewAddress($sending_user, [
+    //         'type'     => 'BTC',
+    //         'address'  => '1AAAA9999xxxxxxxxxxxxxxxxxxxtA4f45',
+    //         'label'    => 'Issuing Addr Nine',
+    //         'verified' => 1,
+    //         'public'   => 1,
+    //     ]);
+    //     $bvam_client_mock->shouldReceive('getAssetInfo')->withArgs(['COINBBB'])->andReturn([
+    //         'asset' => 'COINBBB',
+    //         'assetInfo' => [
+    //             'issuer' => '1AAAA9999xxxxxxxxxxxxxxxxxxxtA4f45',
+    //         ],
+    //     ]);
+    //     $bvam_client_mock->shouldReceive('getAssetInfo')->withArgs(['COINCCC'])->andReturn([
+    //         'asset' => 'COINCCC',
+    //         'assetInfo' => [
+    //             'issuer' => '1AAAA9999xxxxxxxxxxxxxxxxxxxtA4f45',
+    //         ],
+    //     ]);
 
-        // create users
-        $users = [];
-        $users[0] = $user_helper->createRandomUser();
-        $users[1] = $user_helper->createRandomUser();
-        $users[2] = $user_helper->createRandomUser();
+    //     // create users
+    //     $users = [];
+    //     $users[0] = $user_helper->createRandomUser();
+    //     $users[1] = $user_helper->createRandomUser();
+    //     $users[2] = $user_helper->createRandomUser();
 
-        // setup api client
-        $oauth_helper = app('OAuthClientHelper');
-        $oauth_client = $oauth_helper->createConnectedOAuthClientWithTCAScopes($sending_user);
-        $token = $oauth_helper->connectUserSession($sending_user, $oauth_client);
-        $api_tester = new OauthUserAPITester($token);
+    //     // setup api client
+    //     $oauth_helper = app('OAuthClientHelper');
+    //     $oauth_client = $oauth_helper->createConnectedOAuthClientWithTCAScopes($sending_user);
+    //     $token = $oauth_helper->connectUserSession($sending_user, $oauth_client);
+    //     $api_tester = new OauthUserAPITester($token);
 
-        // create new addresses
-        $addresses = [];
+    //     // create new addresses
+    //     $addresses = [];
 
-        // user 0, Address 0
-        $user_offset = 0; $address_offset = 0;
-        $addresses[$address_offset] = $address_helper->createNewAddress($users[$user_offset], [
-            'type'     => 'BTC',
-            'address'  => '1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j',
-            'label'    => 'Addr One',
-            'verified' => 1,
-            'public'   => 1,
-        ]);
-        $address_helper->addBalancesToAddress([
-            'COINAAA' => 1,
-            'COINBBB' => 2,
-            'COINCCC' => 3,
-        ], $addresses[$address_offset]);
+    //     // user 0, Address 0
+    //     $user_offset = 0; $address_offset = 0;
+    //     $addresses[$address_offset] = $address_helper->createNewAddress($users[$user_offset], [
+    //         'type'     => 'BTC',
+    //         'address'  => '1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j',
+    //         'label'    => 'Addr One',
+    //         'verified' => 1,
+    //         'public'   => 1,
+    //     ]);
+    //     $address_helper->addBalancesToAddress([
+    //         'COINAAA' => 1,
+    //         'COINBBB' => 2,
+    //         'COINCCC' => 3,
+    //     ], $addresses[$address_offset]);
 
-        // user 1, Address 1
-        $user_offset = 1; $address_offset = 1;
-        $addresses[$address_offset] = $address_helper->createNewAddress($users[$user_offset], [
-            'type'     => 'BTC',
-            'address'  => '1AAAA3333xxxxxxxxxxxxxxxxxxxsTtS6v',
-            'label'    => 'Addr One',
-            'verified' => 1,
-            'public'   => 1,
-        ]);
-        $address_helper->addBalancesToAddress([
-            'COINBBB' => 50,
-            'COINCCC' => 50,
-            'USERONE' => 1,
-        ], $addresses[$address_offset]);
+    //     // user 1, Address 1
+    //     $user_offset = 1; $address_offset = 1;
+    //     $addresses[$address_offset] = $address_helper->createNewAddress($users[$user_offset], [
+    //         'type'     => 'BTC',
+    //         'address'  => '1AAAA3333xxxxxxxxxxxxxxxxxxxsTtS6v',
+    //         'label'    => 'Addr One',
+    //         'verified' => 1,
+    //         'public'   => 1,
+    //     ]);
+    //     $address_helper->addBalancesToAddress([
+    //         'COINBBB' => 50,
+    //         'COINCCC' => 50,
+    //         'USERONE' => 1,
+    //     ], $addresses[$address_offset]);
 
-        // user 2, Address 2 (not public)
-        $user_offset = 2; $address_offset = 2;
-        $addresses[$address_offset] = $address_helper->createNewAddress($users[$user_offset], [
-            'type'     => 'BTC',
-            'address'  => '1AAAA4444xxxxxxxxxxxxxxxxxxxxjbqeD',
-            'label'    => 'Addr One',
-            'verified' => 1,
-            'public'   => 0,
-        ]);
-        $address_helper->addBalancesToAddress([
-            'COINAAA' => 50,
-            'COINBBB' => 50,
-            'COINCCC' => 50,
-            'USERTWO' => 1,
-        ], $addresses[$address_offset]);
+    //     // user 2, Address 2 (not public)
+    //     $user_offset = 2; $address_offset = 2;
+    //     $addresses[$address_offset] = $address_helper->createNewAddress($users[$user_offset], [
+    //         'type'     => 'BTC',
+    //         'address'  => '1AAAA4444xxxxxxxxxxxxxxxxxxxxjbqeD',
+    //         'label'    => 'Addr One',
+    //         'verified' => 1,
+    //         'public'   => 0,
+    //     ]);
+    //     $address_helper->addBalancesToAddress([
+    //         'COINAAA' => 50,
+    //         'COINBBB' => 50,
+    //         'COINCCC' => 50,
+    //         'USERTWO' => 1,
+    //     ], $addresses[$address_offset]);
 
-        // send message to 1 COINBBB (should be user 0,1)
-        $message_params = ['token' => 'COINBBB', 'quantity' => 1, 'message' => 'Hi there users 0 and 1!'];
-        // expect publish
-        $pubnub_mock->shouldReceive('publish')->withArgs([$users[0]->getChannelName(), [
-            'token'    => $message_params['token'],
-            'quantity' => $message_params['quantity'],
-            'msg'      => $message_params['message'],
-        ]])->times(1);
-        $pubnub_mock->shouldReceive('publish')->withArgs([$users[1]->getChannelName(), [
-            'token'    => $message_params['token'],
-            'quantity' => $message_params['quantity'],
-            'msg'      => $message_params['message'],
-        ]])->times(1);
-        $response = $api_tester->callJSON('POST', route('api.messenger.broadcast'), $message_params);
-        PHPUnit::assertTrue($response['success']);
-        PHPUnit::assertEquals(2, $response['count']);
+    //     // send message to 1 COINBBB (should be user 0,1)
+    //     $message_params = ['token' => 'COINBBB', 'quantity' => 1, 'message' => 'Hi there users 0 and 1!'];
+    //     // expect publish
+    //     $pubnub_mock->shouldReceive('publish')->withArgs([$users[0]->getChannelName(), [
+    //         'token'    => $message_params['token'],
+    //         'quantity' => $message_params['quantity'],
+    //         'msg'      => $message_params['message'],
+    //     ]])->times(1);
+    //     $pubnub_mock->shouldReceive('publish')->withArgs([$users[1]->getChannelName(), [
+    //         'token'    => $message_params['token'],
+    //         'quantity' => $message_params['quantity'],
+    //         'msg'      => $message_params['message'],
+    //     ]])->times(1);
+    //     $response = $api_tester->callJSON('POST', route('api.messenger.broadcast'), $message_params);
+    //     PHPUnit::assertTrue($response['success']);
+    //     PHPUnit::assertEquals(2, $response['count']);
 
-        // send message to 1 COINCCC (should be user 1,2,3)
-        $message_params = ['token' => 'COINCCC', 'quantity' => 1, 'message' => 'Hi there users 0, 1 and 2!'];
-        // expect publish
-        $pubnub_mock->shouldReceive('publish')->withArgs([$users[0]->getChannelName(), [
-            'token'    => $message_params['token'],
-            'quantity' => $message_params['quantity'],
-            'msg'      => $message_params['message'],
-        ]])->times(1);
-        $pubnub_mock->shouldReceive('publish')->withArgs([$users[1]->getChannelName(), [
-            'token'    => $message_params['token'],
-            'quantity' => $message_params['quantity'],
-            'msg'      => $message_params['message'],
-        ]])->times(1);
-        $pubnub_mock->shouldReceive('publish')->withArgs([$users[2]->getChannelName(), [
-            'token'    => $message_params['token'],
-            'quantity' => $message_params['quantity'],
-            'msg'      => $message_params['message'],
-        ]])->times(1);
-        $response = $api_tester->callJSON('POST', route('api.messenger.broadcast'), $message_params);
-        PHPUnit::assertTrue($response['success']);
-        PHPUnit::assertEquals(3, $response['count']);
-    }
+    //     // send message to 1 COINCCC (should be user 1,2,3)
+    //     $message_params = ['token' => 'COINCCC', 'quantity' => 1, 'message' => 'Hi there users 0, 1 and 2!'];
+    //     // expect publish
+    //     $pubnub_mock->shouldReceive('publish')->withArgs([$users[0]->getChannelName(), [
+    //         'token'    => $message_params['token'],
+    //         'quantity' => $message_params['quantity'],
+    //         'msg'      => $message_params['message'],
+    //     ]])->times(1);
+    //     $pubnub_mock->shouldReceive('publish')->withArgs([$users[1]->getChannelName(), [
+    //         'token'    => $message_params['token'],
+    //         'quantity' => $message_params['quantity'],
+    //         'msg'      => $message_params['message'],
+    //     ]])->times(1);
+    //     $pubnub_mock->shouldReceive('publish')->withArgs([$users[2]->getChannelName(), [
+    //         'token'    => $message_params['token'],
+    //         'quantity' => $message_params['quantity'],
+    //         'msg'      => $message_params['message'],
+    //     ]])->times(1);
+    //     $response = $api_tester->callJSON('POST', route('api.messenger.broadcast'), $message_params);
+    //     PHPUnit::assertTrue($response['success']);
+    //     PHPUnit::assertEquals(3, $response['count']);
+    // }
 
     // ------------------------------------------------------------------------
     

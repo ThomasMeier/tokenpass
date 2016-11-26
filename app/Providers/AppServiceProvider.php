@@ -12,6 +12,7 @@ use Pubnub\Pubnub;
 use Tokenly\AssetNameUtils\Validator as AssetValidator;
 use Tokenly\BvamApiClient\BVAMClient;
 use Tokenpass\Providers\TCAMessenger\TCAMessenger;
+use Tokenpass\Providers\TCAMessenger\TCAMessengerAuth;
 use Tokenpass\Util\BitcoinUtil;
 
 class AppServiceProvider extends ServiceProvider
@@ -60,13 +61,22 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->bind('Tokenpass\Providers\TCAMessenger\TCAMessenger', function ($app) {
-            return new TCAMessenger(app('Tokenly\BvamApiClient\BVAMClient'), app('Pubnub\Pubnub'));
+            return new TCAMessenger(
+                app('Tokenly\BvamApiClient\BVAMClient'),
+                app('Tokenpass\Providers\TCAMessenger\TCAMessengerAuth'),
+                app('Pubnub\Pubnub')
+            );
+        });
+
+        $this->app->bind('Tokenpass\Providers\TCAMessenger\TCAMessengerAuth', function ($app) {
+            return new TCAMessengerAuth(app('Pubnub\Pubnub'));
         });
 
         $this->app->bind('Pubnub\Pubnub', function ($app) {
             return new Pubnub([
                 'subscribe_key' => env('PUBNUB_SUBSCRIBE_KEY'),
                 'publish_key'   => env('PUBNUB_PUBLISH_KEY'),
+                'secret_key'    => env('PUBNUB_ADMIN_SECRET_KEY'),
             ]);
         });
 

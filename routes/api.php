@@ -97,9 +97,9 @@ Route::group(['middleware' => 'oauth-user-guard:tca'], function () {
                                         'uses' => 'MessengerAPIController@getTokenPrivileges']);
 
     // Send a message to token holders
-    Route::match(['POST',   'OPTIONS'], 'api/v1/tca/messenger/broadcast', [
-                                        'as'   => 'api.messenger.broadcast',         
-                                        'uses' => 'MessengerAPIController@broadcast']);
+    // Route::match(['POST',   'OPTIONS'], 'api/v1/tca/messenger/broadcast', [
+    //                                     'as'   => 'api.messenger.broadcast',         
+    //                                     'uses' => 'MessengerAPIController@broadcast']);
 });
 
 Route::group(['middleware' => 'oauth-user-guard:manage-address'], function () {

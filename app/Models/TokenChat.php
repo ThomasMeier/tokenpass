@@ -2,8 +2,10 @@
 
 namespace Tokenpass\Models;
 
-use Tokenly\LaravelApiProvider\Model\APIModel;
 use Exception;
+use StephenHill\Base58;
+use StephenHill\GMPService;
+use Tokenly\LaravelApiProvider\Model\APIModel;
 
 class TokenChat extends APIModel {
 
@@ -14,4 +16,8 @@ class TokenChat extends APIModel {
         'active'    => 'boolean',
     ];
 
+    public function getChannelName() {
+        $base58 = new Base58(null, new GMPService());
+        return $base58->encode(hex2bin(str_replace('-', '', $this['uuid'])));
+    }
 }
