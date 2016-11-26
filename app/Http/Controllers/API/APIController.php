@@ -257,7 +257,7 @@ class APIController extends Controller
         
         if(!$error){
             try{
-                $register = $this->user_repository->create([
+                $registered_user = $this->user_repository->create([
                         'name'     => $data['name'],
                         'username' => $data['username'],
                         'email'    => $data['email'],
@@ -265,13 +265,18 @@ class APIController extends Controller
                     ]);
             }
             catch(\Exception $e){
-                $register = false;
+                $registered_user = false;
                 $output['error'] = 'Error registering account';
             }
             
-            if($register){
-                $output['result'] = array('id' => $register->uuid, 'username' => $register->username, 'email' => $register->email);
-                $this->dispatch(new SendUserConfirmationEmail($register));
+            if($registered_user){
+                $output['result'] = [
+                    'id'       => $registered_user->uuid,
+                    'username' => $registered_user->username,
+                    'email'    => $registered_user->email,
+                    'ecc_key'  => $registered_user->ecc_key,
+                ];
+                $this->dispatch(new SendUserConfirmationEmail($registered_user));
             }
         }
         
@@ -424,6 +429,7 @@ class APIController extends Controller
                 'username'        => $user['username'],
                 'email'           => $user['email'],
                 'confirmed_email' => $user['confirmed_email'],
+                'ecc_key'         => $user['ecc_key'],
             ], 200);
         }
 

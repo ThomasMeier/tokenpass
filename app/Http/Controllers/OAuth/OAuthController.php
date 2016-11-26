@@ -147,7 +147,7 @@ class OAuthController extends Controller
             'username'           => $user['username'],
             'email'              => $user['email'],
             'email_is_confirmed' => $user->emailIsConfirmed(),
-            'channel'            => $user->getChannelName(),
+            'ecc_key'            => $user['ecc_key'],
         ];
 
         Log::info('getUser returning '.json_encode($response, 192));
