@@ -3,6 +3,7 @@
 namespace Tokenpass\Providers\TCAMessenger;
 
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Pubnub\Pubnub;
 use Tokenly\BvamApiClient\BVAMClient;
 use Tokenly\CurrencyLib\CurrencyUtil;
@@ -11,15 +12,17 @@ use Tokenly\TCA\Access;
 use Tokenpass\Models\Address;
 use Tokenpass\Models\TokenChat;
 use Tokenpass\Models\User;
+use Tokenpass\Providers\TCAMessenger\TCAMessengerActions;
 use Tokenpass\Providers\TCAMessenger\TCAMessengerAuth;
 
 class TCAMessenger
 {
 
-    function __construct(BVAMClient $bvam_client, TCAMessengerAuth $tca_messenger_auth, Pubnub $pubnub) {
-        $this->bvam_client        = $bvam_client;
-        $this->tca_messenger_auth = $tca_messenger_auth;
-        $this->pubnub             = $pubnub;
+    function __construct(BVAMClient $bvam_client, TCAMessengerAuth $tca_messenger_auth, TCAMessengerActions $tca_messenger_actions, Pubnub $pubnub) {
+        $this->bvam_client           = $bvam_client;
+        $this->tca_messenger_auth    = $tca_messenger_auth;
+        $this->tca_messenger_actions = $tca_messenger_actions;
+        $this->pubnub                = $pubnub;
     }
 
     public function userCanSendMessages(User $user, $token) {
@@ -104,9 +107,12 @@ class TCAMessenger
     // }
 
     public function authorizeChat(TokenChat $token_chat) {
-        $chat_channel            = "chat-".$token_chat->getChannelName();
+        $auth = $this->tca_messenger_auth;
+
+        $channel_name            = $token_chat->getChannelName();
+        $chat_channel            = "chat-{$channel_name}";
         $chat_presence_channel   = $chat_channel."-pnpres";
-        $chat_identities_channel = $chat_channel."-identities";
+        $chat_identities_channel = "identities-{$channel_name}";
 
         // authorize tokenpass for identities channel
         $auth->authorizeTokenpass($read=true, $write=true, $chat_identities_channel);
@@ -115,22 +121,87 @@ class TCAMessenger
         $auth->authorizeTokenpass($read=true, $write=true, $chat_channel);
 
         // authorize all users
-        $users = $this->findUsersWithTokens($token_chat['tca_stack']);
-        foreach($users as $user) {
-            $user_control_channel = "control-".$user->getChannelName();
+        $this->syncUsersWithChat($token_chat);
+    }
 
-            // tokenpass can read/write to control channel
-            $auth->authorizeTokenpass($read=true, $write=true, $user_control_channel);
+    public function syncUsersWithChat(TokenChat $token_chat) {
+        $auth = $this->tca_messenger_auth;
+        $user_repository = app('Tokenpass\Repositories\UserRepository');
 
-            // user can read from control channel
-            $auth->authorizeUser($user, $read=true, $write=false, $user_control_channel);
+        // new user ids (users that should have access)
+        $new_users = $this->findUsersWithTokens($token_chat['tca_rules']);
+        $new_users_by_id = collect($new_users)->keyBy('id');
+        $new_user_ids = $new_users_by_id->keys();
 
-            // user can read/write to chat and presence channel
-            $auth->authorizeUser($user, $read=true, $write=false, $chat_channel);
-            $auth->authorizeUser($user, $read=true, $write=false, $chat_presence_channel);
+        // old user ids (users that already have access)
+        $chat_channel = "chat-".$token_chat->getChannelName();
+        $old_user_ids = $auth->findUserIDsByChannel($chat_channel)->pluck('user_id');
+
+        // add users
+        $user_ids_to_add = $new_user_ids->diff($old_user_ids);
+        foreach($user_ids_to_add as $user_id_to_add) {
+            $user = $new_users_by_id[$user_id_to_add];
+            $this->addUserToChat($user, $token_chat);
         }
 
 
+        // remove users
+        $user_ids_to_delete = $old_user_ids->diff($new_user_ids);
+        foreach($user_ids_to_delete as $user_id_to_delete) {
+            $user = $user_repository->findById($user_id_to_delete);
+            $this->removeUserFromChat($user, $token_chat);
+        }
+
+
+    }
+
+
+    protected function addUserToChat(User $user, TokenChat $token_chat) {
+        $channel_name            = $token_chat->getChannelName();
+        $chat_channel            = "chat-{$channel_name}";
+        $chat_presence_channel   = $chat_channel."-pnpres";
+        $chat_identities_channel = "identities-{$channel_name}";
+        $user_control_channel    = "control-".$user->getChannelName();
+
+        $auth = $this->tca_messenger_auth;
+
+        // tokenpass can read/write to user's control channel
+        $auth->authorizeTokenpass($read=true, $write=true, $user_control_channel);
+
+        // user can read from control channel
+        $auth->authorizeUser($user, $read=true, $write=false, $user_control_channel);
+
+        // user can read from identities channel
+        $auth->authorizeUser($user, $read=true, $write=false, $chat_identities_channel);
+
+        // user can read/write to chat and presence channel
+        $auth->authorizeUser($user, $read=true, $write=true, $chat_channel);
+        $auth->authorizeUser($user, $read=true, $write=true, $chat_presence_channel);
+
+        // send identity
+        $this->tca_messenger_actions->sendIdentity($user, $token_chat);
+
+        // send invitation
+        $this->tca_messenger_actions->sendChatInvitation($user, $token_chat);
+    }
+
+    protected function removeUserFromChat(User $user, TokenChat $token_chat) {
+        $channel_name            = $token_chat->getChannelName();
+        $chat_channel            = "chat-{$channel_name}";
+        $chat_presence_channel   = $chat_channel."-pnpres";
+        $chat_identities_channel = "identities-{$channel_name}";
+        $user_control_channel    = "control-".$user->getChannelName();
+
+        $auth = $this->tca_messenger_auth;
+
+        // revoke privileges
+        $auth->revokeUser($user, $chat_identities_channel);
+        $auth->revokeUser($user, $chat_channel);
+        $auth->revokeUser($user, $chat_presence_channel);
+
+        // remove identity
+
+        // send exit message
     }
 
 }

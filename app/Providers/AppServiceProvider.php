@@ -64,6 +64,7 @@ class AppServiceProvider extends ServiceProvider
             return new TCAMessenger(
                 app('Tokenly\BvamApiClient\BVAMClient'),
                 app('Tokenpass\Providers\TCAMessenger\TCAMessengerAuth'),
+                app('Tokenpass\Providers\TCAMessenger\TCAMessengerActions'),
                 app('Pubnub\Pubnub')
             );
         });

@@ -16,16 +16,21 @@ class Kernel extends ConsoleKernel
         \Tokenly\LaravelApiProvider\Commands\MakeAPIModelCommand::class,
         \Tokenly\LaravelApiProvider\Commands\MakeAPIRespositoryCommand::class,
 
-        \Tokenpass\Console\Commands\PopulateCMSUsernamesCacheCommand::class,
-        \Tokenpass\Console\Commands\FetchCMSAccountInfoCommand::class,
-        \Tokenpass\Console\Commands\ScanCoinAddresses::class,
-        \Tokenpass\Console\Commands\ExpireProvisionalTransactions::class,
-        \Tokenpass\Console\Commands\ListUserAddresses::class,
-        \Tokenpass\Console\Commands\ListUsers::class,
-        \Tokenpass\Console\Commands\GetUser::class,
+        Commands\PopulateCMSUsernamesCacheCommand::class,
+        Commands\FetchCMSAccountInfoCommand::class,
+        Commands\ScanCoinAddresses::class,
+        Commands\ExpireProvisionalTransactions::class,
+        Commands\ListUserAddresses::class,
+        Commands\ListUsers::class,
+        Commands\GetUser::class,
+
+        // messenger
+        Commands\Messenger\ClearPubnubAuthorizationCache::class,
+        Commands\Messenger\ResyncChat::class,
+        Commands\Messenger\ShowChats::class,
 
         // Migration Commands
-        \Tokenpass\Console\Commands\Migrations\SyncUnmanagedAddressesWithXChain::class,
+        Commands\Migrations\SyncUnmanagedAddressesWithXChain::class,
 
         // Monitor Health
         \Tokenly\ConsulHealthDaemon\Console\ConsulHealthMonitorCommand::class,

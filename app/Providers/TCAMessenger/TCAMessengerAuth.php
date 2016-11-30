@@ -57,15 +57,28 @@ class TCAMessengerAuth
         return $this->processResponse($this->pubnub->audit($channel, $auth_key));
     }
 
+    public function clearAllCaches() {
+        DB::transaction(function() {
+            DB::table('pubnub_user_access')->delete();
+            DB::table('pubnub_tokenpass_access')->delete();
+        });
+    }
+
+    public function findUserIDsByChannel($channel) {
+        return DB::table('pubnub_user_access')->select('user_id')->where('channel', $channel)->get();
+    }
+
     // ------------------------------------------------------------------------
 
     // only public for mocking - don't call directly
     public function grant($read, $write, $channel, $auth_key, $ttl) {
+        EventLog::debug('pubnub.grant', ['read'=> $read, 'write'=> $write, 'channel'=> $channel, 'auth_key'=> $auth_key, 'ttl'=> $ttl]);
         return $this->processResponse($this->pubnub->grant($read, $write, $channel, $auth_key, $ttl));
     }
 
     // only public for mocking - don't call directly
     public function revoke($channel, $auth_key) {
+        EventLog::debug('pubnub.revoke', ['channel'=> $channel, 'auth_key'=> $auth_key]);
         return $this->processResponse($this->pubnub->revoke($channel, $auth_key));
     }
 

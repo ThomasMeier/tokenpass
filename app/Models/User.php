@@ -15,6 +15,7 @@ use StephenHill\GMPService;
 use Tokenly\LaravelApiProvider\Contracts\APIPermissionedUserContract;
 use Tokenly\LaravelApiProvider\Model\APIUser;
 use Tokenly\LaravelApiProvider\Model\Traits\Permissioned;
+use Tokenpass\Util\ECCUtil;
 
 class User extends APIUser implements AuthenticatableContract, CanResetPasswordContract, APIPermissionedUserContract
 {
@@ -61,13 +62,27 @@ class User extends APIUser implements AuthenticatableContract, CanResetPasswordC
     }
 
     public function getChannelName() {
-        $base58 = new Base58(null, new GMPService());
-        return $base58->encode(hash('sha256', $this['uuid'].env('PUBNUB_CHANNEL_SALT'), true));
+        if (!isset($this->_channel_name)) {
+            $base58 = new Base58(null, new GMPService());
+            $this->_channel_name = $base58->encode(hash('sha256', $this['uuid'].env('PUBNUB_CHANNEL_SALT'), true));
+        }
+        return $this->_channel_name;
     }
 
     public function getChannelAuthKey() {
-        $base58 = new Base58(null, new GMPService());
-        return $base58->encode(hash('sha256', $this['uuid'].$this['ecc_key'].env('PUBNUB_CHANNEL_SALT')));
+        if (!isset($this->_channel_auth_key)) {
+            $base58 = new Base58(null, new GMPService());
+            $this->_channel_auth_key = $base58->encode(hash('sha256', $this['uuid'].$this['ecc_key'].env('PUBNUB_CHANNEL_SALT')));
+        }
+        return $this->_channel_auth_key;
+    }
+
+    public function getECCPublicKey() {
+        if (!isset($this->_ecc_public_key)) {
+            $this->_ecc_public_key = ECCUtil::getEncodedPublicKey($this['ecc_key']);
+        }
+        return $this->_ecc_public_key;
+        
     }
 
     public static function getByVerifiedAddress($data)

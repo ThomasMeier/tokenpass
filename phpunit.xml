@@ -28,10 +28,11 @@
         <env name="MAIL_DRIVER" value="log"/>
         <env name="PLATFORM_ADMIN_DEVELOPMENT_MODE_ENABLED" value="false"/>
 
-        <env name="PUBNUB_SUBSCRIBE_KEY" value="foo"/>
-        <env name="PUBNUB_PUBLISH_KEY" value="foo"/>
-        <env name="PUBNUB_ADMIN_SECRET_KEY" value="foo"/>
-        <env name="PUBNUB_TOKENPASS_AUTH_KEY" value="foo"/>
+        <env name="PUBNUB_CHANNEL_SALT" value="foo_01"/>
+        <env name="PUBNUB_SUBSCRIBE_KEY" value="foo_02"/>
+        <env name="PUBNUB_PUBLISH_KEY" value="foo_03"/>
+        <env name="PUBNUB_ADMIN_SECRET_KEY" value="foo_04"/>
+        <env name="PUBNUB_TOKENPASS_AUTH_KEY" value="foo_05"/>
 
     </php>
 </phpunit>

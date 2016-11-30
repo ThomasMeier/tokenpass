@@ -4,6 +4,7 @@ namespace Tokenpass\Repositories;
 
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Tokenly\LaravelApiProvider\Repositories\APIRepository;
 use Tokenpass\Models\Address;
 
@@ -62,6 +63,7 @@ class AddressRepository extends APIRepository
         $stamp = date('Y-m-d H:i:s');
         foreach($address_list as $address_model){
             $balances = $xchain->getBalances($address_model->address, true);
+            Log::debug("{$address_model->address} \$balances=".json_encode($balances, 192));
             if($balances AND count($balances) > 0){
                 $update = Address::updateAddressBalances($address_model->id, $balances);
                 if(!$update){

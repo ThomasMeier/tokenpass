@@ -69,4 +69,17 @@ class AddressHelper
             ]);
         }
     }
+
+    public function updateAddressBalances($balances, Address $address) {
+        foreach($balances as $token => $balance) {
+            DB::Table('address_balances')
+                ->where('address_id', $address['id'])
+                ->where('asset', $token)
+                ->update([
+                    'balance'    => $balance * self::SATOSHI,
+                    'updated_at' => time(),
+                ]
+            );
+        }
+    }
 }

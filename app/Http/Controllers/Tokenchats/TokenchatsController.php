@@ -48,12 +48,17 @@ class TokenchatsController extends Controller
 
         // create a new chat
         $tca_rules = $tca_messenger->makeSimpleTCAStack($input['quantity'], $input['token']);
-        $token_chat_repository->create([
+        $token_chat = $token_chat_repository->create([
             'user_id'   => Auth::id(),
             'name'      => $input['name'],
             'tca_rules' => $tca_rules,
             'active'    => true,
         ]);
+
+        // authorize the chat
+        if ($token_chat['active']) {
+            $tca_messenger->authorizeChat($token_chat);
+        }
 
         return $this->ajaxEnabledSuccessResponse('New Token Chat created.', route('tokenchats.index'));
     }
@@ -81,13 +86,18 @@ class TokenchatsController extends Controller
 
         $input = $request->input();
 
-        // create a new chat
+        // edit the chat
         $tca_rules = $tca_messenger->makeSimpleTCAStack($input['quantity'], $input['token']);
         $token_chat_repository->update($chat_model, [
             'name'      => $input['name'],
             'tca_rules' => $tca_rules,
             'active'    => $input['active'],
         ]);
+
+        // authorize the chat
+        if ($chat_model['active']) {
+            $tca_messenger->authorizeChat($chat_model);
+        }
 
         return $this->ajaxEnabledSuccessResponse('Token Chat updated.', route('tokenchats.index'));
     }

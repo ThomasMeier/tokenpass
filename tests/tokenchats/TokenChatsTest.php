@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Session;
 use StephenHill\Base58;
 use StephenHill\GMPService;
 use Tokenpass\Models\Address;
+use Tokenpass\Providers\TCAMessenger\TCAMessengerAuth;
 use \PHPUnit_Framework_Assert as PHPUnit;
 
 class TokenChatsTest extends TestCase
@@ -153,5 +154,21 @@ class TokenChatsTest extends TestCase
         PHPUnit::assertEquals('My New Chat 2', $chats[0]['name']);
 
     }
+
+    // ------------------------------------------------------------------------
+    
+    public function setUp()
+    {
+        parent::setUp();
+
+        // mock TCAMessengerAuth
+        $tca_messenger_auth_mock = Mockery::mock(TCAMessengerAuth::class);
+        $tca_messenger_auth_mock->makePartial();
+        $tca_messenger_auth_mock->shouldReceive('grant');
+        $tca_messenger_auth_mock->shouldReceive('revoke');
+        $tca_messenger_auth_mock->tokenpass_auth_key = 'tokenpass_auth_key_TEST';
+        app()->instance(TCAMessengerAuth::class, $tca_messenger_auth_mock);
+    }
+
 
 }

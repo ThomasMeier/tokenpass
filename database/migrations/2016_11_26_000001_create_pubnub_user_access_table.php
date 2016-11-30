@@ -21,7 +21,7 @@ class CreatePubnubUserAccessTable extends Migration
                   ->references('id')->on('users')
                   ->onDelete('cascade');
 
-            $table->string('channel');
+            $table->string('channel')->index();
             $table->integer('ttl');
             $table->boolean('read');
             $table->boolean('write');
