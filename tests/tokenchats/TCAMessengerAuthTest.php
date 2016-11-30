@@ -49,10 +49,10 @@ class TCAMessengerAuthTest extends TestCase
         }), $read=true, $write=false, "identities-{$chat_id}"])->once();
         $tca_messenger_auth_mock->shouldReceive('authorizeUser')->withArgs([Mockery::on(function($user_b) use ($user) {
             return $user_b['id'] === $user['id'];
-        }), $read=true, $write=false, "chat-{$chat_id}"])->once();
+        }), $read=true, $write=true, "chat-{$chat_id}"])->once();
         $tca_messenger_auth_mock->shouldReceive('authorizeUser')->withArgs([Mockery::on(function($user_b) use ($user) {
             return $user_b['id'] === $user['id'];
-        }), $read=true, $write=false, "chat-{$chat_id}-pnpres"])->once();
+        }), $read=true, $write=true, "chat-{$chat_id}-pnpres"])->once();
 
         $tca_messenger_auth_mock->tokenpass_auth_key = 'tokenpass_auth_key_TEST';
         app()->instance(TCAMessengerAuth::class, $tca_messenger_auth_mock);
