@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Log;
 use LucaDegasperi\OAuth2Server\Facades\Authorizer;
+use Tokenly\LaravelEventLog\Facade\EventLog;
 use Tokenpass\Commands\SendUserConfirmationEmail;
 use Tokenpass\Http\Controllers\Controller;
 use Tokenpass\Models\Address;
@@ -15,6 +16,7 @@ use Tokenpass\Models\User;
 use Tokenpass\Models\UserMeta;
 use Tokenpass\OAuth\Facade\OAuthGuard;
 use Tokenpass\Providers\CMSAuth\CMSAccountLoader;
+use Tokenpass\Providers\TCAMessenger\TCAMessenger;
 use Tokenpass\Repositories\ClientConnectionRepository;
 use Tokenpass\Repositories\OAuthClientRepository;
 use Tokenpass\Repositories\UserRepository;
@@ -263,10 +265,13 @@ class APIController extends Controller
                         'email'    => $data['email'],
                         'password' => $data['password'],
                     ]);
+
+                app(TCAMessenger::class)->authorizeUser($registered_user);
             }
             catch(\Exception $e){
                 $registered_user = false;
                 $output['error'] = 'Error registering account';
+                EventLog::logError('registerAccount.error', $e);
             }
             
             if($registered_user){

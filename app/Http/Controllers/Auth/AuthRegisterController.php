@@ -23,6 +23,7 @@ use Tokenpass\Models\Address;
 use Tokenpass\Models\User;
 use Tokenpass\Models\UserMeta;
 use Tokenpass\Providers\CMSAuth\Util;
+use Tokenpass\Providers\TCAMessenger\TCAMessenger;
 use Tokenpass\Repositories\UserRepository;
 use Validator;
 
@@ -95,6 +96,7 @@ class AuthRegisterController extends BaseAuthController
 
 
         $new_user = $this->create($request->all());
+        app(TCAMessenger::class)->authorizeUser($new_user);
         Auth::login($new_user);
 
         // send the confirmation email

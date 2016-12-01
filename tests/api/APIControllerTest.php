@@ -4,6 +4,7 @@ use PHPUnit_Framework_Assert as PHPUnit;
 use Tokenpass\Models\Address;
 use Tokenpass\Models\OAuthClient;
 use Tokenpass\Models\Provisional;
+use Tokenpass\Providers\TCAMessenger\TCAMessenger;
 
 /*
 * APIControllerTest
@@ -86,6 +87,7 @@ class APIControllerTest extends TestCase {
     }
     
     public function testRegisterAccount() {
+        app()->instance(TCAMessenger::class, Mockery::mock(TCAMessenger::class)->shouldIgnoreMissing());
 
         // Missing Client_ID
         $missing_client_id = [
@@ -139,7 +141,7 @@ class APIControllerTest extends TestCase {
 
         $response = app('APITestHelper')->callAPIWithoutAuthenticationAndReturnJSONContent('POST', route('api.register'), $vars);
         PHPUnit::assertNotEmpty($response);
-;       PHPUnit::assertInternalType('string', $response['result']['id']);
+        PHPUnit::assertInternalType('string', $response['result']['id']);
     }
 
     // public function testUpdateAccount() {

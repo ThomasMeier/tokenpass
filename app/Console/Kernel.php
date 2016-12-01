@@ -28,6 +28,7 @@ class Kernel extends ConsoleKernel
         Commands\Messenger\ClearPubnubAuthorizationCache::class,
         Commands\Messenger\ResyncChat::class,
         Commands\Messenger\ShowChats::class,
+        Commands\Messenger\AuthorizeAllUsers::class,
 
         // Migration Commands
         Commands\Migrations\SyncUnmanagedAddressesWithXChain::class,

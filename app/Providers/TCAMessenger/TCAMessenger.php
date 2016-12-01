@@ -81,30 +81,22 @@ class TCAMessenger
         ];
     }
 
-    // public function broadcast($quantity, $token, $message_contents) {
-    //     $tca_stack = $this->makeSimpleTCAStack($quantity, $token);
 
-    //     $count = 0;
-    //     $recipient_users = $this->findUsersWithTokens($tca_stack);
-    //     foreach($recipient_users as $user) {
-    //         $message = [
-    //             'quantity' => $quantity,
-    //             'token'    => $token,
-    //             'msg'      => $message_contents,
-    //         ];
+    public function authorizeAllUsers() {
+        $user_repository = app('Tokenpass\Repositories\UserRepository');
+        $all_users = $user_repository->findAll();
+        $count = count($all_users);
+        foreach ($all_users as $offset => $user) {
+            $this->authorizeUser($user);
+            if ($offset % 25 == 0 OR $offset >= $count-1) {
+                Log::debug("Authorized ".($offset+1)." of {$count} users");
+            }
+        }
+    }
 
-    //         try {
-    //             $this->pubnub->publish($user->getChannelName(), $message);
-    //             ++$count;
-    //         } catch (Exception $e) {
-    //             EventLog::logError('pubnub.publishFailed', $e, ['user' => $user['id']]);
-    //         }
-
-    //     }
-
-    //     EventLog::info('pubnub.publish', ['quantity' => $quantity, 'token' => $token, 'count' => $count,]);
-    //     return $count;
-    // }
+    public function authorizeUser(User $user) {
+        $this->authorizeUserControlChannel($user);
+    }
 
     public function authorizeChat(TokenChat $token_chat) {
         $auth = $this->tca_messenger_auth;
@@ -141,6 +133,7 @@ class TCAMessenger
         $user_ids_to_add = $new_user_ids->diff($old_user_ids);
         foreach($user_ids_to_add as $user_id_to_add) {
             $user = $new_users_by_id[$user_id_to_add];
+            $this->authorizeUserControlChannel($user);
             $this->addUserToChat($user, $token_chat);
         }
 
@@ -161,15 +154,8 @@ class TCAMessenger
         $chat_channel            = "chat-{$channel_name}";
         $chat_presence_channel   = $chat_channel."-pnpres";
         $chat_identities_channel = "identities-{$channel_name}";
-        $user_control_channel    = "control-".$user->getChannelName();
 
         $auth = $this->tca_messenger_auth;
-
-        // tokenpass can read/write to user's control channel
-        $auth->authorizeTokenpass($read=true, $write=true, $user_control_channel);
-
-        // user can read from control channel
-        $auth->authorizeUser($user, $read=true, $write=false, $user_control_channel);
 
         // user can read from identities channel
         $auth->authorizeUser($user, $read=true, $write=false, $chat_identities_channel);
@@ -190,7 +176,6 @@ class TCAMessenger
         $chat_channel            = "chat-{$channel_name}";
         $chat_presence_channel   = $chat_channel."-pnpres";
         $chat_identities_channel = "identities-{$channel_name}";
-        $user_control_channel    = "control-".$user->getChannelName();
 
         $auth = $this->tca_messenger_auth;
 
@@ -202,6 +187,18 @@ class TCAMessenger
         // remove identity
 
         // send exit message
+    }
+
+    protected function authorizeUserControlChannel(User $user) {
+        $auth = $this->tca_messenger_auth;
+        $user_control_channel = "control-".$user->getChannelName();
+
+        // tokenpass can read/write to user's control channel
+        $auth->authorizeTokenpass($read=true, $write=true, $user_control_channel);
+
+        // user can read from control channel
+        $auth->authorizeUser($user, $read=true, $write=false, $user_control_channel);
+
     }
 
 }
