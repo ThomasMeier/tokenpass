@@ -92,6 +92,85 @@ class TCAMessengerAuthTest extends TestCase
         $tca_messenger->authorizeChat($token_chat);
     }
 
+    public function testRevokeChat() {
+        // user
+        $address_helper = app('AddressHelper');
+        $user_helper = app('UserHelper');
+        $user = $user_helper->createNewUser();
+        $address = $address_helper->createNewAddress($user);
+        $address_helper->addBalancesToAddress(['MYCOIN' => 50], $address);
+        $user_channel = $user->getChannelName();
+
+        // chat
+        $token_chat_helper = app('TokenChatHelper');
+        $token_chat = $token_chat_helper->createNewTokenChat($user);
+        $chat_id = $token_chat->getChannelName();
+
+        // authorize
+        $tca_messenger_auth_mock = Mockery::mock(TCAMessengerAuth::class)->makePartial();
+        $tca_messenger_auth_mock->shouldReceive('grant');
+        $tca_messenger_auth_mock->shouldReceive('revoke');
+        $tca_messenger_auth_mock->tokenpass_auth_key = 'tokenpass_auth_key_TEST';
+        app()->instance(TCAMessengerAuth::class, $tca_messenger_auth_mock);
+        app()->instance(TCAMessengerActions::class, Mockery::mock(TCAMessengerActions::class)->shouldIgnoreMissing());
+        $tca_messenger = app('Tokenpass\Providers\TCAMessenger\TCAMessenger');
+        $tca_messenger->authorizeChat($token_chat);
+
+        // no deactivate the user
+        $address_helper->updateAddressBalances(['MYCOIN' => 1], $address);
+
+        // mock
+        $tca_messenger_auth_mock = Mockery::mock(TCAMessengerAuth::class);
+        $tca_messenger_auth_mock->makePartial();
+        $tca_messenger_auth_mock->shouldReceive('grant');
+        $tca_messenger_auth_mock->shouldReceive('revoke');
+
+        // user can read/write to identities, chat and presence channel
+        $tca_messenger_auth_mock->shouldReceive('revokeUser')->withArgs([Mockery::on(function($user_b) use ($user) {
+            return $user_b['id'] === $user['id'];
+        }), "identities-{$chat_id}"])->once();
+        $tca_messenger_auth_mock->shouldReceive('revokeUser')->withArgs([Mockery::on(function($user_b) use ($user) {
+            return $user_b['id'] === $user['id'];
+        }), "chat-{$chat_id}"])->once();
+        $tca_messenger_auth_mock->shouldReceive('revokeUser')->withArgs([Mockery::on(function($user_b) use ($user) {
+            return $user_b['id'] === $user['id'];
+        }), "chat-{$chat_id}-pnpres"])->once();
+
+        $tca_messenger_auth_mock->tokenpass_auth_key = 'tokenpass_auth_key_TEST';
+        app()->instance(TCAMessengerAuth::class, $tca_messenger_auth_mock);
+
+
+        // messages
+        $tca_messenger_actions_mock = Mockery::mock(TCAMessengerActions::class, [Mockery::mock('Pubnub\Pubnub')->shouldIgnoreMissing()]);
+        $tca_messenger_actions_mock->makePartial();
+        $expected_message = [
+            'action'    => 'identityLeft',
+            'args'      => [
+                'chatId'    => $token_chat->getChannelName(),
+                'username'  => $user['username'],
+            ]
+        ];
+        $tca_messenger_actions_mock->shouldReceive('_publish')
+            ->withArgs(["identities-{$chat_id}", $expected_message, 'removeIdentity'])
+            ->once();
+
+        $expected_message = [
+            'action' => 'removedFromChat',
+            'args'   => [
+                'id'       => $token_chat->getChannelName(),
+            ]
+        ];
+        $tca_messenger_actions_mock->shouldReceive('_publish')
+            ->withArgs(["control-{$user_channel}", $expected_message, 'removeUserFromChat'])
+            ->once();
+        app()->instance(TCAMessengerActions::class, $tca_messenger_actions_mock);
+
+
+        // sync the chat
+        $tca_messenger = app('Tokenpass\Providers\TCAMessenger\TCAMessenger');
+        $tca_messenger->syncUsersWithChat($token_chat);
+    }
+
     public function testSyncChat() {
         $users = [];
         $addresses = [];

@@ -133,22 +133,28 @@ class TCAMessenger
         $user_ids_to_add = $new_user_ids->diff($old_user_ids);
         foreach($user_ids_to_add as $user_id_to_add) {
             $user = $new_users_by_id[$user_id_to_add];
-            $this->authorizeUserControlChannel($user);
-            $this->addUserToChat($user, $token_chat);
+            $this->authorizeUserToChat($user, $token_chat);
         }
-
 
         // remove users
         $user_ids_to_delete = $old_user_ids->diff($new_user_ids);
         foreach($user_ids_to_delete as $user_id_to_delete) {
             $user = $user_repository->findById($user_id_to_delete);
-            $this->removeUserFromChat($user, $token_chat);
+            $this->deauthorizeUserFromChat($user, $token_chat);
         }
-
-
     }
 
+    public function authorizeUserToChat(User $user, TokenChat $token_chat) {
+        $this->authorizeUserControlChannel($user);
+        $this->addUserToChat($user, $token_chat);
+    }
 
+    public function deauthorizeUserFromChat(User $user, TokenChat $token_chat) {
+        $this->removeUserFromChat($user, $token_chat);
+    }
+
+    // ------------------------------------------------------------------------
+    
     protected function addUserToChat(User $user, TokenChat $token_chat) {
         $channel_name            = $token_chat->getChannelName();
         $chat_channel            = "chat-{$channel_name}";
@@ -185,8 +191,10 @@ class TCAMessenger
         $auth->revokeUser($user, $chat_presence_channel);
 
         // remove identity
+        $this->tca_messenger_actions->removeIdentity($user, $token_chat);
 
         // send exit message
+        $this->tca_messenger_actions->removeUserFromChat($user, $token_chat);
     }
 
     protected function authorizeUserControlChannel(User $user) {

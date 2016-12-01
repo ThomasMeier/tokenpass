@@ -30,12 +30,33 @@ class TCAMessengerActions
         ], __FUNCTION__);
     }
 
+    public function removeIdentity(User $user, TokenChat $token_chat) {
+        $chat_identities_channel = "identities-".$token_chat->getChannelName();
+        return $this->_publish($chat_identities_channel, [
+            'action'    => 'identityLeft',
+            'args'      => [
+                'chatId'    => $token_chat->getChannelName(),
+                'username'  => $user['username'],
+            ]
+        ], __FUNCTION__);
+    }
+
     public function sendChatInvitation(User $user, TokenChat $token_chat) {
         $chat_identities_channel = "control-".$user->getChannelName();
         return $this->_publish($chat_identities_channel, [
             'action' => 'addedToChat',
             'args'   => [
                 'chatName' => $token_chat['name'],
+                'id'       => $token_chat->getChannelName(),
+            ]
+        ], __FUNCTION__);
+    }
+
+    public function removeUserFromChat(User $user, TokenChat $token_chat) {
+        $chat_identities_channel = "control-".$user->getChannelName();
+        return $this->_publish($chat_identities_channel, [
+            'action' => 'removedFromChat',
+            'args'   => [
                 'id'       => $token_chat->getChannelName(),
             ]
         ], __FUNCTION__);
