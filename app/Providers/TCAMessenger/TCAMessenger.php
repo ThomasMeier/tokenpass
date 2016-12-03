@@ -185,16 +185,16 @@ class TCAMessenger
 
         $auth = $this->tca_messenger_auth;
 
-        // revoke privileges
-        $auth->revokeUser($user, $chat_identities_channel);
-        $auth->revokeUser($user, $chat_channel);
-        $auth->revokeUser($user, $chat_presence_channel);
+        // send exit message
+        $this->tca_messenger_actions->removeUserFromChat($user, $token_chat);
 
         // remove identity
         $this->tca_messenger_actions->removeIdentity($user, $token_chat);
 
-        // send exit message
-        $this->tca_messenger_actions->removeUserFromChat($user, $token_chat);
+        // revoke privileges (should be last)
+        $auth->revokeUser($user, $chat_identities_channel);
+        $auth->revokeUser($user, $chat_channel);
+        $auth->revokeUser($user, $chat_presence_channel);
     }
 
     protected function authorizeUserControlChannel(User $user) {
