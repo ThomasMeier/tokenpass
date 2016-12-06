@@ -153,6 +153,20 @@ class TCAMessenger
         $this->removeUserFromChat($user, $token_chat);
     }
 
+    public function removeChat(TokenChat $token_chat) {
+        $auth = $this->tca_messenger_auth;
+        $user_repository = app('Tokenpass\Repositories\UserRepository');
+
+        // remove and deauthorize all users
+        $chat_channel = "chat-".$token_chat->getChannelName();
+        $user_ids = $auth->findUserIDsByChannel($chat_channel)->pluck('user_id');
+        foreach($user_ids as $user_id) {
+            $user = $user_repository->findById($user_id);
+            $this->deauthorizeUserFromChat($user, $token_chat);
+        }
+
+    }
+
     // ------------------------------------------------------------------------
     
     protected function addUserToChat(User $user, TokenChat $token_chat) {

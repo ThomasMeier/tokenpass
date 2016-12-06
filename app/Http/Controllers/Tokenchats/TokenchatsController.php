@@ -112,6 +112,9 @@ class TokenchatsController extends Controller
             return $this->ajaxEnabledErrorResponse('This chat does not belong to you', route('tokenchats.index'), 403);
         }
 
+        // deauthorize the chat for everyone
+        $tca_messenger->removeChat($chat_model);
+
         $token_chat_repository->delete($chat_model);
 
         return $this->ajaxEnabledSuccessResponse('Token Chat deleted.', route('tokenchats.index'));

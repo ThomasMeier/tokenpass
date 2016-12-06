@@ -25,6 +25,10 @@ class TokenChat extends APIModel {
         return $this->_channel_name;
     }
 
+    public function forceChannelName($channel_name) {
+        $this->_channel_name = $channel_name;
+    }
+
     public function user() {
         return $this->belongsTo(User::class);
     }

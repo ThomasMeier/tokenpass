@@ -32,6 +32,9 @@ class Kernel extends ConsoleKernel
         Commands\Messenger\AuthorizeUser::class,
         Commands\Messenger\AuthorizeAllUsers::class,
 
+        // messenger (dev)
+        Commands\MessengerDev\DeleteChatByChannel::class,
+
         // Migration Commands
         Commands\Migrations\SyncUnmanagedAddressesWithXChain::class,
 

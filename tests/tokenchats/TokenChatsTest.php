@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Session;
 use StephenHill\Base58;
 use StephenHill\GMPService;
 use Tokenpass\Models\Address;
+use Tokenpass\Providers\TCAMessenger\TCAMessengerActions;
 use Tokenpass\Providers\TCAMessenger\TCAMessengerAuth;
 use \PHPUnit_Framework_Assert as PHPUnit;
 
@@ -118,10 +119,30 @@ class TokenChatsTest extends TestCase
 
     public function testDeleteTokenChat() {
         $user_helper = app('UserHelper')->setTestCase($this);
+        $address_helper = app('AddressHelper');
+
+        // mock TCAMessenger
+        $tca_messenger_auth_mock = Mockery::mock(TCAMessengerAuth::class);
+        $tca_messenger_auth_mock->makePartial();
+        $tca_messenger_auth_mock->shouldReceive('grant')->andReturnUsing(function($read, $write, $channel, $auth_key, $ttl) {
+            Log::debug("grant ".json_encode(compact('read', 'write', 'channel', 'auth_key', 'ttl'), 192));
+        });
+        $tca_messenger_auth_mock->shouldReceive('revoke')->andReturnUsing(function($channel, $auth_key) {
+            Log::debug("revoke ".json_encode(compact('channel', 'auth_key'), 192));
+        })->times(3);
+        $tca_messenger_auth_mock->tokenpass_auth_key = 'tokenpass_auth_key_TEST';
+        app()->instance(TCAMessengerAuth::class, $tca_messenger_auth_mock);
+
+        // mock actions
+        app()->instance(TCAMessengerActions::class, Mockery::mock(TCAMessengerActions::class)->shouldIgnoreMissing());
 
         // create a new user and login
         $user = $user_helper->createNewUser();
         $user_helper->loginUser($this->app, $user);
+
+        // add 50 MYCOIN to the user
+        $address = $address_helper->createNewAddress($user);
+        $address_helper->addBalancesToAddress(['MYCOIN' => 50], $address);
 
 
         // add a new chat
