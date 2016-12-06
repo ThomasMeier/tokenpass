@@ -97,6 +97,10 @@ class TokenchatsController extends Controller
         // authorize the chat
         if ($chat_model['active']) {
             $tca_messenger->authorizeChat($chat_model);
+        } else {
+            // the chat is no longer active...
+            // deauthorize the users
+            $tca_messenger->removeChat($chat_model);
         }
 
         return $this->ajaxEnabledSuccessResponse('Token Chat updated.', route('tokenchats.index'));
