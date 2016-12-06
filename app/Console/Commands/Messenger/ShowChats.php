@@ -42,12 +42,13 @@ class ShowChats extends Command
         $token_chats = $token_chat_repository->findAll();
 
         $bool = function($val) { return $val ? '<info>true</info>' : '<comment>false</comment>'; };
-        $headers = ['id','uuid','name','user','active',];
+        $headers = ['id','uuid','channel','name','user','active',];
         $rows = [];
         foreach($token_chats as $token_chat) {
             $rows[] = [
                 $token_chat['id'],
                 $token_chat['uuid'],
+                $token_chat->getChannelName(),
                 $token_chat['name'],
                 $token_chat->user['username'],
                 $bool($token_chat['active']),

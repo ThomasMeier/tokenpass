@@ -4,8 +4,10 @@ namespace Tokenpass\Console\Commands\MessengerDev;
 
 use Illuminate\Console\Command;
 use Tokenpass\Models\TokenChat;
+use Tokenpass\Providers\TCAMessenger\TCAMessenger;
 use Tokenpass\Providers\TCAMessenger\TCAMessengerAuth;
 use Tokenpass\Repositories\TokenChatRepository;
+use Tokenpass\Repositories\UserRepository;
 
 class DeleteChatByChannel extends Command
 {
@@ -41,6 +43,10 @@ class DeleteChatByChannel extends Command
      */
     public function handle()
     {
+        $user_repository = app(UserRepository::class);
+        $tca_messenger = app(TCAMessenger::class);
+        $auth = app(TCAMessengerAuth::class);
+
         $this->comment('begin');
         $channel_id = $this->argument('channelId');
         $token_chat = app(TokenChat::class);
@@ -48,12 +54,11 @@ class DeleteChatByChannel extends Command
         
         $chat_channel = "chat-".$token_chat->getChannelName();
 
-        $auth = app(TCAMessengerAuth::class);
         $user_ids = $auth->findUserIDsByChannel($chat_channel)->pluck('user_id');
         $this->comment('For channel '.$chat_channel.', found '.count($user_ids).' '.str_plural('user', count($user_ids)).'.');
         foreach($user_ids as $user_id) {
             $user = $user_repository->findById($user_id);
-            $this->deauthorizeUserFromChat($user, $token_chat);
+            $tca_messenger->deauthorizeUserFromChat($user, $token_chat);
         }
 
         $this->comment('done');
