@@ -2,10 +2,14 @@
 
 namespace Tokenpass\Util;
 
+use BitWasp\Bitcoin\Bitcoin;
+use BitWasp\Bitcoin\Crypto\EcAdapter\EcAdapterFactory;
+use BitWasp\Buffertools\Buffer;
 use Exception;
 use Mdanter\Ecc\Crypto\Signature\Signer;
 use Mdanter\Ecc\EccFactory;
 use Mdanter\Ecc\Random\RandomGeneratorFactory;
+use Mdanter\Ecc\Serializer\Point\CompressedPointSerializer;
 use Mdanter\Ecc\Serializer\PrivateKey\DerPrivateKeySerializer;
 use Mdanter\Ecc\Serializer\PublicKey\DerPublicKeySerializer;
 use Mdanter\Ecc\Serializer\Signature\DerSignatureSerializer;
@@ -16,33 +20,37 @@ use Mdanter\Ecc\Serializer\Signature\DerSignatureSerializer;
 class ECCUtil
 {
 
+    public static function padHex($data) {
+        return ((strlen($data) % 2) ? '0' : '').$data;
+    }
+
     public static function generateEncodedPrivateKey() {
         $adapter = EccFactory::getAdapter();
         $generator = EccFactory::getSecgCurves($adapter)->generator256k1();
         $private_key = $generator->createPrivateKey();
-
-        $serializer = new DerPrivateKeySerializer($adapter);
-        return base64_encode($serializer->serialize($private_key));
+        return base64_encode(hex2bin(self::padHex(gmp_strval($private_key->getSecret(), 16))));
     }
 
     public static function getEncodedPublicKey($base64_private_key) {
         $adapter = EccFactory::getAdapter();
-        $private_key_serializer = new DerPrivateKeySerializer($adapter);
-        $private_key = $private_key_serializer->parse(base64_decode($base64_private_key));
+        $generator = EccFactory::getSecgCurves($adapter)->generator256k1();
+        $key_gmp_val = gmp_init(bin2hex(base64_decode($base64_private_key)), 16);
+        $private_key = $generator->getPrivateKeyFrom($key_gmp_val);
 
         $public_key = $private_key->getPublicKey();
-        $public_key_serializer = new DerPublicKeySerializer($adapter);
-        return base64_encode($public_key_serializer->serialize($public_key));
+        $point = $public_key->getPoint();
+        $compressed_serializer = new CompressedPointSerializer($adapter);
+        $compressed_hex_string = $compressed_serializer->serialize($public_key->getPoint());
+        return base64_encode(hex2bin(self::padHex($compressed_hex_string)));
     }
 
     public static function sign($document, $base64_private_key) {
         $algorithm = 'sha256';
         $adapter = EccFactory::getAdapter();
-
-        $private_key_serializer = new DerPrivateKeySerializer($adapter);
-        $private_key = $private_key_serializer->parse(base64_decode($base64_private_key));
-
         $generator = EccFactory::getSecgCurves($adapter)->generator256k1();
+
+        $key_gmp_val = gmp_init(bin2hex(base64_decode($base64_private_key)), 16);
+        $private_key = $generator->getPrivateKeyFrom($key_gmp_val);
 
         $signer = new Signer($adapter);
         $hash = $signer->hashData($generator, $algorithm, $document);
@@ -60,9 +68,10 @@ class ECCUtil
         $generator = EccFactory::getSecgCurves($adapter)->generator256k1();
         $signer = new Signer($adapter);
         $algorithm = 'sha256';
-    
-        $public_key_serializer = new DerPublicKeySerializer($adapter);
-        $public_key = $public_key_serializer->parse(base64_decode($base64_public_key));
+
+        $public_key_buffer = new Buffer(base64_decode($base64_public_key));
+        $ec_adapter = EcAdapterFactory::getAdapter(Bitcoin::getMath(), $generator);
+        $public_key = $ec_adapter->publicKeyFromBuffer($public_key_buffer);
 
         $serializer = new DerSignatureSerializer();
         $signature = $serializer->parse(base64_decode($base64_signature));
