@@ -5,13 +5,17 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
 use Log;
+use Tokenly\LaravelEventLog\Facade\EventLog;
+use Tokenpass\Events\AddressBalanceChanged;
 use Tokenpass\Http\Controllers\Controller;
 use Tokenpass\Models\Address;
 use Tokenpass\Models\Provisional;
 use Tokenpass\Models\User;
 use Tokenpass\Models\UserMeta;
 use Tokenpass\OAuth\Facade\OAuthClientGuard;
+use Tokenpass\Repositories\AddressRepository;
 use Tokenpass\Repositories\ClientConnectionRepository;
 use Tokenpass\Repositories\OAuthClientRepository;
 use Tokenpass\Repositories\UserRepository;
@@ -346,6 +350,17 @@ class APIProvisionalController extends Controller
             $output['error'] = 'Error saving provisional transaction';
             return Response::json($output, 500);
         }
+
+        try {
+            // fire an address balanced changed event
+            $address_changed = app(AddressRepository::class)->findVerifiedByAddress($tx_data['source']);
+            if ($address_changed) { Event::fire(new AddressBalanceChanged($address_changed)); }
+
+            $address_changed = app(AddressRepository::class)->findVerifiedByAddress($tx_data['destination']);
+            if ($address_changed) { Event::fire(new AddressBalanceChanged($address_changed)); }
+        } catch (Exception $e) {
+            EventLog::logError('AddressBalanceChanged.error', $e);
+        }
         
         $tx_data['promise_id'] = $insert;
         
@@ -489,6 +504,17 @@ class APIProvisionalController extends Controller
             $output['error'] = 'Error updating provisional transaction';
             return Response::json($output, 500);
         }
+
+        try {
+            // fire an address balanced changed event
+            $address_changed = app(AddressRepository::class)->findVerifiedByAddress($get->source);
+            if ($address_changed) { Event::fire(new AddressBalanceChanged($address_changed)); }
+
+            $address_changed = app(AddressRepository::class)->findVerifiedByAddress($get->destination);
+            if ($address_changed) { Event::fire(new AddressBalanceChanged($address_changed)); }
+        } catch (Exception $e) {
+            EventLog::logError('AddressBalanceChanged.error', $e);
+        }
         
         return $this->getProvisionalTCATransaction($get->id);
     }              
@@ -518,6 +544,18 @@ class APIProvisionalController extends Controller
             $output['error'] = 'Error deleting provisional tx';
             return Response::json($output, 500);
         }
+
+        try {
+            // fire an address balanced changed event
+            $address_changed = app(AddressRepository::class)->findVerifiedByAddress($get->source);
+            if ($address_changed) { Event::fire(new AddressBalanceChanged($address_changed)); }
+
+            $address_changed = app(AddressRepository::class)->findVerifiedByAddress($get->destination);
+            if ($address_changed) { Event::fire(new AddressBalanceChanged($address_changed)); }
+        } catch (Exception $e) {
+            EventLog::logError('AddressBalanceChanged.error', $e);
+        }
+
         
         $output['result'] = true;
         return Response::json($output);

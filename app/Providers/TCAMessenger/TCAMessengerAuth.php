@@ -68,6 +68,14 @@ class TCAMessengerAuth
         return DB::table('pubnub_user_access')->select('user_id')->where('channel', $channel)->get();
     }
 
+    public function userIsAuthorized($user_id, $channel) {
+        $record = DB::table('pubnub_user_access')->select('user_id')
+            ->where('user_id', $user_id)
+            ->where('channel', $channel)
+            ->get();
+        return $record->count() ? true : false;
+    }
+
     // ------------------------------------------------------------------------
 
     // only public for mocking - don't call directly

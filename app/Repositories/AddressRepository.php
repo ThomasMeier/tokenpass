@@ -4,8 +4,10 @@ namespace Tokenpass\Repositories;
 
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Tokenly\LaravelApiProvider\Repositories\APIRepository;
+use Tokenpass\Events\AddressBalanceChanged;
 use Tokenpass\Models\Address;
 
 /*
@@ -28,6 +30,11 @@ class AddressRepository extends APIRepository
     public function findAllByUserID($user_id)
     {
         return $this->prototype_model->where('user_id', $user_id)->get();
+    }
+
+    // finds the verified address model by bitcoin address
+    public function findVerifiedByAddress($address) {
+        return Address::where('address', $address)->where('verified', 1)->first();
     }
 
     public function getCombinedAddressBalancesByUser($user_id, $public_only=true, $active_only=true, $verified_only=true) {
@@ -71,6 +78,9 @@ class AddressRepository extends APIRepository
                 }
             }
             $address_model->invalidateOverdrawnPromises();
+
+            // fire an address balanced changed event
+            Event::fire(new AddressBalanceChanged($address_model));
         }
         return true;        
         

@@ -2,8 +2,10 @@
 
 namespace Tokenpass\Console\Commands;
 
-use Illuminate\Console\Command;
 use DB, Tokenpass\Models\Provisional, Tokenpass\Models\User, Tokenpass\Models\Address;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Event;
+use Tokenpass\Events\UserBalanceChanged;
 
 class ExpireProvisionalTransactions extends Command
 {
@@ -62,6 +64,15 @@ class ExpireProvisionalTransactions extends Command
                             //notify lendee
                             if($lendee){
                                 $lendee->notify('emails.loans.expire-lendee', 'TCA loan for '.$row->asset.' expired '.date('Y/m/d'), $notify_data);
+                            }
+
+                            if ($lendee) {
+                                // fire an address balanced changed event
+                                Event::fire(new UserBalanceChanged($lendee));
+                            }
+                            if ($lender) {
+                                // fire an address balanced changed event
+                                Event::fire(new UserBalanceChanged($lender));
                             }
                         }
                     }                    

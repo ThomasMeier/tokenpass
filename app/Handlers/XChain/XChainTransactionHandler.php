@@ -4,11 +4,13 @@ namespace Tokenpass\Handlers\XChain;
 
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
-use Tokenpass\Models\Address;
-use Tokenpass\Repositories\AddressRepository;
 use Tokenly\LaravelEventLog\Facade\EventLog;
 use Tokenly\XChainClient\Client as XChainClient;
+use Tokenpass\Events\AddressBalanceChanged;
+use Tokenpass\Models\Address;
+use Tokenpass\Repositories\AddressRepository;
 
 /**
  * This is invoked when a new block is received
@@ -52,6 +54,10 @@ class XChainTransactionHandler {
                 // sync balances
                 EventLog::log('address.sync', $address, ['id','address']);
                 $address->syncWithXChain();
+
+                // fire an address balanced changed event
+                Event::fire(new AddressBalanceChanged($address));
+
             } catch (Exception $e) {
                 $error_data = [];
                 EventLog::logError('address.sync.failed', $e, ['id' => $address['id'], 'address' => $address['address']]);

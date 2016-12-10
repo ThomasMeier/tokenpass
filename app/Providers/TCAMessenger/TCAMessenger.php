@@ -9,11 +9,14 @@ use Tokenly\BvamApiClient\BVAMClient;
 use Tokenly\CurrencyLib\CurrencyUtil;
 use Tokenly\LaravelEventLog\Facade\EventLog;
 use Tokenly\TCA\Access;
+use Tokenpass\Events\AddressBalanceChanged;
+use Tokenpass\Events\UserBalanceChanged;
 use Tokenpass\Models\Address;
 use Tokenpass\Models\TokenChat;
 use Tokenpass\Models\User;
 use Tokenpass\Providers\TCAMessenger\TCAMessengerActions;
 use Tokenpass\Providers\TCAMessenger\TCAMessengerAuth;
+use Tokenpass\Repositories\TokenChatRepository;
 
 class TCAMessenger
 {
@@ -54,9 +57,7 @@ class TCAMessenger
 
         $tca = new Access();
         foreach($possible_user_ids as $possible_user_id) {
-            $balances = Address::getAllUserBalances($possible_user_id, $filter_disabled = true, $and_provisional = true, $subtract_loans = true);
-            $has_access = $tca->checkAccess($tca_stack, $balances);
-
+            $has_access = $this->userIDIsAuthorized($possible_user_id, $tca_stack);
             if ($has_access) {
                 // load the user
                 $user = $user_repository->findById($possible_user_id);
@@ -97,6 +98,9 @@ class TCAMessenger
     public function authorizeUser(User $user) {
         $this->authorizeUserControlChannel($user);
     }
+
+    // --------------------------------
+    // Single chat
 
     public function authorizeChat(TokenChat $token_chat) {
         $auth = $this->tca_messenger_auth;
@@ -148,6 +152,51 @@ class TCAMessenger
         }
     }
 
+
+    // --------------------------------
+    // Single user
+
+    public function onAddressBalanceChanged(AddressBalanceChanged $address_balance_changed) {
+        $address = $address_balance_changed->address;
+        $this->syncUserToAllChats($address->user());
+    }
+
+    public function onUserBalanceChanged(UserBalanceChanged $user_balanced_changed) {
+        $user = $user_balanced_changed->user;
+        $this->syncUserToAllChats($user);
+    }
+
+    public function syncUserToAllChats(User $user) {
+        $token_chat_repository = app(TokenChatRepository::class);
+        foreach($token_chat_repository->findAll() as $token_chat) {
+            $this->syncUserToChat($user, $token_chat);
+        }
+    }
+
+    public function syncUserToChat(User $user, TokenChat $token_chat) {
+        $is_authorized = false;
+        if ($token_chat['active']) {
+            if ($token_chat['global']) {
+                $is_authorized = true;
+            } else {
+                $tca = new Access();
+                $is_authorized = $this->userIDIsAuthorized($user['id'], $token_chat['tca_rules']);
+            }
+        }
+
+        $channel_name = $token_chat->getChannelName();
+        $chat_channel = "chat-{$channel_name}";
+        $user_is_already_authorized = $this->tca_messenger_auth->userIsAuthorized($user['id'], $chat_channel);
+
+        if ($is_authorized AND !$user_is_already_authorized) {
+            $this->authorizeUserToChat($user, $token_chat);
+        }
+
+        if (!$is_authorized AND $user_is_already_authorized) {
+            $this->deauthorizeUserFromChat($user, $token_chat);
+        }
+    }
+
     public function authorizeUserToChat(User $user, TokenChat $token_chat) {
         $this->authorizeUserControlChannel($user);
         $this->addUserToChat($user, $token_chat);
@@ -171,7 +220,19 @@ class TCAMessenger
 
     }
 
+    public function subscribe($events)
+    {
+        $events->listen(AddressBalanceChanged::class, 'Tokenpass\Providers\TCAMessenger\TCAMessenger@onAddressBalanceChanged');
+        $events->listen(UserBalanceChanged::class, 'Tokenpass\Providers\TCAMessenger\TCAMessenger@onUserBalanceChanged');
+    }
+
     // ------------------------------------------------------------------------
+
+    protected function userIDIsAuthorized($user_id, $tca_stack) {
+        $tca = new Access();
+        $balances = Address::getAllUserBalances($user_id, $filter_disabled = true, $and_provisional = true, $subtract_loans = true);
+        return $tca->checkAccess($tca_stack, $balances);
+    }
     
     protected function addUserToChat(User $user, TokenChat $token_chat) {
         $channel_name            = $token_chat->getChannelName();

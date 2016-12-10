@@ -4,6 +4,7 @@ namespace Tokenpass\Providers;
 
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Tokenpass\Providers\TCAMessenger\TCAMessenger;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -12,12 +13,12 @@ class EventServiceProvider extends ServiceProvider
      *
      * @var array
      */
-    protected $listen = [
-        'Tokenpass\Events\SomeEvent' => [
-            'Tokenpass\Listeners\EventListener',
-        ],
-    ];
+    protected $listen = [];
 
+
+    protected $subscribe = [
+        TCAMessenger::class,
+    ];
 
     /**
      * Register any events for your application.

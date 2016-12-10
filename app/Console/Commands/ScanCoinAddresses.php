@@ -3,6 +3,8 @@
 namespace Tokenpass\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Event;
+use Tokenpass\Events\AddressBalanceChanged;
 use Tokenpass\Models\Address;
 
 class ScanCoinAddresses extends Command
@@ -45,6 +47,9 @@ class ScanCoinAddresses extends Command
 				}
 				else{
 					$this->info('Updated '.$row->address.' ['.$row->id.']');
+
+                    // fire an address balanced changed event
+                    Event::fire(new AddressBalanceChanged($address));
 				}
 			}
 		}
