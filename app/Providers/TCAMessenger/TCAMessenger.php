@@ -120,8 +120,12 @@ class TCAMessenger
         $auth = $this->tca_messenger_auth;
         $user_repository = app('Tokenpass\Repositories\UserRepository');
 
-        // new user ids (users that should have access)
-        $new_users = $this->findUsersWithTokens($token_chat['tca_rules']);
+        if ($token_chat['global']) {
+            $new_users = $user_repository->findAll();
+        } else {
+            // new user ids (users that should have access)
+            $new_users = $this->findUsersWithTokens($token_chat['tca_rules']);
+        }
         $new_users_by_id = collect($new_users)->keyBy('id');
         $new_user_ids = $new_users_by_id->keys();
 

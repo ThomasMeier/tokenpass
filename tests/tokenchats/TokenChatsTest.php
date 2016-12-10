@@ -106,7 +106,8 @@ class TokenChatsTest extends TestCase
 
         $chats = $token_chat_repository->findAll();
         PHPUnit::assertCount(1, $chats);
-        PHPUnit::assertEquals('My New Chat EDITED', $chats[0]['name']);
+        // name is NOT editable
+        PHPUnit::assertEquals('My New Chat', $chats[0]['name']);
         PHPUnit::assertFalse($chats[0]['active']);
         PHPUnit::assertEquals([[
             'asset'   => 'OTHERCOIN',

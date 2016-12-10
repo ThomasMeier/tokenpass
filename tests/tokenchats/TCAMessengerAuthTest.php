@@ -243,4 +243,61 @@ class TCAMessengerAuthTest extends TestCase
     }
 
 
+    public function testSyncGlobalChat() {
+        $users = [];
+        $addresses = [];
+
+        $address_helper    = app('AddressHelper');
+        $user_helper       = app('UserHelper');
+        $token_chat_helper = app('TokenChatHelper');
+
+        // create a global chat
+        $owner = $user_helper->createRandomUser(['username' => 'owner001']);
+        $token_chat = $token_chat_helper->createNewTokenChat($owner, ['name' => 'Global One', 'token' => '', 'global' => true,]);
+        $chat_id = $token_chat->getChannelName();
+
+        // add 3 users
+        for ($user_offset=0; $user_offset < 3; $user_offset++) { 
+            $users[$user_offset] = $user_helper->createRandomUser(['username' => 'user_'.sprintf('%02d', $user_offset)]);
+            $address[$user_offset] = $address_helper->createNewAddress($users[$user_offset]);
+            $user_channel = $users[$user_offset]->getChannelName();
+        }
+
+        // mock messenger
+        $tca_messenger_auth_mock = Mockery::mock(TCAMessengerAuth::class);
+        $tca_messenger_auth_mock->makePartial();
+        $tca_messenger_auth_mock->shouldReceive('grant');
+        $tca_messenger_auth_mock->shouldReceive('revoke');
+        $tca_messenger_auth_mock->tokenpass_auth_key = 'tokenpass_auth_key_TEST';
+        app()->instance(TCAMessengerAuth::class, $tca_messenger_auth_mock);
+
+        // mock actions
+        app()->instance(TCAMessengerActions::class, Mockery::mock(TCAMessengerActions::class)->shouldIgnoreMissing());
+
+        // authorize
+        $tca_messenger = app('Tokenpass\Providers\TCAMessenger\TCAMessenger');
+        $tca_messenger->authorizeChat($token_chat);
+
+        // now check the authorization table
+        $records = DB::table('pubnub_user_access')->get();
+        $user_ids_authorized = $records
+            ->filter(function($r) {
+                if (substr($r->channel, 0, 8) == 'control-') { return false; }
+                return !!$r->read;
+            })
+            ->pluck('user_id')
+            ->unique()
+            ->values()
+            ->toArray();
+        PHPUnit::assertCount(4, $user_ids_authorized);
+        $expected_user_ids = [
+            $owner['id'],
+            $users[0]['id'],
+            $users[1]['id'],
+            $users[2]['id'],
+        ];
+        PHPUnit::assertEquals($expected_user_ids, $user_ids_authorized);
+    }
+
+
 }

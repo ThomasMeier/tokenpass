@@ -15,6 +15,7 @@ class TokenChat extends APIModel {
     protected $casts = [
         'tca_rules' => 'json',
         'active'    => 'boolean',
+        'global'    => 'boolean',
     ];
 
     public function getChannelName() {

@@ -58,7 +58,7 @@
 	<div class="modal-container" id="addChatModal">
 		<div class="modal-bg"></div>
 		<div class="modal-content">
-			<h3>Register Token Chat</h3>
+			<h3>Create Token Chat</h3>
 			<div class="modal-x close-modal">
 				<i class="material-icons">clear</i>
 			</div>
@@ -71,11 +71,19 @@
 				<label for="chat_name">Chat Name:</label>
 				<input type="text" name="name" id="chat_name" placeholder="{{ date("F") }} AMA" required/>
                 
-                <label for="token">Token Required:</label>
-                <input type="text" name="token" id="token" value="@{{ currentChat.token }}" placeholder="MYCOIN" />
+        <label for="token">Token Required:</label>
+        <input type="text" name="token" id="token" value="@{{ currentChat.token }}" placeholder="MYCOIN" />
 
-                <label for="quantity">Quantity Required:</label>
-                <input type="text" name="quantity" id="quantity" value="@{{ currentChat.quantity }}"  placeholder="10" />
+        <label for="quantity">Quantity Required:</label>
+        <input type="text" name="quantity" id="quantity" value="@{{ currentChat.quantity }}"  placeholder="10" />
+
+        @if ($user->hasPermission('globalChats'))
+          <label for="global">Global Chat</label>
+          <input type="hidden" name="global" value="0">
+          <input type="checkbox" id="global" name="global" value="1" v-bind:checked="currentChat.global == 1">
+
+          <p>Note: Leave Token and Quantity blank for global chats.</p>
+        @endif
 
 				<button type="submit" class="">Submit</button>
 
@@ -122,18 +130,28 @@
               {!! csrf_field() !!}
 				<div class="error-placeholder panel-danger"></div>
 
-				<label for="chat_name">Client Name:</label>
+
+{{-- 
+				<label for="chat_name">Chat Name:</label>
 				<input type="text" name="name" id="chat_name" value="@{{ currentChat.name }}" required />
-                    
-                <label for="token">Token Required:</label>
-                <input type="text" name="token" id="token" value="@{{ currentChat.tca_rules[0]['asset'] }}" />
+--}}
+        <label for="token">Token Required:</label>
+        <input type="text" name="token" id="token" value="@{{ currentChat.tca_rules[0]['asset'] }}" />
 
-                <label for="quantity">Quantity Required:</label>
-                <input type="text" name="quantity" id="quantity" value="@{{ formatSatoshis(currentChat.tca_rules[0]['amount']) }}"  />
+        <label for="quantity">Quantity Required:</label>
+        <input type="text" name="quantity" id="quantity" value="@{{ formatSatoshis(currentChat.tca_rules[0]['amount']) }}"  />
 
-                <label for="active">Active</label>
-                <input type="hidden" name="active" value="0">
-                <input type="checkbox" id="active" name="active" value="1" v-bind:checked="currentChat.active == 1">
+        <label for="active">Active</label>
+        <input type="hidden" name="active" value="0">
+        <input type="checkbox" id="active" name="active" value="1" v-bind:checked="currentChat.active == 1">
+
+        @if ($user->hasPermission('globalChats'))
+          <label for="global_e">Global Chat</label>
+          <input type="hidden" name="global" value="0">
+          <input type="checkbox" id="global_e" name="global" value="1" v-bind:checked="currentChat.global == 1">
+
+          <p>Note: Leave Token and Quantity blank for global chats.</p>
+        @endif
 
     			<button type="submit">Save</button>
 		  </form>
