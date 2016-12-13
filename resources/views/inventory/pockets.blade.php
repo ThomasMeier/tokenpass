@@ -103,7 +103,7 @@
         $verify_message = \Tokenpass\Models\Address::getInstantVerifyMessage($user);
         ?>
         <span title="Scan with your mobile device" id="instant-address-qr" data-verify-message="{{ $verify_message }}">
-          <?php echo QrCode::size(200)->generate(route('api.instant-verify', $user->username).'?msg='.$verify_message) ?>
+          <?php echo QrCode::size(200)->generate(route('api.instant-verify', $user->username).'?msg='.$verify_message); ?>
         </span>
         <a class="signature__cts" href="pockets:sign?message={{ $verify_message }}&label=Instant Register Address with Tokenpass&callback={{ urlencode(route('api.instant-verify', $user->username).'?msg='.$verify_message) }}">
             <img src="/img/pockets-icon-64-light.png" alt="Pockets Icon" width="36px" style="margin-right: 15px">

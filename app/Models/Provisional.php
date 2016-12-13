@@ -2,6 +2,7 @@
 namespace Tokenpass\Models;
 use Exception, DB;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class Provisional extends Model
 {
@@ -44,6 +45,7 @@ class Provisional extends Model
         $balances = false;
         try{
             $balances = $xchain->getBalances($address, true);
+            Log::debug("$address \$balances=".json_encode($balances, 192));
         }
         catch(Exception $e){
             throw new Exception('Error checking source address '.$address.' balances');
@@ -76,7 +78,7 @@ class Provisional extends Model
     {
         $get = Provisional::select('provisional_tca_txs.*')
         ->leftJoin('coin_addresses', 'coin_addresses.address', '=', 'provisional_tca_txs.source')
-        ->where('provisional_tca_txs.user_id', $user_id)->where('pseudo', 0)->where('coin_addresses.active_toggle', 1)->get();
+        ->where('provisional_tca_txs.user_id', $user_id)->where('provisional_tca_txs.pseudo', 0)->where('coin_addresses.active_toggle', 1)->get();
         return $get;
     }
     

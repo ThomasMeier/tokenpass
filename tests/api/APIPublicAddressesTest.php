@@ -20,6 +20,7 @@ class APIPublicAddressesTest extends TestCase {
         $address_helper->createNewAddress($user1, ['address' => '1AAAA3333xxxxxxxxxxxxxxxxxxxsTtS6v', 'public'        => false,]);
         $address_helper->createNewAddress($user1, ['address' => '1AAAA4444xxxxxxxxxxxxxxxxxxxxjbqeD', 'active_toggle' => false,]);
         $address_helper->createNewAddress($user1, ['address' => '1AAAA5555xxxxxxxxxxxxxxxxxxxwEhYkL', 'verified'      => false,]);
+        $address_helper->createNewPseudoAddress($user1); // pseudo addresses are not included
 
         // setup api client
         $oauth_client = app('OAuthClientHelper')->createConnectedOAuthClientWithTCAScopes($user1);

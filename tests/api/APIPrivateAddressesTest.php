@@ -49,6 +49,28 @@ class APIPrivateAddressesTest extends TestCase {
         PHPUnit::assertEmpty($response['result']);
     }
 
+
+    public function testGetPrivatePseudoAddresses() {
+        $user_helper = app('UserHelper');
+        $address_helper = app('AddressHelper');
+
+        // add test users and addresses
+        list($user1, $user1_token, $oauth_client) = $user_helper->createRandomUserWithOAuthSession();
+        $api_tester = app('OauthUserAPITester')->setToken($user1_token);
+
+        // add test user and addresses with 1 being private
+        $address_helper->createNewAddress($user1, ['address' => '1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j']);
+        $address_helper->createNewAddress($user1, ['address' => '1AAAA2222xxxxxxxxxxxxxxxxxxy4pQ3tU', 'public' => false,]);
+        $address_helper->createNewPseudoAddress($user1);
+        
+        // get both the public and the private address (but not the pseudo address)
+        $response = $api_tester->expectAuthenticatedResponse('GET', route('api.tca.private.addresses'));
+        PHPUnit::assertNotEmpty($response['result']);
+        PHPUnit::assertCount(2, $response['result']);
+        PHPUnit::assertContains('1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j', $response['result'][0]['address']);
+        PHPUnit::assertContains('1AAAA2222xxxxxxxxxxxxxxxxxxy4pQ3tU', $response['result'][1]['address']);
+    }
+
     public function testGetPrivateAddressRequiresPrivateTCAScope() {
         $user_helper = app('UserHelper')->setTestCase($this);
         $address_helper = app('AddressHelper');

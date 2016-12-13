@@ -81,7 +81,7 @@ class AddressesAPIController extends Controller
         $use_public = 1;
         $and_active = 1;
         $and_verified = 1;
-        
+
         if ($force_refresh) {
             $this->address_repository->updateUserBalances($user->id);
         }
@@ -241,6 +241,13 @@ class AddressesAPIController extends Controller
             $output['result'] = false;
             return Response::json($output, 404);
         }   
+
+        if ($address_model['pseudo']) {
+            $output['error'] = 'Unable to edit pseudo address';
+            $output['result'] = false;
+            return Response::json($output, 400);
+        }
+
         
         if(isset($input['label'])){
             $address_model->label = trim(htmlentities($input['label']));
@@ -350,6 +357,7 @@ class AddressesAPIController extends Controller
     
     // ------------------------------------------------------------------------
 
+    // excludes pseudo addresses
     protected function buildAddressesListResponse(User $user, $use_public, $and_active, $and_verified) {
         $output = [];
         
@@ -360,6 +368,10 @@ class AddressesAPIController extends Controller
         else{
             $addresses_list = array();
             foreach($address_list as $address){
+                if ($address->pseudo) {
+                    continue;
+                }
+
                 $item = array('address' => $address->address, 'balances' => Address::getAddressBalances($address->id, true, true, true), 'public' => boolval($address->public), 'label' => $address->label);
                 if($and_active == null){
                     $item['active'] = boolval($address->active_toggle);

@@ -18,13 +18,18 @@ class Address extends Model
 
 
     protected $casts = [
-        'verified' => 'boolean',
-        'public' => 'boolean',
-        'from_api' => 'boolean',
-        'active_toggle' => 'boolean',
-        'login_toggle' => 'boolean',
+        'verified'             => 'boolean',
+        'public'               => 'boolean',
+        'from_api'             => 'boolean',
+        'active_toggle'        => 'boolean',
+        'login_toggle'         => 'boolean',
         'second_factor_toggle' => 'boolean',
+        'pseudo'               => 'boolean',
     ];
+
+    public function isPseudoAddress() {
+        return $this['pseudo'];
+    }
 
     
     public static function getAddressList($userId, $public = null, $active_toggle = 1, $verified_only = false, $login_toggle=null)
@@ -277,6 +282,11 @@ class Address extends Model
     // XChain Sync
     
     public function syncWithXChain() {
+        // never sync pseudo addresses
+        if ($this->isPseudoAddress()) {
+            return;
+        }
+
         $xchain = app('Tokenly\XChainClient\Client');
 
         if (!$this['xchain_address_id']) {

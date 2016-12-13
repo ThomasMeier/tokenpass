@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Log;
 use Tokenpass\Models\Address;
 use Tokenpass\Models\User;
+use Tokenpass\Providers\PseudoAddressManager\PseudoAddressManager;
 
 /*
 * AddressHelper
@@ -22,6 +23,13 @@ class AddressHelper
         $address_override_vars['send_monitor_id']    = '';
 
         return $this->createNewAddress($user, $address_override_vars);
+    }
+
+    public function createNewPseudoAddress(User $user=null) {
+        if ($user === null) {
+            $user = app('UserHelper')->createNewUser();
+        }
+        return app(PseudoAddressManager::class)->ensurePseudoAddressForUser($user);
     }
 
     public function createNewAddress(User $user=null, $address_override_vars=[]) {
@@ -50,6 +58,7 @@ class AddressHelper
             'public'             => true,
             'active_toggle'      => true,
             'login_toggle'       => true,
+            'pseudo'             => false,
         ];
     }
     

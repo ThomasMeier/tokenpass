@@ -2,16 +2,18 @@
 
 namespace Tokenpass\Http\Controllers\Inventory;
 
+use DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
 use Input, \Exception, Session, Response, Cache, Config;
+use Tokenly\BvamApiClient\BVAMClient;
 use Tokenpass\Http\Controllers\Controller;
 use Tokenpass\Models\Address;
 use Tokenpass\Models\Provisional;
-use Tokenpass\Models\UserMeta;
 use Tokenpass\Models\User;
-use DB;
-use Tokenly\BvamApiClient\BVAMClient;
+use Tokenpass\Models\UserMeta;
+use Tokenpass\Providers\PseudoAddressManager\PseudoAddressManager;
 
 class InventoryController extends Controller
 {
@@ -47,12 +49,9 @@ class InventoryController extends Controller
 		$address_labels = array();
         if($addresses){
             foreach ($addresses as $address) {
-                $bals = Address::getAddressBalances($address->id, false, false);
-                if (!$bals OR count($bals) == 0) {
-                    continue;
-                }
-
-                foreach ($bals as $asset => $amnt) {
+                // real balances
+                $real_balances = Address::getAddressBalances($address->id, false, false);
+                foreach ($real_balances as $asset => $amnt) {
                     if ($amnt <= 0) {
                         continue;
                     }
@@ -61,6 +60,8 @@ class InventoryController extends Controller
                     }
                     $balance_addresses[$asset][$address->address] = array('real' => $amnt, 'provisional' => array(), 'loans' => array());
                 }
+
+                // promises (received)
                 $promises = Provisional::getAddressPromises($address->address);
                 foreach ($promises as $promise) {
                     if (!isset($balance_addresses[$promise->asset])) {
@@ -86,6 +87,8 @@ class InventoryController extends Controller
                     unset($promise->ref);
                     $balance_addresses[$promise->asset][$address->address]['provisional'][] = $promise;
                 }
+
+                // loans (debits)
                 if($loans){
                     foreach($loans as $loan){
                         if($loan->source == $address->address){
@@ -147,13 +150,14 @@ class InventoryController extends Controller
         }
         
 		$vars = [
-			'addresses' => $addresses,
-			'address_labels' => $address_labels,
-			'balances' => $balances,
-			'balance_addresses' => $balance_addresses,
-			'disabled_tokens' => $disabled_tokens,
-            'loans' => $loans,
-            'bvam' => $bvam_data,
+            'addresses'         => $addresses,
+            'addresses_map'     => collect($addresses)->keyBy('address')->toArray(),
+            'address_labels'    => $address_labels,
+            'balances'          => $balances,
+            'balance_addresses' => $balance_addresses,
+            'disabled_tokens'   => $disabled_tokens,
+            'loans'             => $loans,
+            'bvam'              => $bvam_data,
             ];
 
 		return view('inventory.index', $vars);
@@ -252,6 +256,9 @@ class InventoryController extends Controller
         $authed_user = Auth::user();
 
 		$get = Address::where('user_id', $authed_user->id)->where('address', $address)->first();
+        if ($get['pseudo']) {
+            return $this->ajaxEnabledErrorResponse('Unable to edit pseudo address.', route('inventory.pockets'), 400);
+        }
 
 		if (!$get) {
 			return $this->ajaxEnabledErrorResponse('Address not found', route('inventory.pockets'), 404);
@@ -463,8 +470,9 @@ class InventoryController extends Controller
     {
         $authed_user = Auth::user();
 
-		$addresses = Address::getAddressList($authed_user->id, null, null);
-		foreach($addresses as $address) {
+		$addresses = [];
+		foreach(Address::getAddressList($authed_user->id, null, null) as $address) {
+            if ($address->isPseudoAddress()) { continue; }
 
 			// Generate message for signing and flash for POST results
 			if ($address->verified == 0) {
@@ -479,6 +487,8 @@ class InventoryController extends Controller
             unset($address->xchain_address_id);
             unset($address->receive_monitor_id);
             unset($address->send_monitor_id);
+
+            $addresses[] = $address;
 		}
 		
 		return view('inventory.pockets', array(
@@ -490,8 +500,8 @@ class InventoryController extends Controller
     {
         //check valid verified address owned by user
         $user = Auth::user();
-        $get_address = Address::where('address', $address)->where('verified', 1)->first();
-        if(!$user OR !$get_address OR $get_address->user_id != $user->id){
+        $source_address_model = Address::where('address', $address)->where('verified', 1)->first();
+        if(!$user OR !$source_address_model OR $source_address_model->user_id != $user->id){
             return $this->ajaxEnabledErrorResponse('Address not found', route('inventory'), 404);
         }
         
@@ -508,7 +518,7 @@ class InventoryController extends Controller
         }
         
         //get valid asset
-        $asset_db = DB::table('address_balances')->where('address_id', $get_address->id)->where('asset', $asset)->first();
+        $asset_db = DB::table('address_balances')->where('address_id', $source_address_model->id)->where('asset', $asset)->first();
         if(!$asset_db){
             return $this->ajaxEnabledErrorResponse('Invalid asset', route('inventory'), 400);
         }
@@ -539,18 +549,19 @@ class InventoryController extends Controller
         $destination = trim($input['lendee']);
         $ref = null;
         //check first if user, then if bitcoin address
-        $get_user = User::where('username', $destination)->first();
-        if($get_user){
-            if($get_user->id == $user->id){
+        $destination_user = User::where('username', $destination)->first();
+        if($destination_user){
+            if($destination_user->id == $user->id){
                 return $this->ajaxEnabledErrorResponse('Cannot lend to self', route('inventory'), 400);
             }
             //use their first active verified address
-            $first_address = Address::where('user_id', $get_user->id)->where('active_toggle', 1)->where('verified', 1)->first();
+            $first_address = Address::where('user_id', $destination_user->id)->where('active_toggle', 1)->where('verified', 1)->first();
             if(!$first_address){
-                return $this->ajaxEnabledErrorResponse('Lendee does not have any verified addresses', route('inventory'), 400);
+                $first_address = app(PseudoAddressManager::class)->ensurePseudoAddressForUser($destination_user);
+                // return $this->ajaxEnabledErrorResponse('Lendee does not have any verified addresses', route('inventory'), 400);
             }
             $destination = $first_address->address;
-            $ref = 'user:'.$get_user->id;
+            $ref = 'user:'.$destination_user->id;
         }
         else{
             //check if valid bitcoin address
@@ -564,9 +575,9 @@ class InventoryController extends Controller
                 return $this->ajaxEnabledErrorResponse('Please enter a valid bitcoin address', route('inventory'), 400);
             }
             
-            $get_address = Address::where('address', $destination)->where('verified', 1)->first();
-            if($get_address){
-                $get_user = User::find($get_address->user_id);
+            $destination_address_model = Address::where('address', $destination)->where('verified', 1)->first();
+            if($destination_address_model){
+                $destination_user = User::find($destination_address_model->user_id);
             }
         }
         if($destination == $address){
@@ -606,6 +617,7 @@ class InventoryController extends Controller
         catch(Exception $e){
             return $this->ajaxEnabledErrorResponse('Error validating promise balance: '.$e->getMessage(), route('inventory'), 500);
         }
+        Log::debug("\$valid_balance=".json_encode($valid_balance, 192));
         if(is_array($valid_balance) AND !$valid_balance['valid']){
             return $this->ajaxEnabledErrorResponse('Not enough real balance to lend this amount', route('inventory'), 500);
         }
@@ -629,9 +641,9 @@ class InventoryController extends Controller
             return $this->ajaxEnabledErrorResponse('Error saving promise transaction', route('inventory'), 500);
         }
         else{
-            if($get_user){
+            if($destination_user){
                 $notify_data = array('promise' => $promise, 'lender' => $user, 'show_as' => $show_as);
-                $get_user->notify('emails.loans.new-loan', 'New TCA loan for '.$promise->asset.' received '.date('Y/m/d'), $notify_data);
+                $destination_user->notify('emails.loans.new-loan', 'New TCA loan for '.$promise->asset.' received '.date('Y/m/d'), $notify_data);
             }
             return $this->ajaxEnabledSuccessResponse($asset.' succesfully lent!', route('inventory'));
         }

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Tokenly\LaravelApiProvider\Repositories\APIRepository;
 use Tokenpass\Events\AddressBalanceChanged;
 use Tokenpass\Models\Address;
+use Tokenpass\Models\User;
 
 /*
 * AddressRepository
@@ -32,17 +33,33 @@ class AddressRepository extends APIRepository
         return $this->prototype_model->where('user_id', $user_id)->get();
     }
 
+    public function getPseudoAddressForUser(User $user) {
+        return $this->getPseudoAddressForUserID($user['id']);
+    }
+
+    public function getPseudoAddressForUserID($user_id) {
+        return $this->prototype_model
+            ->where('user_id', $user_id)
+            ->where('pseudo', 1)
+            ->first();
+    }
+
+
     // finds the verified address model by bitcoin address
     public function findVerifiedByAddress($address) {
         return Address::where('address', $address)->where('verified', 1)->first();
     }
 
+    // balances loaned to pseudo addresses are always public
     public function getCombinedAddressBalancesByUser($user_id, $public_only=true, $active_only=true, $verified_only=true) {
         $balance_query = DB::Table('address_balances')->whereIn('address_id', function($query) use ($user_id, $public_only, $active_only, $verified_only) {
             $query->select('id')->from('coin_addresses')->where('user_id', '=', $user_id);
 
             if ($public_only) {
-                $query->where('public', '=', 1);
+                $query->where(function($query) {
+                    $query->where('public', '=', 1);
+                    $query->orWhere('pseudo', '=', 1);
+                });
             }
             if ($active_only) {
                 $query->where('active_toggle', '=', 1);
@@ -59,6 +76,59 @@ class AddressRepository extends APIRepository
         return $balance_query->get();
     }
 
+    public function getCombinedPromisedBalancesByUser($user_id, $public_only=true, $active_only=true, $verified_only=true) {
+        $balance_query = DB::Table('provisional_tca_txs')->whereIn('destination', function($query) use ($user_id, $public_only, $active_only, $verified_only) {
+            $query->select('address')->from('coin_addresses')->where('user_id', '=', $user_id);
+
+            if ($public_only) {
+                $query->where(function($query) {
+                    $query->where('public', '=', 1);
+                    $query->orWhere('pseudo', '=', 1);
+                });
+            }
+            if ($active_only) {
+                $query->where('active_toggle', '=', 1);
+            }
+            if ($verified_only) {
+                $query->where('verified', 1);
+            }
+        });
+
+        $balance_query
+            ->select('asset', DB::raw('SUM(quantity) as balance'))
+            ->groupBy('asset');
+
+        return $balance_query->get();
+    }
+
+
+    public function getCombinedLoanedBalancesByUser($user_id, $public_only=true, $active_only=true, $verified_only=true) {
+        $balance_query = DB::Table('provisional_tca_txs')->whereIn('source', function($query) use ($user_id, $public_only, $active_only, $verified_only) {
+            $query->select('address')->from('coin_addresses')->where('user_id', '=', $user_id);
+
+            if ($public_only) {
+                $query->where(function($query) {
+                    $query->where('public', '=', 1);
+                    $query->orWhere('pseudo', '=', 1);
+                });
+            }
+            if ($active_only) {
+                $query->where('active_toggle', '=', 1);
+            }
+            if ($verified_only) {
+                $query->where('verified', 1);
+            }
+        });
+
+        $balance_query
+            ->select('asset', DB::raw('SUM(quantity) as balance'))
+            ->groupBy('asset');
+
+        return $balance_query->get();
+    }
+
+
+
     public static function updateUserBalances($user_id)
     {
         $xchain = app('Tokenly\XChainClient\Client');
@@ -69,14 +139,18 @@ class AddressRepository extends APIRepository
         }
         $stamp = date('Y-m-d H:i:s');
         foreach($address_list as $address_model){
-            $balances = $xchain->getBalances($address_model->address, true);
-            Log::debug("{$address_model->address} \$balances=".json_encode($balances, 192));
-            if($balances AND count($balances) > 0){
-                $update = Address::updateAddressBalances($address_model->id, $balances);
-                if(!$update){
-                    return false;
+            // never sync pseudo addresses
+            if (!$address_model->isPseudoAddress()) {
+                $balances = $xchain->getBalances($address_model->address, true);
+                Log::debug("{$address_model->address} \$balances=".json_encode($balances, 192));
+                if($balances AND count($balances) > 0){
+                    $update = Address::updateAddressBalances($address_model->id, $balances);
+                    if(!$update){
+                        return false;
+                    }
                 }
             }
+
             $address_model->invalidateOverdrawnPromises();
 
             // fire an address balanced changed event

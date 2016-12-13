@@ -11,6 +11,7 @@ use Illuminate\Support\ServiceProvider;
 use Pubnub\Pubnub;
 use Tokenly\AssetNameUtils\Validator as AssetValidator;
 use Tokenly\BvamApiClient\BVAMClient;
+use Tokenpass\Providers\PseudoAddressManager\PseudoAddressManager;
 use Tokenpass\Providers\TCAMessenger\TCAMessenger;
 use Tokenpass\Providers\TCAMessenger\TCAMessengerAuth;
 use Tokenpass\Util\BitcoinUtil;
@@ -79,6 +80,11 @@ class AppServiceProvider extends ServiceProvider
                 'publish_key'   => env('PUBNUB_PUBLISH_KEY', 'none'),
                 'secret_key'    => env('PUBNUB_ADMIN_SECRET_KEY', 'none'),
             ]);
+        });
+
+        $this->app->bind('Tokenpass\Providers\PseudoAddressManager\PseudoAddressManager', function ($app) {
+            return new PseudoAddressManager(app('Tokenpass\Repositories\AddressRepository'));
+
         });
 
     }

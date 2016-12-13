@@ -80,11 +80,6 @@ class LendingTest extends TestCase
         $response = $this->call('POST', '/inventory/lend/'.$this->user_address->address.'/SOUP', $lend_vars);
         PHPUnit::assertContains('Cannot lend to self', Session::get('message'));          
         
-        //try lending to user with no verified address
-        $lend_vars['lendee'] = $this->unverified_user->username;
-        $response = $this->call('POST', '/inventory/lend/'.$this->user_address->address.'/SOUP', $lend_vars);
-        PHPUnit::assertContains('Lendee does not have any verified addresses', Session::get('message'));          
-        
         //try lending to an invalid btc address destination
         $lend_vars['lendee'] = 'qwertyuiop';
         $response = $this->call('POST', '/inventory/lend/'.$this->user_address->address.'/SOUP', $lend_vars);

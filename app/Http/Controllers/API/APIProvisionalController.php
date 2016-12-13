@@ -15,6 +15,7 @@ use Tokenpass\Models\Provisional;
 use Tokenpass\Models\User;
 use Tokenpass\Models\UserMeta;
 use Tokenpass\OAuth\Facade\OAuthClientGuard;
+use Tokenpass\Providers\PseudoAddressManager\PseudoAddressManager;
 use Tokenpass\Repositories\AddressRepository;
 use Tokenpass\Repositories\ClientConnectionRepository;
 use Tokenpass\Repositories\OAuthClientRepository;
@@ -186,20 +187,21 @@ class APIProvisionalController extends Controller
         if(strpos($destination, 'user:') === 0){
             //use a username as destination
             $destination = substr($destination, 5);
-            $get_user = User::where('username', $destination)->first();
-            if($get_user){
-                // if($user AND $get_user->id == $user->id){
+            $destination_user = User::where('username', $destination)->first();
+            if($destination_user){
+                // if($user AND $destination_user->id == $user->id){
                 //     $output['error'] = 'Cannot make promise to self';
                 //     return Response::json($output, 400);                    
                 // }
                 //use their first active verified address
-                $first_address = Address::where('user_id', $get_user->id)->where('active_toggle', 1)->where('verified', 1)->first();
+                $first_address = Address::where('user_id', $destination_user->id)->where('active_toggle', 1)->where('verified', 1)->first();
                 if(!$first_address){
-                    $output['error'] = 'Destination user does not have any verified addresses';
-                    return Response::json($output, 400);                    
+                    // $output['error'] = 'Destination user does not have any verified addresses';
+                    // return Response::json($output, 400);                    
+                    $first_address = app(PseudoAddressManager::class)->ensurePseudoAddressForUser($destination_user);
                 }
                 $destination = $first_address->address;
-                $add_ref = 'user:'.$get_user->id;
+                $add_ref = 'user:'.$destination_user->id;
             }
             else{
                 $output['error'] = 'User not found';

@@ -188,12 +188,18 @@
 
         <div class="secondary-info" style="display: none;/* needed for jQuery slide */">
           <div v-for="pocket in token.balanceAddresses" class="pocket">
-            <div class="detail-heading">@{{ pocket.label }}</div>
+            <div v-if="pocket.data.pseudo" class="detail-heading">{{ $user['username'] }}</div>
+            <div v-if="!pocket.data.pseudo" class="detail-heading">@{{ pocket.label }}</div>
             <div class="pocket-details-main">
               <!-- Heading -->
               <div class="pocket-heading">
-                <span class="muted">Address /</span>
-                <a href="https://blocktrail.com/BTC/address/@{{ pocket.address }}" target="_blank">@{{ pocket.address }}</a>              
+                <span v-if="!pocket.data.pseudo">
+                  <span class="muted">Address /</span>
+                  <a href="https://blocktrail.com/BTC/address/@{{ pocket.address }}" target="_blank">@{{ pocket.address }}</a>
+                </span>
+                <span v-if="pocket.data.pseudo">
+                  <span class="muted">Lent directly to {{ $user['username'] }}</span>
+                </span>
               </div>
               <div class="pocket-promised-balance">
                 <span class="muted">Total /</span>
@@ -203,7 +209,7 @@
 
             <div class="pocket-details-second">
               <!-- Real Balance -->
-              <div class="pocket-real-balance">
+              <div v-if="!pocket.data.pseudo" class="pocket-real-balance">
                 <span class="muted">Real Balance /</span>
                 @{{ formatQuantity(pocket.real) }}
                 <span v-if="pocket.real > 0">
@@ -335,6 +341,7 @@ $('body').delegate('.delete-loan', 'click', function(e){
 
 var instanceVars = {
   balances: {!! json_encode($balances) !!}, 
+  pocketsMap: {!! json_encode($addresses_map) !!}, 
   balanceAddresses: {!! json_encode($balance_addresses) !!}, 
   disabledTokens: {!! json_encode($disabled_tokens) !!},
   addressLabels: {!! json_encode($address_labels) !!},
@@ -368,7 +375,8 @@ var data = (function(args){
       DISABLED_TOKENS = args['disabledTokens'], 
       ADDRESS_LABELS = args['addressLabels'],
       LOANS = args['loans'],
-      BVAM = args['bvam']
+      BVAM = args['bvam'],
+      POCKETS_MAP = args['pocketsMap'];
 
   // Store BVAM array indeces into assetName/index pair
   var bvamByIndex = {};
@@ -380,16 +388,16 @@ var data = (function(args){
   // Convert balances into an array of token objects
   var tokens_arr = [];
   for(var key in BALANCES){
-    var balanceAddress = getBalanceAddresses(key);
-    if(balanceAddress.length == 0){
+    var balanceAddresses = getBalanceAddresses(key);
+    if(balanceAddresses.length == 0){
         continue;
     }
     tokens_arr.push({
       name: key,
       balance: BALANCES[key],
-      balanceAddresses: balanceAddress,
-      hasPromisedTokens: hasPromisedTokens(balanceAddress),
-      hasLoanedTokens: hasLoanedTokens(balanceAddress),
+      balanceAddresses: balanceAddresses,
+      hasPromisedTokens: hasPromisedTokens(balanceAddresses),
+      hasLoanedTokens: hasLoanedTokens(balanceAddresses),
       toggle: !DISABLED_TOKENS.includes(key),
       bvam: BVAM[bvamByIndex[key]]
     });
@@ -429,7 +437,8 @@ var data = (function(args){
         loan_total: loan_total,
         provisional_total: provisional_total,
         real: real,
-        total: total
+        total: total,
+        data: POCKETS_MAP[key] == null ? {} : POCKETS_MAP[key]
       })
     }
     return balance_addresses_arr;
@@ -541,7 +550,7 @@ var vm = new Vue({
       if (this.verifiedPocketIndex == null){
         // Pockets haven't been searched
         for(var i = 0; i < this.instanceVars.pockets.length; i++){
-          if (this.instanceVars.pockets[i].verified){
+          if (this.instanceVars.pockets[i].verified && !this.instanceVars.pockets[i].pseudo){
             this.verifiedPocketIndex = i;
             return this.instanceVars.pockets[this.verifiedPocketIndex];
           }

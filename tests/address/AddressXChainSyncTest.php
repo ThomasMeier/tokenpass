@@ -31,11 +31,28 @@ class AddressXChainSyncTest extends TestCase {
         PHPUnit::assertEquals('confirmed', $calls[3]['data']['type']);
     }
 
+    public function testSyncPseudoAddressWithXChain() {
+        $recorder = $this->setupXChainMock();
+
+        $user = app('UserHelper')->createNewUser();
+        $address = app('AddressHelper')->createNewPseudoAddress($user);
+
+        // add some mock balances
+        $this->mock_builder->setBalances(['BTC' => 0.123]);
+
+        $address->syncWithXChain();
+
+        // make sure NO calls were made
+        $calls = $this->xchain_mock_recorder->calls;
+        PHPUnit::assertEmpty($calls, "Actual calls: ".json_encode($calls, 192));
+    }
+
     ////////////////////////////////////////////////////////////////////////
 
     protected function setupXChainMock() {
         $this->mock_builder = app('Tokenly\XChainClient\Mock\MockBuilder');
         $this->xchain_mock_recorder = $this->mock_builder->installXChainMockClient($this);
+        return $this->xchain_mock_recorder;
     }
 
 

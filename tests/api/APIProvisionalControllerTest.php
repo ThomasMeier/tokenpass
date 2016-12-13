@@ -3,6 +3,7 @@
 use PHPUnit_Framework_Assert as PHPUnit;
 use Tokenpass\Models\Address;
 use Tokenpass\Models\Provisional;
+use Tokenpass\Models\User;
 
 /*
 * APIProvisionalControllerTest
@@ -270,12 +271,80 @@ class APIProvisionalControllerTest extends TestCase {
         PHPUnit::assertEquals((2000+1)*self::SATOSHI, $balances['SOUP']);
     }
 
+
+    public function testProvisionalToUsernameOnly() {
+        $this->mockXChain();
+        list($source_address_model, $source_user, $api_tester) = $this->setupSourceAddress(['SOUP' => 100]);
+
+        // recipient
+        $user_helper = $this->userHelper();
+        $recipient_user = $user_helper->createRandomUser();
+
+        // submit a promise to a username
+        $query_params = [];
+        $query_params['source'] = $source_address_model['address'];
+        $query_params['destination'] = 'user:'.$recipient_user['username'];
+        $query_params['asset'] = 'SOUP';        
+        $query_params['quantity'] = 25 * self::SATOSHI;
+        $query_params['expiration'] = time() + 3600;
+
+        $route = route('api.tca.provisional.tx.register');
+        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('POST', $route, $query_params);
+        // echo "\$response: ".json_encode($response, 192)."\n";
+        PHPUnit::assertTrue($response['result']);
+        PHPUnit::assertContains('tx', $response);
+        $promise_id = $response['tx']['promise_id'];
+
+        // make sure provisional balance is applied to user
+        $balances = Address::getAllUserBalances($recipient_user['id']);
+        PHPUnit::assertArrayHasKey('SOUP', $balances);
+        PHPUnit::assertEquals((25)*self::SATOSHI, $balances['SOUP']);
+    }
+
     // ------------------------------------------------------------------------
     
-    protected function buildXChainMock() {
-        $this->mock_builder = app('Tokenly\XChainClient\Mock\MockBuilder');
-        $this->xchain_mock_recorder = $this->mock_builder->installXChainMockClient($this);
-        return $this->mock_builder;
+    protected function mockXChain() {
+        $mock_builder = app('Tokenly\XChainClient\Mock\MockBuilder');
+        $mock_builder->setBalances(['BTC' => 0.123]);
+        $this->xchain_mock_recorder = $mock_builder->installXChainMockClient($this);
+        return $this->xchain_mock_recorder;
     }
+
+    protected function userHelper() {
+        return app('UserHelper')->setTestCase($this);
+    }
+
+    protected function buildAPITester(User $user) {
+        $oauth_client = app('OAuthClientHelper')->createConnectedOAuthClientWithTCAScopes($user);
+        return app('OAuthClientAPITester')->be($oauth_client);
+    }
+
+    protected function setupSourceAddress($balances=null) {
+        if ($balances === null) { $balances = ['SOUP' => 100]; }
+
+        $address_helper = app('AddressHelper');
+        $user_helper    = $this->userHelper();
+
+        // source user
+        $user = $user_helper->createRandomUser();
+        $api_tester = $this->buildAPITester($user);
+        
+        //setup some variables
+        $source_address = '1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j';
+        $proof          = 'TESTING_PROOF';
+        
+        $source_address_model = $address_helper->createNewAddress($user, ['address' => $source_address]);
+        $address_helper->addBalancesToAddress($balances, $source_address_model);
+
+        // register source address to whitelist
+        $route = route('api.tca.provisional.register');
+        $query_params['address'] = $source_address;
+        $query_params['proof'] = $proof;
+        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('POST', $route, $query_params);
+        PHPUnit::assertTrue($response['result']);        
+
+        return [$source_address_model, $user, $api_tester];
+    }
+
 
 }

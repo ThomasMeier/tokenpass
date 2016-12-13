@@ -43,16 +43,56 @@ class BalancesAPIController extends Controller
 
         $active_only   = true;
         $verified_only = true;
-        $balances_list = $this->address_repository->getCombinedAddressBalancesByUser($user['id'], $public_only, $active_only, $verified_only);
+        $real_balances_list     = $this->address_repository->getCombinedAddressBalancesByUser($user['id'], $public_only, $active_only, $verified_only);
+        $promises_balances_list = $this->address_repository->getCombinedPromisedBalancesByUser($user['id'], $public_only, $active_only, $verified_only);
+        $loans_list             = $this->address_repository->getCombinedLoanedBalancesByUser($user['id'], $public_only, $active_only, $verified_only);
 
-        return collect($balances_list)->map(function($entry) {
-            return [
-                'asset'      => $entry->asset,
-                'name'       => $entry->asset, // (BVAM name here)
-                'balance'    => CurrencyUtil::satoshisToValue($entry->balance),
-                'balanceSat' => (string)$entry->balance,
+        $balances = collect([]);
+
+        // add real balances
+        foreach ($real_balances_list as $entry) {
+            $this->_sumBalanceEntry($entry->asset, $entry->balance, $balances);
+        }
+
+        // add promises
+        foreach($promises_balances_list as $entry) {
+            $this->_sumBalanceEntry($entry->asset, $entry->balance, $balances);
+        }
+
+        // subtract loans
+        foreach($loans_list as $entry) {
+            $this->_sumBalanceEntry($entry->asset, 0 - $entry->balance, $balances);
+        }
+
+
+        // filter zeros and return
+        return $balances
+            ->values()
+            ->filter(function($balance_entry) {
+                return ($balance_entry['balanceSat'] != 0);
+            })
+            ->map(function($balance_entry) {
+                $balance_entry['balanceSat'] = (string)$balance_entry['balanceSat'];
+                return $balance_entry;
+            })
+            ->toArray();
+    }
+
+    protected function _sumBalanceEntry($asset, $balance_delta, $balances) {
+        if ($balances !== null AND isset($balances[$asset])) {
+            $balance_entry = $balances[$asset];
+            $balance_entry['balanceSat'] += $balance_delta;
+            $balance_entry['balance'] = CurrencyUtil::satoshisToValue($balance_entry['balanceSat']);
+        } else {
+            $balance_entry = [
+                'asset'      => $asset,
+                'name'       => $asset, // (BVAM name here)
+                'balance'    => CurrencyUtil::satoshisToValue(intval($balance_delta)),
+                'balanceSat' => intval($balance_delta),
             ];
-        })->toArray();
+        }
+
+        $balances[$asset] = $balance_entry;
     }
 
 
