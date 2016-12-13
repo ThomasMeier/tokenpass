@@ -75,9 +75,9 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->bind('Pubnub\Pubnub', function ($app) {
             return new Pubnub([
-                'subscribe_key' => env('PUBNUB_SUBSCRIBE_KEY'),
-                'publish_key'   => env('PUBNUB_PUBLISH_KEY'),
-                'secret_key'    => env('PUBNUB_ADMIN_SECRET_KEY'),
+                'subscribe_key' => env('PUBNUB_SUBSCRIBE_KEY', 'none'),
+                'publish_key'   => env('PUBNUB_PUBLISH_KEY', 'none'),
+                'secret_key'    => env('PUBNUB_ADMIN_SECRET_KEY', 'none'),
             ]);
         });
 
