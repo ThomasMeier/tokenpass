@@ -217,6 +217,9 @@ class TCAMessenger
         // user can read/write to chat and presence channel
         $auth->authorizeUser($user, $read=true, $write=true, $chat_channel);
         $auth->authorizeUser($user, $read=true, $write=true, $chat_presence_channel);
+
+        // send invitation
+        $this->tca_messenger_actions->sendChatInvitation($user, $token_chat);
     }
 
     public function deauthorizeUserFromChat(User $user, TokenChat $token_chat) {
@@ -258,9 +261,6 @@ class TCAMessenger
 
         // send identity
         $this->tca_messenger_actions->sendIdentity($user, $token_chat);
-
-        // send invitation
-        $this->tca_messenger_actions->sendChatInvitation($user, $token_chat);
 
         // add to roster
         $this->tca_messenger_roster->addUserToChat($user, $token_chat);
