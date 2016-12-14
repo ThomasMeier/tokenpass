@@ -96,6 +96,11 @@ Route::group(['middleware' => 'oauth-user-guard:tca'], function () {
                                         'as'   => 'api.messenger.token.privileges',  
                                         'uses' => 'MessengerAPIController@getTokenPrivileges']);
 
+    // join a chat
+    Route::match(['POST',   'OPTIONS'], 'api/v1/tca/messenger/roster/{chatId}', [
+                                        'as'   => 'api.messenger.joinroster',  
+                                        'uses' => 'MessengerAPIController@joinChat']);
+
     // Send a message to token holders
     // Route::match(['POST',   'OPTIONS'], 'api/v1/tca/messenger/broadcast', [
     //                                     'as'   => 'api.messenger.broadcast',         

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Session;
 use StephenHill\Base58;
 use StephenHill\GMPService;
 use Tokenpass\Models\Address;
+use Tokenpass\Models\TokenChat;
 use Tokenpass\Providers\TCAMessenger\TCAMessengerActions;
 use Tokenpass\Providers\TCAMessenger\TCAMessengerAuth;
 use \PHPUnit_Framework_Assert as PHPUnit;
@@ -21,6 +22,9 @@ class TokenChatsTest extends TestCase
         $base58 = new Base58(null, new GMPService());
         PHPUnit::assertNotEmpty($token_chat->getChannelName());
         PHPUnit::assertEquals(str_replace('-', '', $token_chat['uuid']), bin2hex($base58->decode($token_chat->getChannelName())));
+
+        // go backwards
+        PHPUnit::assertEquals($token_chat['uuid'], TokenChat::channelNameToUuid($token_chat->getChannelName()));
     }
 
     public function testTokenChatsPageLoad() {

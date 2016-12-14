@@ -159,8 +159,10 @@ return [
         Tokenpass\Providers\EventServiceProvider::class,
         Tokenpass\Providers\RouteServiceProvider::class,
         Tokenpass\Providers\BroadcastServiceProvider::class,
+
         Tokenpass\Providers\CMSAuth\CMSAuthServiceProvider::class,
         Tokenpass\Providers\Monitoring\MonitoringServiceProvider::class,
+        Tokenpass\Providers\TCAMessenger\Provider\TCAMessengerServiceProvider::class,
         
         // make sure to call this after all other service providers
         Tokenly\PlatformAdmin\Provider\PlatformAdminServiceProvider::class,

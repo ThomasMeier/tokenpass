@@ -61,27 +61,6 @@ class AppServiceProvider extends ServiceProvider
             return new BVAMClient(env('BVAM_URL'));
         });
 
-        $this->app->bind('Tokenpass\Providers\TCAMessenger\TCAMessenger', function ($app) {
-            return new TCAMessenger(
-                app('Tokenly\BvamApiClient\BVAMClient'),
-                app('Tokenpass\Providers\TCAMessenger\TCAMessengerAuth'),
-                app('Tokenpass\Providers\TCAMessenger\TCAMessengerActions'),
-                app('Pubnub\Pubnub')
-            );
-        });
-
-        $this->app->bind('Tokenpass\Providers\TCAMessenger\TCAMessengerAuth', function ($app) {
-            return new TCAMessengerAuth(app('Pubnub\Pubnub'));
-        });
-
-        $this->app->bind('Pubnub\Pubnub', function ($app) {
-            return new Pubnub([
-                'subscribe_key' => env('PUBNUB_SUBSCRIBE_KEY', 'none'),
-                'publish_key'   => env('PUBNUB_PUBLISH_KEY', 'none'),
-                'secret_key'    => env('PUBNUB_ADMIN_SECRET_KEY', 'none'),
-            ]);
-        });
-
         $this->app->bind('Tokenpass\Providers\PseudoAddressManager\PseudoAddressManager', function ($app) {
             return new PseudoAddressManager(app('Tokenpass\Repositories\AddressRepository'));
 

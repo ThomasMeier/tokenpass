@@ -16,14 +16,16 @@ use Tokenpass\Models\TokenChat;
 use Tokenpass\Models\User;
 use Tokenpass\Providers\TCAMessenger\TCAMessengerActions;
 use Tokenpass\Providers\TCAMessenger\TCAMessengerAuth;
+use Tokenpass\Providers\TCAMessenger\TCAMessengerRoster;
 use Tokenpass\Repositories\TokenChatRepository;
 
 class TCAMessenger
 {
 
-    function __construct(BVAMClient $bvam_client, TCAMessengerAuth $tca_messenger_auth, TCAMessengerActions $tca_messenger_actions, Pubnub $pubnub) {
+    function __construct(BVAMClient $bvam_client, TCAMessengerAuth $tca_messenger_auth, TCAMessengerRoster $tca_messenger_roster, TCAMessengerActions $tca_messenger_actions, Pubnub $pubnub) {
         $this->bvam_client           = $bvam_client;
         $this->tca_messenger_auth    = $tca_messenger_auth;
+        $this->tca_messenger_roster  = $tca_messenger_roster;
         $this->tca_messenger_actions = $tca_messenger_actions;
         $this->pubnub                = $pubnub;
     }
@@ -148,6 +150,8 @@ class TCAMessenger
         $user_ids_to_delete = $old_user_ids->diff($new_user_ids);
         foreach($user_ids_to_delete as $user_id_to_delete) {
             $user = $user_repository->findById($user_id_to_delete);
+
+            $this->removeUserFromChatIfAdded($user, $token_chat);
             $this->deauthorizeUserFromChat($user, $token_chat);
         }
     }
@@ -199,42 +203,7 @@ class TCAMessenger
 
     public function authorizeUserToChat(User $user, TokenChat $token_chat) {
         $this->authorizeUserControlChannel($user);
-        $this->addUserToChat($user, $token_chat);
-    }
 
-    public function deauthorizeUserFromChat(User $user, TokenChat $token_chat) {
-        $this->removeUserFromChat($user, $token_chat);
-    }
-
-    public function removeChat(TokenChat $token_chat) {
-        $auth = $this->tca_messenger_auth;
-        $user_repository = app('Tokenpass\Repositories\UserRepository');
-
-        // remove and deauthorize all users
-        $chat_channel = "chat-".$token_chat->getChannelName();
-        $user_ids = $auth->findUserIDsByChannel($chat_channel)->pluck('user_id');
-        foreach($user_ids as $user_id) {
-            $user = $user_repository->findById($user_id);
-            $this->deauthorizeUserFromChat($user, $token_chat);
-        }
-
-    }
-
-    public function subscribe($events)
-    {
-        $events->listen(AddressBalanceChanged::class, 'Tokenpass\Providers\TCAMessenger\TCAMessenger@onAddressBalanceChanged');
-        $events->listen(UserBalanceChanged::class, 'Tokenpass\Providers\TCAMessenger\TCAMessenger@onUserBalanceChanged');
-    }
-
-    // ------------------------------------------------------------------------
-
-    protected function userIDIsAuthorized($user_id, $tca_stack) {
-        $tca = new Access();
-        $balances = Address::getAllUserBalances($user_id, $filter_disabled = true, $and_provisional = true, $subtract_loans = true);
-        return $tca->checkAccess($tca_stack, $balances);
-    }
-    
-    protected function addUserToChat(User $user, TokenChat $token_chat) {
         $channel_name            = $token_chat->getChannelName();
         $chat_channel            = "chat-{$channel_name}";
         $chat_presence_channel   = $chat_channel."-pnpres";
@@ -248,12 +217,60 @@ class TCAMessenger
         // user can read/write to chat and presence channel
         $auth->authorizeUser($user, $read=true, $write=true, $chat_channel);
         $auth->authorizeUser($user, $read=true, $write=true, $chat_presence_channel);
+    }
+
+    public function deauthorizeUserFromChat(User $user, TokenChat $token_chat) {
+        $channel_name            = $token_chat->getChannelName();
+        $chat_channel            = "chat-{$channel_name}";
+        $chat_presence_channel   = $chat_channel."-pnpres";
+        $chat_identities_channel = "identities-{$channel_name}";
+
+        $auth = $this->tca_messenger_auth;
+
+        $auth->revokeUser($user, $chat_identities_channel);
+        $auth->revokeUser($user, $chat_channel);
+        $auth->revokeUser($user, $chat_presence_channel);
+    }
+
+    public function removeChat(TokenChat $token_chat) {
+        $auth = $this->tca_messenger_auth;
+        $user_repository = app('Tokenpass\Repositories\UserRepository');
+
+        // remove and deauthorize all users
+        $chat_channel = "chat-".$token_chat->getChannelName();
+        $user_ids = $auth->findUserIDsByChannel($chat_channel)->pluck('user_id');
+        foreach($user_ids as $user_id) {
+            $user = $user_repository->findById($user_id);
+
+            $this->removeUserFromChatIfAdded($user, $token_chat);
+            $this->deauthorizeUserFromChat($user, $token_chat);
+        }
+
+    }
+
+    public function addUserToChat(User $user, TokenChat $token_chat) {
+        $channel_name            = $token_chat->getChannelName();
+        $chat_channel            = "chat-{$channel_name}";
+        $chat_presence_channel   = $chat_channel."-pnpres";
+        $chat_identities_channel = "identities-{$channel_name}";
+
+        $auth = $this->tca_messenger_auth;
 
         // send identity
         $this->tca_messenger_actions->sendIdentity($user, $token_chat);
 
         // send invitation
         $this->tca_messenger_actions->sendChatInvitation($user, $token_chat);
+
+        // add to roster
+        $this->tca_messenger_roster->addUserToChat($user, $token_chat);
+
+    }
+
+    public function removeUserFromChatIfAdded(User $user, TokenChat $token_chat) {
+        if ($this->tca_messenger_roster->userIsAddedToChat($user, $token_chat)) {
+            $this->removeUserFromChat($user, $token_chat);
+        }
     }
 
     protected function removeUserFromChat(User $user, TokenChat $token_chat) {
@@ -270,11 +287,27 @@ class TCAMessenger
         // remove identity
         $this->tca_messenger_actions->removeIdentity($user, $token_chat);
 
-        // revoke privileges (should be last)
-        $auth->revokeUser($user, $chat_identities_channel);
-        $auth->revokeUser($user, $chat_channel);
-        $auth->revokeUser($user, $chat_presence_channel);
+        // remove from roster
+        $this->tca_messenger_roster->removeUserFromChat($user, $token_chat);
+
     }
+
+    // ------------------------------------------------------------------------
+    
+    public function subscribe($events)
+    {
+        $events->listen(AddressBalanceChanged::class, 'Tokenpass\Providers\TCAMessenger\TCAMessenger@onAddressBalanceChanged');
+        $events->listen(UserBalanceChanged::class, 'Tokenpass\Providers\TCAMessenger\TCAMessenger@onUserBalanceChanged');
+    }
+
+    // ------------------------------------------------------------------------
+
+    protected function userIDIsAuthorized($user_id, $tca_stack) {
+        $tca = new Access();
+        $balances = Address::getAllUserBalances($user_id, $filter_disabled = true, $and_provisional = true, $subtract_loans = true);
+        return $tca->checkAccess($tca_stack, $balances);
+    }
+    
 
     protected function authorizeUserControlChannel(User $user) {
         $auth = $this->tca_messenger_auth;

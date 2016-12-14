@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Session;
 use Tokenpass\Events\AddressBalanceChanged;
 use Tokenpass\Providers\TCAMessenger\TCAMessengerActions;
 use Tokenpass\Providers\TCAMessenger\TCAMessengerAuth;
+use Tokenpass\Providers\TCAMessenger\TCAMessengerRoster;
 use \PHPUnit_Framework_Assert as PHPUnit;
 
 class TCAMessengerAuthTest extends TestCase
@@ -63,29 +64,31 @@ class TCAMessengerAuthTest extends TestCase
         // messages
         $tca_messenger_actions_mock = Mockery::mock(TCAMessengerActions::class, [Mockery::mock('Pubnub\Pubnub')->shouldIgnoreMissing()]);
         $tca_messenger_actions_mock->makePartial();
-        $expected_message = [
-            'action'    => 'identityJoined',
-            'args'      => [
-                'chatId'    => $token_chat->getChannelName(),
-                'username'  => $user['username'],
-                'role'      => 'member',
-                'avatar'    => null,
-                'publicKey' => $user->getECCPublicKey(),
-            ]
-        ];
-        $tca_messenger_actions_mock->shouldReceive('_publish')
-            ->withArgs(["identities-{$chat_id}", $expected_message, 'sendIdentity'])
-            ->once();
-        $expected_message = [
-            'action' => 'addedToChat',
-            'args'   => [
-                'chatName' => $token_chat['name'],
-                'id'       => $token_chat->getChannelName(),
-            ]
-        ];
-        $tca_messenger_actions_mock->shouldReceive('_publish')
-            ->withArgs(["control-{$user_channel}", $expected_message, 'sendChatInvitation'])
-            ->once();
+        // $expected_message = [
+        //     'action'    => 'identityJoined',
+        //     'args'      => [
+        //         'chatId'    => $token_chat->getChannelName(),
+        //         'username'  => $user['username'],
+        //         'role'      => 'member',
+        //         'avatar'    => null,
+        //         'publicKey' => $user->getECCPublicKey(),
+        //     ]
+        // ];
+        // $tca_messenger_actions_mock->shouldReceive('_publish')
+        //     ->withArgs(["identities-{$chat_id}", $expected_message, 'sendIdentity'])
+        //     ->once();
+
+        // $expected_message = [
+        //     'action' => 'addedToChat',
+        //     'args'   => [
+        //         'chatName' => $token_chat['name'],
+        //         'id'       => $token_chat->getChannelName(),
+        //     ]
+        // ];
+        // $tca_messenger_actions_mock->shouldReceive('_publish')
+        //     ->withArgs(["control-{$user_channel}", $expected_message, 'sendChatInvitation'])
+        //     ->once();
+
         app()->instance(TCAMessengerActions::class, $tca_messenger_actions_mock);
 
 
@@ -141,6 +144,8 @@ class TCAMessengerAuthTest extends TestCase
         $tca_messenger_auth_mock->tokenpass_auth_key = 'tokenpass_auth_key_TEST';
         app()->instance(TCAMessengerAuth::class, $tca_messenger_auth_mock);
 
+        // add the user to the chat so it can be removed
+        app(TCAMessengerRoster::class)->addUserToChat($user, $token_chat);
 
         // messages
         $tca_messenger_actions_mock = Mockery::mock(TCAMessengerActions::class, [Mockery::mock('Pubnub\Pubnub')->shouldIgnoreMissing()]);
