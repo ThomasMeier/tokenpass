@@ -11,6 +11,7 @@ use Tokenly\LaravelEventLog\Facade\EventLog;
 use Tokenly\TCA\Access;
 use Tokenpass\Events\AddressBalanceChanged;
 use Tokenpass\Events\UserBalanceChanged;
+use Tokenpass\Jobs\SyncUsersWithTokenChat;
 use Tokenpass\Models\Address;
 use Tokenpass\Models\TokenChat;
 use Tokenpass\Models\User;
@@ -119,7 +120,7 @@ class TCAMessenger
         $auth->authorizeTokenpass($read=true, $write=true, $chat_channel);
 
         // authorize all users
-        $this->syncUsersWithChat($token_chat);
+        dispatch(new SyncUsersWithTokenChat($token_chat));
     }
 
     public function syncUsersWithChat(TokenChat $token_chat) {

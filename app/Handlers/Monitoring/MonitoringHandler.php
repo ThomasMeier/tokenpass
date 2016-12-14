@@ -20,6 +20,12 @@ class MonitoringHandler {
     public function handleConsoleHealthCheck() {
         // check MySQL
         $this->services_checker->checkMySQLConnection();
+
+        // check queue size
+        $this->services_checker->checkQueueSizes([
+            'tokenpass' => 5,
+        ]);
+
     }
 
     public function subscribe($events) {
