@@ -16,7 +16,7 @@
         "tokenly/token-controlled-access": "dev-master",
         "tokenly/platform-admin": "^0.1.2",
         "tokenly/xchain-client": "^0.3.0",
-        "mockery/mockery": "dev-master",
+        "mockery/mockery": "^0.9.6",
         "doctrine/dbal": "^2.5",
         "simplesoftwareio/simple-qrcode": "^1.4",
         "satooshi/php-coveralls": "^1.0",
@@ -31,7 +31,8 @@
         "tokenly/hmac-auth": "^1.1",
         "pubnub/pubnub": "^3.8",
         "tokenly/asset-name-utils": "^0.2.0",
-        "stephenhill/base58": "^1.1"
+        "stephenhill/base58": "^1.1",
+        "pda/pheanstalk": "^3.1"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
