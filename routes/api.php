@@ -32,9 +32,16 @@ Route::group(['middleware' => 'oauth-client-guard'], function () {
     Route::match(['POST',   'OPTIONS'], 'api/v1/lookup/addresses', [
                                         'as'   => 'api.lookup.addresses',            
                                         'uses' => 'APILookupsController@lookupMultipleUsersByAddresses']);
+                                        
+    Route::match(['GET',    'OPTIONS'], 'api/v1/lookup/user/exists/{username}', [
+                                        'as'   => 'api.lookup.user.check-exists',
+                                        'uses' => 'APILookupsController@checkUserExists']);                    
+                                        
     Route::match(['GET',    'OPTIONS'], 'api/v1/lookup/user/{username}', [
                                         'as'   => 'api.lookup.user',                 
                                         'uses' => 'APILookupsController@lookupAddressByUser']);
+                                        
+
 
     // provisional transaction routes
     Route::match(['POST',   'OPTIONS'], 'api/v1/tca/provisional/register', [

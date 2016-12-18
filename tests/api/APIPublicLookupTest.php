@@ -125,5 +125,42 @@ class APIPublicLookupTest extends TestCase {
         ]), [], 404);
          PHPUnit::assertContains('User or addresses not found', $response['error']);
    }
+   
+   
+   public function testCheckUserExists() {
+       
+        //setup helpers
+        $user_helper = app('UserHelper')->setTestCase($this);
+        $user1 = $user_helper->createRandomUser();
+
+        // setup api client
+        $oauth_client = app('OAuthClientHelper')->createConnectedOAuthClientWithTCAScopes($user1);
+        $api_tester = app('OAuthClientAPITester')->be($oauth_client);
+
+        // require authentication
+        $response = $api_tester->testRequireAuth('GET', route('api.lookup.user.check-exists', [
+            'username' => $user1['username'],
+        ]));
+        
+        //check user exists
+        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('GET', route('api.lookup.user.check-exists', [
+            'username' => $user1['username']
+        ]));   
+        PHPUnit::assertTrue($response['result']);
+        
+        //check via email
+        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('GET', route('api.lookup.user.check-exists', [
+            'username' => $user1['email']
+        ]));   
+        PHPUnit::assertTrue($response['result']);        
+        
+        
+        //try a bogus request
+        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('GET', route('api.lookup.user.check-exists', [
+            'username' => 'fake dude'
+        ]));   
+        PHPUnit::assertFalse($response['result']);        
+
+    }
 
 }

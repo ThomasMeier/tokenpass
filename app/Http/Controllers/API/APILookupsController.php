@@ -131,5 +131,16 @@ class APILookupsController extends Controller
         $output['result'] = $result;
         return Response::json($output);
     }
+    
+    public function checkUserExists($username)
+    {
+        $output = array();
+        $output['result'] = false;
+        $user_model = User::where('username', $username)->orWhere('slug', $username)->orWhere('email', $username)->first();
+        if($user_model){
+            $output['result'] = true;
+        }
+        return Response::json($output);
+    }
         
 }
