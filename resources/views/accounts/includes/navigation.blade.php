@@ -59,11 +59,11 @@
           <span class="linktext">Api Keys</span>
         </a>
       </li>
-      <li>
+      <!--<li>
         <a href="/tokenchats">
           <span class="linktext">Token Chats</span>
         </a>
-      </li>
+      </li>-->
         
       <!-- TODO -->
       <!-- <li><a href="/dashboard"><i class="fa fa-home"></i> Accounts Home</a></li> -->
