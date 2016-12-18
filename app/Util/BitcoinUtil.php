@@ -20,7 +20,7 @@ class BitcoinUtil
     public static function deriveAddressFromSignature($signature, $message) {
 
         $ec             = Bitcoin::getEcAdapter();
-        $cs             = EcSerializer::getSerializer($ec, CompactSignatureSerializerInterface::class);
+        $cs             = EcSerializer::getSerializer(CompactSignatureSerializerInterface::class, true, $ec);
         $message_signer = new MessageSigner($ec);
         $sig_buffer     = new Buffer(base64_decode($signature));
         $compact_sig    = $cs->parse($sig_buffer);
