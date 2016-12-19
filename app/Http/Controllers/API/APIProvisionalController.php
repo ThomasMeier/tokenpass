@@ -111,6 +111,57 @@ class APIProvisionalController extends Controller
         
         $output['result'] = true;
         
+        //if applicable, assign this source address as a pocket address for a specific user
+        if(isset($input['assign_user']) AND trim($input['assign_user']) != '' AND isset($input['assign_user_hash'])){
+            //for now, only allow this for apps with special API permission
+            if($oauth_client->hasPrivilege('assign-source-address-any-user')){
+                $username = trim($input['assign_user']);
+                //find the user
+                $assign_user = User::where('username', $username)->orWhere('slug', $username)->orWhere('email', $username)->first();
+                if($assign_user){
+                    //check against hash of tokenly_uuid for extra verification
+                    $real_hash = hash('sha256', $assign_user->uuid);
+                    if($real_hash != $input['assign_user_hash']){
+                        $output['error'] = 'Incorrect assign_user_hash parameter';
+                        return Response::json($output, 400);
+                    }
+                    //check if this address happens to already be registered
+                    $find_address = Address::where('address', $input['address'])->first();
+                    if(!$find_address){
+                        //register the address
+                        $label = null;
+                        if(isset($input['assign_user_label'])){
+                            $label = trim($input['assign_user_label']);
+                        }                        
+                        $user_address = app('Tokenpass\Repositories\AddressRepository')->create([
+                            'user_id' => $assign_user->id,
+                            'type' => 'btc',
+                            'address' => $input['address'],
+                            'label' => $label,
+                            'verified' => 1,
+                            'active_toggle' => 1,
+                            'public' => 0,
+                            'from_api' => 1
+                        ]);                        
+
+                        if(!$user_address){
+                            $output['error'] = 'Error assigning provisional TCA address to user '.$username;
+                            return Response::json($output, 500);
+                        }
+                        
+                        try{
+                            $user_address->syncWithXChain(); //sets up xchain_address_id and send/receive monitors
+                        }
+                        catch(Exception $e){
+                            $output['error'] = 'Error syncing assigned address with xchain';
+                            return Response::json($output, 500);
+                        }
+                    }
+                }
+            }
+        }
+        ////
+        
         return Response::json($output);
     }
 
