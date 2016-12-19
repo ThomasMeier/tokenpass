@@ -160,6 +160,20 @@ class APIPublicLookupTest extends TestCase {
             'username' => 'fake dude'
         ]));   
         PHPUnit::assertFalse($response['result']);        
+        
+        //try with real id_hash
+        $id_hash = hash('sha256', $user1['uuid']);
+        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('GET', route('api.lookup.user.check-exists', [
+            'username' => $user1['username'], 'id_hash' => $id_hash
+        ]));   
+        PHPUnit::assertTrue($response['result']);        
+        
+        
+        //try with fake id_hash
+        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('GET', route('api.lookup.user.check-exists', [
+            'username' => $user1['username'], 'id_hash' => 'fake'
+        ]));   
+        PHPUnit::assertFalse($response['result']);                
 
     }
 

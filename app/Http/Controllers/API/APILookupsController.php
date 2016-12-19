@@ -139,6 +139,14 @@ class APILookupsController extends Controller
         $user_model = User::where('username', $username)->orWhere('slug', $username)->orWhere('email', $username)->first();
         if($user_model){
             $output['result'] = true;
+            $id_hash = Input::get('id_hash');
+            if($id_hash){
+                //check against hash of their tokenly_uuid for extra verification
+                $real_hash = hash('sha256', $user_model->uuid);
+                if($id_hash != $real_hash){
+                    $output['result'] = false;
+                }
+            }            
         }
         return Response::json($output);
     }
