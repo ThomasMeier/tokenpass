@@ -39,7 +39,7 @@ class OAuthClientHelper
         ]);
 
         // generate a token
-        $token = 'TOKEN'.(sprintf('%03d', ++self::$OFFSET));
+        $token = '01TOKEN'.(sprintf('%03d', ++self::$OFFSET));
         $expire_ttl = ($options AND isset($options['expire_time_ttl'])) ? $options['expire_time_ttl'] : 99999;
         DB::table('oauth_access_tokens')->insert([
             'id'          => $token,
