@@ -51,41 +51,45 @@ class InventoryController extends Controller
             foreach ($addresses as $address) {
                 // real balances
                 $real_balances = Address::getAddressBalances($address->id, false, false);
-                foreach ($real_balances as $asset => $amnt) {
-                    if ($amnt <= 0) {
-                        continue;
+                if($real_balances){
+                    foreach ($real_balances as $asset => $amnt) {
+                        if ($amnt <= 0) {
+                            continue;
+                        }
+                        if (!isset($balance_addresses[$asset])) {
+                            $balance_addresses[$asset] = array();
+                        }
+                        $balance_addresses[$asset][$address->address] = array('real' => $amnt, 'provisional' => array(), 'loans' => array());
                     }
-                    if (!isset($balance_addresses[$asset])) {
-                        $balance_addresses[$asset] = array();
-                    }
-                    $balance_addresses[$asset][$address->address] = array('real' => $amnt, 'provisional' => array(), 'loans' => array());
                 }
 
                 // promises (received)
                 $promises = Provisional::getAddressPromises($address->address);
-                foreach ($promises as $promise) {
-                    if (!isset($balance_addresses[$promise->asset])) {
-                        $balance_addresses[$promise->asset] = array();
-                    }
-                    if (!isset($balance_addresses[$promise->asset][$address->address])) {
-                        $balance_addresses[$promise->asset][$address->address] = array('real' => 0, 'provisional' => array(), 'loans' => array());
-                    }
-                    $ref_data = $promise->getRefData();
-                    if(isset($ref_data['show_as'])){
-                        if($ref_data['show_as'] == 'username' AND $promise->user_id > 0){
-                            $promise_user = User::find($promise->user_id);
-                            if($promise_user){
-                                $promise->source = $promise_user->username;
+                if($promises){
+                    foreach ($promises as $promise) {
+                        if (!isset($balance_addresses[$promise->asset])) {
+                            $balance_addresses[$promise->asset] = array();
+                        }
+                        if (!isset($balance_addresses[$promise->asset][$address->address])) {
+                            $balance_addresses[$promise->asset][$address->address] = array('real' => 0, 'provisional' => array(), 'loans' => array());
+                        }
+                        $ref_data = $promise->getRefData();
+                        if(isset($ref_data['show_as'])){
+                            if($ref_data['show_as'] == 'username' AND $promise->user_id > 0){
+                                $promise_user = User::find($promise->user_id);
+                                if($promise_user){
+                                    $promise->source = $promise_user->username;
+                                }
                             }
                         }
+                        if(isset($ref_data['user'])){
+                            unset($ref_data['user']);
+                        }
+                        $promise->ref_data = $ref_data;
+                        unset($promise->user_id);
+                        unset($promise->ref);
+                        $balance_addresses[$promise->asset][$address->address]['provisional'][] = $promise;
                     }
-                    if(isset($ref_data['user'])){
-                        unset($ref_data['user']);
-                    }
-                    $promise->ref_data = $ref_data;
-                    unset($promise->user_id);
-                    unset($promise->ref);
-                    $balance_addresses[$promise->asset][$address->address]['provisional'][] = $promise;
                 }
 
                 // loans (debits)
