@@ -150,7 +150,12 @@ class InventoryController extends Controller
         $keys = array_keys($bvam_balances);
         $bvam_data = array();
         if(count($keys) > 0){
-            $bvam_data = $bvam->getMultipleAssetsInfo($keys);
+            try{
+                $bvam_data = $bvam->getMultipleAssetsInfo($keys);
+            }
+            catch(Exception $e){
+                
+            }
         }
         
 		$vars = [
