@@ -6,23 +6,23 @@
 
 @section('accounts_content')
 
+
+
 <section class="title">
-  <span class="heading">My Applications</span>
-  <button data-modal="addAppModal" class="btn-dash-title add-app-btn reveal-modal">+ Add Application</button>
+  <span class="heading">Developer Tools</span>
 </section>
 
 <section id="appsController">
+    <h3>My Applications</h3>  
 	<div class="panel with-padding">
-		<p>
-			Here you can register new client Applications and obtain a pair of API keys for integration of Tokenpass
-			in your own website or service. 
-			Once you have your API keys, the <a href="https://github.com/tokenly/tokenpass-client" target="_blank">TokenpassClient</a>
-			PHP class can be used to integrate into your application. 
+        <p>
+            Create Client Applications and obtain API keys for OAuth or other integrations of Tokenpass within your website or service.
 		</p>
 		<p>
 			<strong><a href="http://apidocs.tokenly.com/tokenpass/" target="_blank">View API Documentation</a></strong>
 		</p>
 	</div>
+    <button data-modal="addAppModal" class="btn-dash-title add-app-btn reveal-modal">+ Add Application</button>      
 	<div class="panel with-padding">
 		<table class="table table--responsive" v-cloak>
 			<thead>
@@ -49,6 +49,20 @@
 			</tbody>
 		</table>
 	</div>
+    <h3>App Credit Groups</h3>  
+	<div class="panel with-padding">
+        <p>
+            <em>App credit groups</em> are custom types of points, or "credits" (database only), that your apps can use and assign either arbitrarily, or to a Tokenpass user account. 
+            Useful for selling or rewarding non-token, on-site credit and debiting or crediting for different types of interactions.
+		</p>
+        <button data-modal="addAppCreditModal" class="btn-dash-title add-app-credit-btn reveal-modal">+ App Credit Group</button>          
+	</div>
+    
+    
+    
+    
+    <!-- MODALS -->
+    <!-- ...... -->
 	<!-- NEW APP MODAL -->
 	<div class="modal-container" id="addAppModal">
 		<div class="modal-bg"></div>
