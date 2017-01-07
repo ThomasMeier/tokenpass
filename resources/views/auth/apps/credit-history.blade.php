@@ -39,7 +39,12 @@
 	</div>
 	<div class="panel with-padding">
         <p>
-            Showing {{ $tx_showing }} of {{ $tx_count }} credit transactions.
+            Showing {{ $tx_showing }} of {{ $tx_count }} credit transactions.<br>
+            @if($credit_account)
+                <strong><a href="/auth/apps/credits/{{ $credit_group->uuid }}/history/{{ $credit_account->uuid }}/download" target="_blank">Download App Credit History</a></strong>
+            @else
+                <strong><a href="/auth/apps/credits/{{ $credit_group->uuid }}/history/download" target="_blank">Download App Credit History</a></strong>
+            @endif
         </p>
 		<table class="table table--responsive" v-cloak>
 			<thead>

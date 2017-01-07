@@ -383,7 +383,7 @@ class AppsController extends Controller
         $credit_account = false;
         $page_route = route('app-credits.history', $uuid);
         if($account_uuid){
-            $page_route = route('app-credits.history.account', array($uuid, $account_uuod));
+            $page_route = route('app-credits.history.account', array($uuid, $account_uuid));
             $credit_account = $credit_group->getAccount($account_uuid);
         }
         
@@ -407,12 +407,54 @@ class AppsController extends Controller
     }
     
     
-    
-    
-    
-    
-    
-    
+    public function downloadAppCreditHistory($uuid, $account_uuid = false)
+    {
+		$user = Auth::user();        
+        $credit_group = AppCredits::where('uuid', $uuid)->first();
+        
+        if(!$credit_group OR $credit_group->user_id != $user->id){
+            return $this->ajaxEnabledErrorResponse('Invalid App Credit Group', route('auth.apps').'#app-credits');
+        }
+        
+        $headings = array('Unique ID', 'Account', 'Account User', 'Amount', 'Created', 'Reference Data');
+        $credit_txs = $credit_group->transactionHistory($account_uuid);
+        $csv = array($headings);
+        if($credit_txs){
+            foreach($credit_txs as $tx){
+                $line = array();
+                $line[] = $tx->uuid;
+                $line[] = $tx->account->name;
+                if($tx->account->tokenpass_user){
+                    $line[] = $tx->account->tokenpass_user['username'];
+                }
+                else{
+                    $line[] = '';
+                }
+                $line[] = $tx->amount;
+                $line[] = $tx->created_at;
+                $line[] = $tx->ref;
+                
+                $csv[] = $line;
+            }
+        }
+
+        $csv_lines = array();
+        foreach($csv as $row){
+            foreach($row as $k => $v){
+                $row[$k] = '"'.addslashes($v).'"';
+            }
+            $csv_lines[] = join(',', $row);
+        }
+        
+        $csv_text = join("\n", $csv_lines);
+        
+        $headers = array(
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="'.addslashes($credit_group->name).'-'.date('Y-m-d H:i').'.csv"',
+        );        
+        
+        return Response::make(rtrim($csv_text, "\n"), 200, $headers);
+    }
     
 
     // ------------------------------------------------------------------------

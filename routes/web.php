@@ -92,7 +92,9 @@ Route::post('auth/apps/credits/{uuid}/edit',                           ['uses' =
 Route::get('auth/apps/credits/{uuid}/delete',                           ['uses' => 'Auth\AppsController@deleteAppCreditGroup']);
 Route::get('auth/apps/credits/{uuid}/users',                           ['uses' => 'Auth\AppsController@viewAppCreditGroupUsers']);
 Route::get('auth/apps/credits/{uuid}/history',                           ['as' => 'app-credits.history', 'uses' => 'Auth\AppsController@viewAppCreditGroupTransactions']);
+Route::get('auth/apps/credits/{uuid}/history/download',                           ['as' => 'app-credits.history.download', 'uses' => 'Auth\AppsController@downloadAppCreditHistory']);
 Route::get('auth/apps/credits/{uuid}/history/{account}',                           ['as' => 'app-credits.history.account', 'uses' => 'Auth\AppsController@viewAppCreditGroupTransactions']);
+Route::get('auth/apps/credits/{uuid}/history/{account}/download',                           ['as' => 'app-credits.history.account.download', 'uses' => 'Auth\AppsController@downloadAppCreditHistory']);
 
 // token chats
 Route::get('tokenchats',                                ['as' => 'tokenchats.index',  'uses' => 'Tokenchats\TokenchatsController@index']);
