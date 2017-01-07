@@ -10,7 +10,9 @@ use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 use Tokenpass\Http\Controllers\Controller;
 use Tokenpass\Models\OAuthClient;
+use Tokenpass\Models\AppCredits;
 use Tokenpass\Repositories\OAuthClientRepository;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class AppsController extends Controller
 {
@@ -31,9 +33,15 @@ class AppsController extends Controller
 				$client->user_count = DB::table('client_connections')->where('client_id', $client->id)->count();
 			}
 		}
+        
+        $credit_groups = AppCredits::where('user_id', $user->id)->get();
+        foreach($credit_groups as $k => $group){
+            $credit_groups[$k]->num_accounts = $group->numAccounts();
+        }
 
 		return view('auth.client-apps', array(
 			'client_apps' => $clients,
+            'credit_groups' => $credit_groups,
 		));
 		
 	}
@@ -228,6 +236,184 @@ class AppsController extends Controller
 
         return trim($out);
     }    
+    
+    
+    
+    protected function registerAppCreditGroup()
+    {
+		$input = Input::all();
+		$user = Auth::user();
+        
+        if(!isset($input['name']) OR trim($input['name']) == ''){
+            return $this->ajaxEnabledErrorResponse('App Credit Group name required', route('auth.apps').'#app-credits');
+        }
+        
+        $user_id = $user->id;
+        $uuid = Uuid::uuid4()->toString();
+        $name = trim($input['name']);
+        $app_whitelist = null;
+        if(isset($input['app_whitelist']) AND trim($input['app_whitelist']) != ''){
+            $exp_list = explode("\n", trim($input['app_whitelist']));
+            $client_ids = array();
+            foreach($exp_list as $k => $v){
+                $client_id = trim($v);
+                $find_client = OAuthClient::find($client_id);
+                if(!$find_client){
+                    return $this->ajaxEnabledErrorResponse('Invalid Client ID '.$client_id.' for App Credit Group', route('auth.apps').'#app-credits');
+                }
+                $client_ids[] = $client_id;
+            }
+            $app_whitelist = join("\n", $client_ids);
+        }
+        $active = true;
+        
+        $credit_group = new AppCredits;
+        $credit_group->user_id = $user_id;
+        $credit_group->uuid = $uuid;
+        $credit_group->name = $name;
+        $credit_group->active = $active;
+        $credit_group->app_whitelist = $app_whitelist;
+        
+        $save = $credit_group->save();
+        
+        if(!$save){
+            return $this->ajaxEnabledErrorResponse('Error creating App Credit Group', route('auth.apps').'#app-credits');
+        }
+        
+        return $this->ajaxEnabledSuccessResponse('App Credit Group created!', route('auth.apps').'#app-credits');
+    }
+    
+    protected function updateAppCreditGroup($uuid)
+    {
+		$input = Input::all();
+		$user = Auth::user();        
+        $credit_group = AppCredits::where('uuid', $uuid)->first();
+        
+        if(!$credit_group OR $credit_group->user_id != $user->id){
+            return $this->ajaxEnabledErrorResponse('Invalid App Credit Group', route('auth.apps').'#app-credits');
+        }
+
+        if(!isset($input['name']) OR trim($input['name']) == ''){
+            return $this->ajaxEnabledErrorResponse('App Credit Group name required', route('auth.apps').'#app-credits');
+        }
+        
+        $name = trim($input['name']);
+        $app_whitelist = null;
+        if(isset($input['app_whitelist']) AND trim($input['app_whitelist']) != ''){
+            $exp_list = explode("\n", trim($input['app_whitelist']));
+            $client_ids = array();
+            foreach($exp_list as $k => $v){
+                $client_id = trim($v);
+                $find_client = OAuthClient::find($client_id);
+                if(!$find_client){
+                    return $this->ajaxEnabledErrorResponse('Invalid Client ID '.$client_id.' for App Credit Group', route('auth.apps').'#app-credits');
+                }
+                $client_ids[] = $client_id;
+            }
+            $app_whitelist = join("\n", $client_ids);
+        }
+
+        $credit_group->name = $name;
+        $credit_group->app_whitelist = $app_whitelist;
+        
+        $save = $credit_group->save();
+        
+        if(!$save){
+            return $this->ajaxEnabledErrorResponse('Error updating App Credit Group', route('auth.apps').'#app-credits');
+        }
+        
+        return $this->ajaxEnabledSuccessResponse('App Credit Group updated!', route('auth.apps').'#app-credits');
+    }
+    
+    protected function deleteAppCreditGroup($uuid)
+    {
+		$user = Auth::user();        
+        $credit_group = AppCredits::where('uuid', $uuid)->first();
+        
+        if(!$credit_group OR $credit_group->user_id != $user->id){
+            return $this->ajaxEnabledErrorResponse('Invalid App Credit Group', route('auth.apps').'#app-credits');
+        }
+        
+        $delete = $credit_group->delete();
+        
+        if(!$delete){
+            return $this->ajaxEnabledErrorResponse('Error deleting App Credit Group', route('auth.apps').'#app-credits');
+        }
+        
+        return $this->ajaxEnabledSuccessResponse('App Credit Group deleted!', route('auth.apps').'#app-credits');        
+        
+    }
+    
+    protected function viewAppCreditGroupUsers($uuid)
+    {
+		$user = Auth::user();        
+        $credit_group = AppCredits::where('uuid', $uuid)->first();
+        
+        if(!$credit_group OR $credit_group->user_id != $user->id){
+            return $this->ajaxEnabledErrorResponse('Invalid App Credit Group', route('auth.apps').'#app-credits');
+        }
+        
+        
+        $credit_accounts = $credit_group->getAccounts();
+        $num_accounts = $credit_group->numAccounts();
+        $credit_balance = $credit_group->balance();
+        
+		return view('auth.apps.credit-accounts', array(
+            'credit_group' => $credit_group,
+            'credit_accounts' => $credit_accounts,
+            'num_accounts' => $num_accounts,
+            'credit_balance' => $credit_balance,
+		));
+    }
+    
+    
+    protected function viewAppCreditGroupTransactions($uuid, $account_uuid = false)
+    {
+		$user = Auth::user();        
+        $credit_group = AppCredits::where('uuid', $uuid)->first();
+        
+        if(!$credit_group OR $credit_group->user_id != $user->id){
+            return $this->ajaxEnabledErrorResponse('Invalid App Credit Group', route('auth.apps').'#app-credits');
+        }
+        
+        $credit_txs = $credit_group->transactionHistory($account_uuid);
+        $num_accounts = $credit_group->numAccounts();
+        $credit_balance = $credit_group->balance();
+        
+        $credit_account = false;
+        $page_route = route('app-credits.history', $uuid);
+        if($account_uuid){
+            $page_route = route('app-credits.history.account', array($uuid, $account_uuod));
+            $credit_account = $credit_group->getAccount($account_uuid);
+        }
+        
+        $page = Input::get('page', 1); // Get the current page or default to 1, this is what you miss!
+        $perPage = 100;
+        $offset = ($page * $perPage) - $perPage;
+        
+        $items = array_slice($credit_txs, $offset, $perPage, true);
+        $paginator =  new LengthAwarePaginator($items, count($credit_txs), $perPage, $page, ['path' => $page_route, 'query' => Input::all()]); 
+     
+		return view('auth.apps.credit-history', array(
+            'credit_group' => $credit_group,
+            'credit_txs' => $items,
+            'num_accounts' => $num_accounts,
+            'credit_balance' => $credit_balance,
+            'credit_account' => $credit_account,
+            'paginator' => $paginator,
+            'tx_count' => count($credit_txs),
+            'tx_showing' => count($items),
+		));
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     // ------------------------------------------------------------------------
     protected function ajaxEnabledErrorResponse($error_message, $redirect_url, $error_code = 400) {
@@ -253,7 +439,7 @@ class AppsController extends Controller
         Session::flash('message-class', 'alert-success');
 
 
-        return redirect(route('inventory.pockets'));
+        return redirect($redirect_url);
     }
     
 }
