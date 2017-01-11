@@ -49,7 +49,7 @@ class ScanCoinAddresses extends Command
 					$this->info('Updated '.$row->address.' ['.$row->id.']');
 
                     // fire an address balanced changed event
-                    Event::fire(new AddressBalanceChanged($address));
+                    Event::fire(new AddressBalanceChanged($row));
 				}
 			}
 		}
