@@ -250,7 +250,7 @@ class AppsController extends Controller
         
         $user_id = $user->id;
         $uuid = Uuid::uuid4()->toString();
-        $name = trim($input['name']);
+        $name = trim(htmlentities($input['name']));
         $app_whitelist = null;
         if(isset($input['app_whitelist']) AND trim($input['app_whitelist']) != ''){
             $exp_list = explode("\n", trim($input['app_whitelist']));

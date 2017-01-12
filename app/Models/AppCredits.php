@@ -5,6 +5,7 @@ use DB, Config;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Tokenly\LaravelEventLog\Facade\EventLog;
+use Ramsey\Uuid\Uuid;
 
 class AppCredits extends Model
 {
@@ -12,20 +13,47 @@ class AppCredits extends Model
     public $timestamps = true;
     
     
+    public static function getCreditGroupsOwnedByUser($userId)
+    {
+        if($userId == 0){
+            $get = AppCredits::all();
+        }
+        else{
+            $get = AppCredits::where('user_id', $userId)->get();
+        }
+        if(!$get){
+            return array();
+        }
+        return $get;
+    }
+    
+    public function APIObject()
+    {
+        $output = new stdClass;
+        $output->name = $this->name;
+        $output->uuid = $this->uuid;
+        $output->active = boolval($this->active);
+        $output->app_whitelist = explode("\n", $this->app_whitelist);
+        $output->created_at = (string)$this->created_at;
+        $output->updated_at = (string)$this->updated_at;
+        return $output;
+    }
+    
     public function numAccounts()
     {
-        return DB::table('app_credit_accounts')->where('app_credit_group_id', $this->id)->count();
+        return AppCreditAccount::where('app_credit_group_id', $this->id)->count();
     }
     
     public function getAccounts($with_balances = true)
     {
-        $accounts = DB::table('app_credit_accounts')->where('app_credit_group_id', $this->id)->get();
+        $accounts = AppCreditAccount::where('app_credit_group_id', $this->id)->orderBy('id', 'desc')->get();
         if($with_balances){
-            $txs = DB::table('app_credit_transactions')->where('app_credit_group_id', $this->id)->get();
+            $txs = AppCreditTransaction::where('app_credit_group_id', $this->id)->get();
             $account_ids = array();
             foreach($accounts as $k => $account){
                 $account_ids[$account->id] = $account;
                 $account_ids[$account->id]->balance = 0;
+                $account_ids[$account->id]->tokenpass_user = false;
                 $user = User::where('uuid', $account->name)->first();
                 if($user){
                     $account_ids[$account->id]->tokenpass_user = array();
@@ -50,7 +78,7 @@ class AppCredits extends Model
     
     public function getAccount($name, $with_balance = true, $use_real_id = false)
     {
-        $get = DB::table('app_credit_accounts')->where('app_credit_group_id', $this->id)
+        $get = AppCreditAccount::where('app_credit_group_id', $this->id)
                     ->where(function($q) use($name, $use_real_id){
                         if($use_real_id){
                             $q->where('id', $name);
@@ -64,7 +92,7 @@ class AppCredits extends Model
             return false;
         }
         if($with_balance){
-            $get->balance = DB::table('app_credit_transactions')->where('app_credit_account_id', $get->id)->sum('amount');
+            $get->balance = AppCreditTransaction::where('app_credit_account_id', $get->id)->sum('amount');
         }
         $get->tokenpass_user = false;
         $user = User::where('uuid', $get->name)->first();
@@ -86,10 +114,10 @@ class AppCredits extends Model
             if(!$get_account){
                 return $txs;
             }
-            $txs = DB::table('app_credit_transactions')->where('app_credit_account_id', $get_account->id)->get()->toArray();
+            $txs = AppCreditTransaction::where('app_credit_account_id', $get_account->id)->orderBy('id', 'desc')->get()->toArray();
         }
         else{
-            $txs = DB::table('app_credit_transactions')->where('app_credit_group_id', $this->id)->get()->toArray();
+            $txs = AppCreditTransaction::where('app_credit_group_id', $this->id)->orderBy('id', 'desc')->get()->toArray();
         }
         $known_accounts = array();
         foreach($txs as $k => $tx){
@@ -119,7 +147,7 @@ class AppCredits extends Model
             }
             return $get_account->balance;
         }
-        return DB::table('app_credit_transactions')->where('app_credit_group_id', $this->id)->sum('amount');
+        return AppCreditTransaction::where('app_credit_group_id', $this->id)->sum('amount');
     }
     
     public function isBalanced()
@@ -129,6 +157,25 @@ class AppCredits extends Model
             return false;
         }
         return true;
+    }
+    
+    public function getDefaultAccount()
+    {
+        $default_name = '_';
+        $get = $this->getAccount($default_name);
+        if(!$get){
+            //create
+            $account = new AppCreditAccount;
+            $account->app_credit_group_id = $this->id;
+            $account->name = $default_name;
+            $account->uuid = Uuid::uuid4()->toString();
+            $save = $account->save();
+            if(!$save){
+                return false;
+            }
+            $get = $this->getAccount($account->uuid);
+        }
+        return $get;
     }
     
 }
