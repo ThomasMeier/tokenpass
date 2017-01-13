@@ -68,6 +68,60 @@ Route::group(['middleware' => 'oauth-client-guard'], function () {
     Route::match(['DELETE',          ], 'api/v1/tca/provisional/tx/{id}', [
                                         'as'   => 'api.tca.provisional.tx.delete',   
                                         'uses' => 'APIProvisionalController@deleteProvisionalTCATransaction']);
+                                        
+                                        
+    //App Credits API methods
+
+    Route::match(['GET',   'OPTIONS'], 'api/v1/credits', [
+                                        'as'   => 'api.credits.list',    
+                                        'uses' => 'AppCreditsAPIController@listCreditGroups']);
+                                        
+    Route::match(['POST',   'OPTIONS'], 'api/v1/credits', [
+                                        'as'   => 'api.credits.new',    
+                                        'uses' => 'AppCreditsAPIController@newCreditGroup']);            
+                                        
+                                        
+    Route::match(['GET',   'OPTIONS'], 'api/v1/credits/{groupId}', [
+                                        'as'   => 'api.credits.details',    
+                                        'uses' => 'AppCreditsAPIController@getCreditGroupDetails']);         
+                                        
+    Route::match(['PATCH',   'OPTIONS'], 'api/v1/credits/{groupId}', [
+                                        'as'   => 'api.credits.update',    
+                                        'uses' => 'AppCreditsAPIController@updateCreditGroup']);                                                 
+                                        
+    Route::match(['GET',   'OPTIONS'], 'api/v1/credits/{groupId}/history', [
+                                        'as'   => 'api.credits.history',    
+                                        'uses' => 'AppCreditsAPIController@getCreditGroupTXHistory']);   
+                                        
+    Route::match(['GET',   'OPTIONS'], 'api/v1/credits/{groupId}/accounts', [
+                                        'as'   => 'api.credits.accounts',    
+                                        'uses' => 'AppCreditsAPIController@listCreditAccounts']);   
+                                        
+    Route::match(['POST',   'OPTIONS'], 'api/v1/credits/{groupId}/accounts', [
+                                        'as'   => 'api.credits.accounts.new',    
+                                        'uses' => 'AppCreditsAPIController@newCreditAccount']); 
+                                        
+                                        
+    Route::match(['POST',   'OPTIONS'], 'api/v1/credits/{groupId}/accounts/credit', [
+                        'as'   => 'api.credits.accounts.credit',    
+                        'uses' => 'AppCreditsAPIController@creditAccounts']);                                                                                                                          
+         
+    Route::match(['POST',   'OPTIONS'], 'api/v1/credits/{groupId}/accounts/debit', [
+                        'as'   => 'api.credits.accounts.debit',    
+                        'uses' => 'AppCreditsAPIController@debitAccounts']);       
+                                                                      
+                                        
+    Route::match(['GET',   'OPTIONS'], 'api/v1/credits/{groupId}/accounts/{accountId}', [
+                                        'as'   => 'api.credits.accounts.details',    
+                                        'uses' => 'AppCreditsAPIController@getCreditAccountDetails']);          
+                                        
+    Route::match(['GET',   'OPTIONS'], 'api/v1/credits/{groupId}/accounts/{accountId}/history', [
+                                        'as'   => 'api.credits.accounts.history',    
+                                        'uses' => 'AppCreditsAPIController@getCreditAccountTXHistory']);                                                                                                         
+       
+     
+                                                                                                                
+
 });
 
 Route::group(['middleware' => 'oauth-user-guard'], function () {

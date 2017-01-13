@@ -4,7 +4,7 @@
     <li><a href="/inventory">Inventory</a></li>
     <li><a href="/pockets">Pockets</a></li>
     <li><a href="/auth/connectedapps">Integrations</a></li>
-    <li><a href="/auth/apps">Api Keys</a></li>
+    <li><a href="/auth/apps">Developers</a></li>
   </ul>
   <hr>
   <ul>
@@ -56,7 +56,7 @@
       </li>
       <li>
         <a href="/auth/apps">
-          <span class="linktext">Api Keys</span>
+          <span class="linktext">Developers</span>
         </a>
       </li>
       <!--<li>
