@@ -11,6 +11,8 @@ class AppCreditAccount extends Model
     protected $table = 'app_credit_accounts';
     public $timestamps = true;
     
+    protected $fillable = ['name', 'uuid'];
+    
     
     
 }

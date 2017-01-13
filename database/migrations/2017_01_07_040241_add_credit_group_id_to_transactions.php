@@ -14,7 +14,7 @@ class AddCreditGroupIdToTransactions extends Migration
     public function up()
     {
         Schema::table('app_credit_transactions', function (Blueprint $table) {
-            $table->integer('app_credit_group_id')->unsigned();
+            $table->integer('app_credit_group_id')->unsigned()->nullable();
             $table->index('app_credit_group_id');
             $table->foreign('app_credit_group_id')
                 ->references('id')->on('app_credit_groups')

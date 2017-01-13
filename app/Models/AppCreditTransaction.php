@@ -32,7 +32,7 @@ class AppCreditTransaction extends Model
         $get_group = AppCredits::find($this->app_credit_group_id);
         $get_account = AppCreditAccount::find($this->app_credit_account_id);
                 
-        $output = new stdClass;
+        $output = (object) [];
         $output->uuid = $this->uuid;
         $output->app_credit_group_uuid = $get_group->uuid;
         $output->account_uuid = $get_account->uuid;

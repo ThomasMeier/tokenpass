@@ -10,6 +10,7 @@ use Tokenpass\OAuth\Facade\OAuthGuard;
 use Tokenpass\OAuth\Facade\OAuthClientGuard;
 use Tokenpass\Models\AppCredits;
 use Tokenpass\Models\AppCreditAccount;
+use Tokenpass\Models\AppCreditTransaction;
 use Tokenpass\Models\User;
 use Tokenpass\Models\UserMeta;
 use Tokenpass\Models\OAuthClient;
@@ -18,6 +19,7 @@ use Ramsey\Uuid\Uuid;
 
 class AppCreditsAPIController extends Controller
 {
+
 
     public function listCreditGroups()
     {
@@ -84,11 +86,11 @@ class AppCreditsAPIController extends Controller
         if(get_class($credit_group) != AppCredits::class){
             return $credit_group; //return alt response (usually error)
         }
-        if(!isset($input['name']) OR trim($input['name']) == ''){
-            return Response::json(array('error' => 'App Credit Group name required'), 400);
+        $name = $credit_group->name;
+        if(isset($input['name']) AND trim($input['name']) != ''){
+            $name = trim($input['name']);
         }
-        $name = trim($input['name']);
-        $app_whitelist = null;
+        $app_whitelist = $credit_group->app_whitelist;
         if(isset($input['app_whitelist']) AND trim($input['app_whitelist']) != ''){
             $exp_list = explode("\n", trim($input['app_whitelist']));
             $client_ids = array();
@@ -123,17 +125,17 @@ class AppCreditsAPIController extends Controller
         foreach($tx_history as $k => $row){
             $new_row = array();
             $new_row['credit_group'] = $credit_group->uuid;
-            $new_row['account'] = $row->account->name;
+            $new_row['account'] = $row['account']['name'];
             $new_row['tokenpass_user'] = false;
-            if($row->account->tokenpass_user){
-                $new_row['tokenpass_user'] = $row->account->tokenpass_user['username'];
+            if($row['account']['tokenpass_user']){
+                $new_row['tokenpass_user'] = $row['account']['tokenpass_user']['username'];
             }
-            $new_row['account_uuid'] = $row->account->uuid;
-            $new_row['tx_uuid'] = $row->uuid;
-            $new_row['amount'] = $row->amount;
-            $new_row['created_at'] = (string)$row->created_at;
-            $new_row['updated_at'] = (string)$row->updated_at;
-            $new_row['ref'] = $row->ref;
+            $new_row['account_uuid'] = $row['account']['uuid'];
+            $new_row['tx_uuid'] = $row['uuid'];
+            $new_row['amount'] = $row['amount'];
+            $new_row['created_at'] = (string)$row['created_at'];
+            $new_row['updated_at'] = (string)$row['updated_at'];
+            $new_row['ref'] = $row['ref'];
             $output[] = $new_row;
         }
         return array('balance' => $credit_group->balance(), 'count' => count($output), 'transactions' => $output);
@@ -158,6 +160,7 @@ class AppCreditsAPIController extends Controller
     
     public function newCreditAccount($groupId)
     {
+        $input = Input::all();
         $credit_group = $this->checkClientHasCreditAccess($groupId);
         if(get_class($credit_group) != AppCredits::class){
             return $credit_group; //return alt response (usually error)
@@ -319,9 +322,13 @@ class AppCreditsAPIController extends Controller
         if(!$account){
             return Response::json(array('error' => 'App Credit account not found'), 404);
         }
-        $output = (array)$account;
-        unset($output['id']);
-        unset($output['app_credit_group_id']);
+        $output = array();
+        $output['name'] = $account->name;
+        $output['uuid'] = $account->uuid;
+        $output['balance'] = $account->balance;
+        $output['tokenpass_user'] = $account->tokenpass_user;
+        $output['created_at'] = (string)$account->created_at;
+        $output['updated_at'] = (string)$account->updated_at;
         return Response::json(array('account' => $output));
     }
     
@@ -340,14 +347,14 @@ class AppCreditsAPIController extends Controller
         foreach($tx_history as $k => $row){
             $new_row = array();
             $new_row['credit_group'] = $credit_group->uuid;
-            $new_row['tx_uuid'] = $row->uuid;
-            $new_row['amount'] = $row->amount;
-            $new_row['created_at'] = (string)$row->created_at;
-            $new_row['updated_at'] = (string)$row->updated_at;
-            $new_row['ref'] = $row->ref;
+            $new_row['tx_uuid'] = $row['uuid'];
+            $new_row['amount'] = $row['amount'];
+            $new_row['created_at'] = (string)$row['created_at'];
+            $new_row['updated_at'] = (string)$row['updated_at'];
+            $new_row['ref'] = $row['ref'];
             $history[] = $new_row;
         }        
-        $output = array('account' => (array)$account, 'count' => count($history), 'transactions' => $history);
+        $output = array('account' => $account->toArray(), 'count' => count($history), 'transactions' => $history);
         unset($output['account']['id']);
         unset($output['account']['app_credit_group_id']);       
         return Response::json($output); 

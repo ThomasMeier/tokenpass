@@ -11,6 +11,7 @@ class AppCredits extends Model
 {
     protected $table = 'app_credit_groups';
     public $timestamps = true;
+    protected $fillable = ['name', 'uuid', 'user_id'];
     
     
     public static function getCreditGroupsOwnedByUser($userId)
@@ -29,7 +30,7 @@ class AppCredits extends Model
     
     public function APIObject()
     {
-        $output = new stdClass;
+        $output = (object) [];
         $output->name = $this->name;
         $output->uuid = $this->uuid;
         $output->active = boolval($this->active);
@@ -121,17 +122,17 @@ class AppCredits extends Model
         }
         $known_accounts = array();
         foreach($txs as $k => $tx){
-            if($get_account AND $tx->app_credit_account_id == $get_account->id){
-                $txs[$k]->account = $get_account;
+            if($get_account AND $tx['app_credit_account_id'] == $get_account->id){
+                $txs[$k]['account'] = $get_account;
             }
             else{
-                if(isset($known_accounts[$tx->app_credit_account_id])){
-                    $txs[$k]->account = $known_accounts[$tx->app_credit_account_id];
+                if(isset($known_accounts[$tx['app_credit_account_id']])){
+                    $txs[$k]['account'] = $known_accounts[$tx['app_credit_account_id']];
                 }
                 else{
-                    $tx_account = $this->getAccount($tx->app_credit_account_id, false, true);
-                    $txs[$k]->account = $tx_account;
-                    $known_accounts[$tx->app_credit_account_id] = $tx_account;
+                    $tx_account = $this->getAccount($tx['app_credit_account_id'], false, true);
+                    $txs[$k]['account'] = $tx_account;
+                    $known_accounts[$tx['app_credit_account_id']] = $tx_account;
                 }
             }
         }
@@ -176,6 +177,104 @@ class AppCredits extends Model
             $get = $this->getAccount($account->uuid);
         }
         return $get;
+    }
+    
+    public function newAccount($name)
+    {
+        $get = $this->getAccount($name);
+        if($get){
+            throw new Exception('Account '.$name.' already exists');
+        }
+        $account = new AppCreditAccount;
+        $account->app_credit_group_id = $this->id;
+        $account->uuid = Uuid::uuid4()->toString();
+        $account->name = $name;
+        $save = $account->save();
+        if(!$save){
+            return false;
+        }
+        $get = $this->getAccount($account->uuid);
+        return $get;
+    }
+    
+    public function credit($account, $amount, $source = null, $ref = null)
+    {
+        $get_account = $this->getAccount($account, false);
+        if(!$get_account){
+            throw new Exception('Account '.$account.' not found');
+        }
+        
+        if($source === null OR trim($source) == ''){
+            $default_source = $this->getDefaultAccount();
+            if(!$default_source){
+                throw new Exception('Error loading default tx source');
+            }
+            $use_source = $default_source->id;
+        }
+        else{
+            $get_source = $this->getAccount($source);
+            if(!$get_source){
+                throw new Exception('Source account '.$source.' not found');
+            }
+            $use_source = $get_source->id;
+        }
+        
+        $amount = abs(intval($amount));
+        $credit_amount = $amount;
+        $debit_amount = 0 - $amount;
+        
+        $credit_tx = AppCreditTransaction::newTX($this->id, $get_account->id, $credit_amount, $ref);
+        if(!$credit_tx){
+            throw new Exception('Error saving credit transaction');
+        }
+        
+        $debit_tx = AppCreditTransaction::newTX($this->id, $use_source, $debit_amount, $ref);        
+        if(!$debit_tx){
+            $credit_tx->delete();
+            throw new Exception('Error saving debit entry for credit transaction');
+        }
+        
+        return array('credit' => $credit_tx, 'debit' => $debit_tx);
+    }
+    
+    public function debit($account, $amount, $destination = null, $ref = null)
+    {
+        $get_account = $this->getAccount($account, false);
+        if(!$get_account){
+            throw new Exception('Account '.$account.' not found');
+        }
+        
+        if($destination === null OR trim($destination) == ''){
+            $default_destination = $this->getDefaultAccount();
+            if(!$default_destination){
+                throw new Exception('Error loading default tx destination');
+            }
+            $use_destination = $default_destination->id;
+        }
+        else{
+            $get_destination = $this->getAccount($destination);
+            if(!$get_destination){
+                throw new Exception('Destination account '.$destination.' not found');
+            }
+            $use_destination = $get_destination->id;
+        }
+        
+        $amount = abs(intval($amount));
+        $credit_amount = $amount;
+        $debit_amount = 0 - $amount;
+        
+        $debit_tx = AppCreditTransaction::newTX($this->id, $get_account->id, $debit_amount, $ref);
+        if(!$debit_tx){
+            throw new Exception('Error saving debit transaction');
+        }
+        
+        $credit_tx = AppCreditTransaction::newTX($this->id, $use_destination, $credit_amount, $ref);        
+        if(!$credit_tx){
+            $debit_tx->delete();
+            throw new Exception('Error saving credit entry for debit transaction');
+        }
+        
+        return array('debit' => $debit_tx, 'credit' => $credit_tx);
     }
     
 }
