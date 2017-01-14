@@ -190,6 +190,7 @@ class APIAppCreditsTest extends TestCase {
         //load credit group TX history.. should be 6 entries total (2 for each tx)
         $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('GET', route('api.credits.history', $credit_group->uuid));
         PHPUnit::assertEquals(6, $response['count']);
+        PHPUnit::assertEquals(0, $response['balance']);
         
         //load tx history for specific account
         $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('GET', route('api.credits.accounts.history', array($credit_group->uuid, $account1->uuid)));
