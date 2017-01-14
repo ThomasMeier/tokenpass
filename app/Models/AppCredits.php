@@ -98,10 +98,11 @@ class AppCredits extends Model
         $get->tokenpass_user = false;
         $user = User::where('uuid', $get->name)->first();
         if($user){
-            $get->tokenpass_user = array();
-            $get->tokenpass_user['uuid'] = $user->uuid;
-            $get->tokenpass_user['slug'] = $user->slug;
-            $get->tokenpass_user['username'] = $user->username;
+            $tokenpass_user = array();
+            $tokenpass_user['uuid'] = $user->uuid;
+            $tokenpass_user['slug'] = $user->slug;
+            $tokenpass_user['username'] = $user->username;
+            $get->tokenpass_user = $tokenpass_user;
         }
         return $get;
     }
