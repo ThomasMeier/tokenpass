@@ -56,8 +56,8 @@
             <em>App credit groups</em> are custom types of points, or "credits" (database only), that your apps can use and assign either arbitrarily, or to a Tokenpass user account. 
             Useful for selling or rewarding non-token, on-site credit and debiting or crediting for different types of interactions.
 		</p>
-        <button data-modal="addAppCreditModal" class="btn-dash-title add-app-credit-btn reveal-modal">+ App Credit Group</button>          
-	</div>
+    </div>
+    <button data-modal="addAppCreditModal" class="btn-dash-title add-app-credit-btn reveal-modal">+ App Credit Group</button>          
 	<div class="panel with-padding">
 		<table class="table table--responsive" v-cloak>
 			<thead>
