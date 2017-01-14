@@ -44,8 +44,13 @@ class AppCreditsAPIController extends Controller
         $name = trim($input['name']);
         $active = true;
         $app_whitelist = null;
-        if(isset($input['app_whitelist']) AND trim($input['app_whitelist']) != ''){
-            $exp_list = explode("\n", trim($input['app_whitelist']));
+        if(isset($input['app_whitelist']) AND (is_array($input['app_whitelist']) OR trim($input['app_whitelist']) != '')){
+            if(is_array($input['app_whitelist'])){
+                $exp_list = $input['app_whitelist'];
+            }
+            else{
+                $exp_list = explode("\n", trim($input['app_whitelist']));
+            }
             $client_ids = array();
             foreach($exp_list as $k => $v){
                 $client_id = trim($v);
@@ -91,8 +96,13 @@ class AppCreditsAPIController extends Controller
             $name = trim($input['name']);
         }
         $app_whitelist = $credit_group->app_whitelist;
-        if(isset($input['app_whitelist']) AND trim($input['app_whitelist']) != ''){
-            $exp_list = explode("\n", trim($input['app_whitelist']));
+        if(isset($input['app_whitelist']) AND (is_array($input['app_whitelist']) OR trim($input['app_whitelist']) != '')){
+            if(is_array($input['app_whitelist'])){
+                $exp_list = $input['app_whitelist'];
+            }
+            else{
+                $exp_list = explode("\n", trim($input['app_whitelist']));
+            }
             $client_ids = array();
             foreach($exp_list as $k => $v){
                 $client_id = trim($v);
