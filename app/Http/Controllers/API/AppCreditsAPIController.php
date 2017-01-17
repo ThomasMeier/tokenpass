@@ -236,8 +236,8 @@ class AppCreditsAPIController extends Controller
                 $destination = $default_destination->id;                
             }
             $ref = null;
-            if(isset($input['ref'])){
-                $ref = $input['ref'];
+            if(isset($row['ref'])){
+                $ref = $row['ref'];
             }
             
             //create one negative TX for the account, create one positive TX for destination (double entry)
@@ -300,8 +300,8 @@ class AppCreditsAPIController extends Controller
                 $source = $default_source->id;                
             }
             $ref = null;
-            if(isset($input['ref'])){
-                $ref = $input['ref'];
+            if(isset($row['ref'])){
+                $ref = $row['ref'];
             }
             
             //create one positive TX for the account, create one negative TX for source (double entry)
