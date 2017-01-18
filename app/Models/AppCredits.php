@@ -4,8 +4,8 @@ namespace Tokenpass\Models;
 use DB, Config;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
-use Tokenly\LaravelEventLog\Facade\EventLog;
 use Ramsey\Uuid\Uuid;
+use Tokenly\LaravelEventLog\Facade\EventLog;
 
 class AppCredits extends Model
 {
@@ -220,22 +220,24 @@ class AppCredits extends Model
             $use_source = $get_source->id;
         }
         
-        $amount = abs(intval($amount));
-        $credit_amount = $amount;
-        $debit_amount = 0 - $amount;
-        
-        $credit_tx = AppCreditTransaction::newTX($this->id, $get_account->id, $credit_amount, $ref);
-        if(!$credit_tx){
-            throw new Exception('Error saving credit transaction');
-        }
-        
-        $debit_tx = AppCreditTransaction::newTX($this->id, $use_source, $debit_amount, $ref);        
-        if(!$debit_tx){
-            $credit_tx->delete();
-            throw new Exception('Error saving debit entry for credit transaction');
-        }
-        
-        return array('credit' => $credit_tx, 'debit' => $debit_tx);
+        return DB::transaction(function() use ($amount, $get_account, $use_source, $ref) {
+            $amount = abs(intval($amount));
+            $credit_amount = $amount;
+            $debit_amount = 0 - $amount;
+            $credit_tx = AppCreditTransaction::newTX($this->id, $get_account->id, $credit_amount, $ref);
+            if(!$credit_tx){
+                throw new Exception('Error saving credit transaction');
+            }
+            
+            $debit_tx = AppCreditTransaction::newTX($this->id, $use_source, $debit_amount, $ref);        
+            if(!$debit_tx){
+                $credit_tx->delete();
+                throw new Exception('Error saving debit entry for credit transaction');
+            }
+            
+            return array('credit' => $credit_tx, 'debit' => $debit_tx);
+        });
+
     }
     
     public function debit($account, $amount, $destination = null, $ref = null)
@@ -260,22 +262,24 @@ class AppCredits extends Model
             $use_destination = $get_destination->id;
         }
         
-        $amount = abs(intval($amount));
-        $credit_amount = $amount;
-        $debit_amount = 0 - $amount;
-        
-        $debit_tx = AppCreditTransaction::newTX($this->id, $get_account->id, $debit_amount, $ref);
-        if(!$debit_tx){
-            throw new Exception('Error saving debit transaction');
-        }
-        
-        $credit_tx = AppCreditTransaction::newTX($this->id, $use_destination, $credit_amount, $ref);        
-        if(!$credit_tx){
-            $debit_tx->delete();
-            throw new Exception('Error saving credit entry for debit transaction');
-        }
-        
-        return array('debit' => $debit_tx, 'credit' => $credit_tx);
+        return DB::transaction(function() use ($amount, $get_account, $use_destination, $ref) {
+            $amount = abs(intval($amount));
+            $credit_amount = $amount;
+            $debit_amount = 0 - $amount;
+            
+            $debit_tx = AppCreditTransaction::newTX($this->id, $get_account->id, $debit_amount, $ref);
+            if(!$debit_tx){
+                throw new Exception('Error saving debit transaction');
+            }
+            
+            $credit_tx = AppCreditTransaction::newTX($this->id, $use_destination, $credit_amount, $ref);        
+            if(!$credit_tx){
+                $debit_tx->delete();
+                throw new Exception('Error saving credit entry for debit transaction');
+            }
+            
+            return array('debit' => $debit_tx, 'credit' => $credit_tx);
+        });
     }
     
 }

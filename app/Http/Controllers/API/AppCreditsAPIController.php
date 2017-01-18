@@ -1,20 +1,21 @@
 <?php
 namespace Tokenpass\Http\Controllers\API;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Response;
 use Log;
+use Ramsey\Uuid\Uuid;
 use Tokenly\CurrencyLib\CurrencyUtil;
 use Tokenpass\Http\Controllers\Controller;
-use Tokenpass\OAuth\Facade\OAuthGuard;
-use Tokenpass\OAuth\Facade\OAuthClientGuard;
-use Tokenpass\Models\AppCredits;
 use Tokenpass\Models\AppCreditAccount;
 use Tokenpass\Models\AppCreditTransaction;
+use Tokenpass\Models\AppCredits;
+use Tokenpass\Models\OAuthClient;
 use Tokenpass\Models\User;
 use Tokenpass\Models\UserMeta;
-use Tokenpass\Models\OAuthClient;
-use Ramsey\Uuid\Uuid;
+use Tokenpass\OAuth\Facade\OAuthClientGuard;
+use Tokenpass\OAuth\Facade\OAuthGuard;
 
 
 class AppCreditsAPIController extends Controller
@@ -241,18 +242,23 @@ class AppCreditsAPIController extends Controller
             }
             
             //create one negative TX for the account, create one positive TX for destination (double entry)
-            $debit_amount = 0 - $amount;
-            $credit_amount = $amount;
-            $debit_tx = AppCreditTransaction::newTX($credit_group->id, $get_account->id, $debit_amount, $ref);
-            if(!$debit_tx){
-                return Response::json(array('error' => 'Error saving debit transaction'), 500);
+            list ($tx_item, $error_response) = DB::transaction(function() use ($amount, $credit_group, $get_account, $destination, $ref) {
+                $debit_amount = 0 - $amount;
+                $credit_amount = $amount;
+                $debit_tx = AppCreditTransaction::newTX($credit_group->id, $get_account->id, $debit_amount, $ref);
+                if(!$debit_tx){
+                    return [null, Response::json(array('error' => 'Error saving debit transaction'), 500)];
+                }
+                $credit_tx = AppCreditTransaction::newTX($credit_group->id, $destination, $credit_amount, $ref);
+                if(!$credit_tx){
+                    $debit_tx->delete();
+                    return [null, Response::json(array('error' => 'Error saving credit entry for debit transaction'), 500)];
+                }
+                return [array('debit' => $debit_tx->APIObject(), 'credit' => $credit_tx->APIObject()), null];
+            });
+            if ($error_response !== null) {
+                return $error_response;
             }
-            $credit_tx = AppCreditTransaction::newTX($credit_group->id, $destination, $credit_amount, $ref);
-            if(!$credit_tx){
-                $debit_tx->delete();
-                return Response::json(array('error' => 'Error saving credit entry for debit transaction'), 500);
-            }
-            $tx_item = array('debit' => $debit_tx->APIObject(), 'credit' => $credit_tx->APIObject());
             $txs[] = $tx_item;
         }
         return Response::json(array('transactions' => $txs));
@@ -305,18 +311,23 @@ class AppCreditsAPIController extends Controller
             }
             
             //create one positive TX for the account, create one negative TX for source (double entry)
-            $credit_amount = $amount;            
-            $debit_amount = 0 - $amount;
-            $credit_tx = AppCreditTransaction::newTX($credit_group->id, $get_account->id, $credit_amount, $ref);
-            if(!$credit_tx){
-                return Response::json(array('error' => 'Error saving credit transaction'), 500);
+            list ($tx_item, $error_response) = DB::transaction(function() use ($amount, $credit_group, $get_account, $source, $ref) {
+                $credit_amount = $amount;            
+                $debit_amount = 0 - $amount;
+                $credit_tx = AppCreditTransaction::newTX($credit_group->id, $get_account->id, $credit_amount, $ref);
+                if(!$credit_tx){
+                    return [null, Response::json(array('error' => 'Error saving credit transaction'), 500)];
+                }
+                $debit_tx = AppCreditTransaction::newTX($credit_group->id, $source, $debit_amount, $ref);
+                if(!$debit_tx){
+                    $credit_tx->delete();
+                    return [null, Response::json(array('error' => 'Error saving debit entry for credit transaction'), 500)];
+                }
+                return [array('credit' => $credit_tx->APIObject(), 'debit' => $debit_tx->APIObject()), null];
+            });
+            if ($error_response !== null) {
+                return $error_response;
             }
-            $debit_tx = AppCreditTransaction::newTX($credit_group->id, $source, $debit_amount, $ref);
-            if(!$debit_tx){
-                $credit_tx->delete();
-                return Response::json(array('error' => 'Error saving debit entry for credit transaction'), 500);
-            }
-            $tx_item = array('credit' => $credit_tx->APIObject(), 'debit' => $debit_tx->APIObject());
             $txs[] = $tx_item;
         }
         return Response::json(array('transactions' => $txs));
