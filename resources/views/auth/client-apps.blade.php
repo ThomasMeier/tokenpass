@@ -77,7 +77,8 @@
 					<td>@{{ formatDate(credit.created_at) }}</td>
 					<td>
                         <a href="/auth/apps/credits/@{{ credit.uuid }}/history"><i class="material-icons">history</i> History</a>
-						<button class="reveal-modal" data-modal="editAppCreditModal" v-on:click="setCurrentAppCredit(credit)" ><i class="material-icons">edit</i> Edit</button>
+                        <button class="reveal-modal" data-modal="editAppCreditModal" v-on:click="setCurrentAppCredit(credit)" ><i class="material-icons">edit</i> Edit</button>
+						<button class="reveal-modal" data-modal="transferAppCreditModal" v-on:click="setCurrentAppCredit(credit)" ><i class="material-icons">swap_horiz</i> Transaction</button>
 
 						<a href="/auth/apps/credits/@{{ credit.uuid }}/delete" onclick="return confirm('Are you sure you want to delete this App Credit Group? All balances and transactions will be permanently removed.')"><i class="material-icons">delete</i> Delete</a>
 					</td>
@@ -102,7 +103,7 @@
 		  <form class="js-auto-ajax" action="/auth/apps/new" method="POST">
                 {!! csrf_field() !!}
 
-		        <div class="error-placeholder panel-danger"></div>
+		        <div style="display:none;" class="error-placeholder alert alert-danger"></div>
 
 				<label for="client-name">Client Name:</label>
 				<input type="text" name="name" id="client-name" required/>
@@ -131,7 +132,7 @@
 		  <form class="js-auto-ajax" action="/auth/apps/new-credits" method="POST">
                 {!! csrf_field() !!}
 
-		        <div class="error-placeholder panel-danger"></div>
+		        <div style="display:none;" class="error-placeholder alert alert-danger"></div>
 
 				<label for="credit-name">Credit Name: *</label>
 				<input type="text" name="name" id="credit-name" placeholder="e.g Streaming Credits" required/>
@@ -145,27 +146,62 @@
 		</div>
 	</div> <!-- END NEW APP CREDIT GOUP MODAL -->    
     
-	<!-- EDIT APP CREDIT GROUP MODAL -->
-	<div class="modal-container" id="editAppCreditModal">
-		<div class="modal-bg"></div>
-		<div class="modal-content">
-			<h3>Edit Ad Credit Group</h3>
-			<div class="modal-x close-modal">
-				<i class="material-icons">clear</i>
-			</div>
+    <!-- EDIT APP CREDIT GROUP MODAL -->
+    <div class="modal-container" id="editAppCreditModal">
+        <div class="modal-bg"></div>
+        <div class="modal-content">
+            <h3>Edit A Credit Group</h3>
+            <div class="modal-x close-modal">
+                <i class="material-icons">clear</i>
+            </div>
 
-		  <form class="js-auto-ajax" action="/auth/apps/credits/@{{ currentAppCredit.uuid }}/edit" method="POST">
+          <form class="js-auto-ajax" action="/auth/apps/credits/@{{ currentAppCredit.uuid }}/edit" method="POST">
                 {!! csrf_field() !!}
-		        <div class="error-placeholder panel-danger"></div>
+                <div style="display:none;" class="error-placeholder alert alert-danger"></div>
                 <p>
                     <strong>Unique ID:</strong> @{{ currentAppCredit.uuid }}
                 </p>
 
-				<label for="credit-name">Credit Name: *</label>
-				<input type="text" name="name" id="credit-name" placeholder="e.g Streaming Credits" value="@{{ currentAppCredit.name }}"required/>
+                <label for="credit-name">Credit Name: *</label>
+                <input type="text" name="name" id="credit-name" placeholder="e.g Streaming Credits" value="@{{ currentAppCredit.name }}" required/>
                 
-				<label for="app_whitelist">Whitelisted Client Apps:</label>
-				<textarea name="app_whitelist" id="app_whitelist" placeholder="(one API Client ID per line)" rows="4">@{{ currentAppCredit.app_whitelist }}</textarea>
+                <label for="app_whitelist">Whitelisted Client Apps:</label>
+                <textarea name="app_whitelist" id="app_whitelist" placeholder="(one API Client ID per line)" rows="4">@{{ currentAppCredit.app_whitelist }}</textarea>
+                
+                <button type="submit" class="">Submit</button>
+
+          </form>
+        </div>
+    </div> <!-- END EDIT APP CREDIT GOUP MODAL -->        
+
+	<!-- TRANSFER APP CREDIT MODAL -->
+	<div class="modal-container" id="transferAppCreditModal">
+		<div class="modal-bg"></div>
+		<div class="modal-content">
+			<h3>Transfer Credits</h3>
+			<div class="modal-x close-modal">
+				<i class="material-icons">clear</i>
+			</div>
+
+		  <form class="js-auto-ajax" action="/auth/apps/credits/@{{ currentAppCredit.uuid }}/transfer" method="POST">
+                {!! csrf_field() !!}
+		        <div style="display:none;" class="error-placeholder alert alert-danger panel-danger"></div>
+
+                <p>
+                    <strong>Unique ID:</strong> @{{ currentAppCredit.uuid }}
+                </p>
+
+                <label for="transfer-credit-amount">Amount: *</label>
+                <input type="text" name="amount" id="transfer-credit-amount" placeholder="1000" value="" required/>
+                
+                <label for="transfer-credit-to">To Account: *</label>
+                <input type="text" name="to" id="transfer-credit-to" placeholder="johndoe" required/>
+                
+                <label for="transfer-credit-from">From Account: </label>
+                <input type="text" name="from" id="transfer-credit-from" placeholder="promotionalCredits" value="admin.comp" />
+
+				<label for="transfer-credit-ref">Reference Data:</label>
+				<textarea name="ref" id="transfer-credit-ref" placeholder="{&quot;desc&quot;: &quot;admin.comp&quot;}" rows="3">{&quot;desc&quot;: &quot;admin.comp&quot;}</textarea>
                 
 				<button type="submit" class="">Submit</button>
 
@@ -224,7 +260,7 @@
 
 		  <form class="js-auto-ajax" action="/auth/apps/@{{ currentApp.id }}/edit" method="POST">
               {!! csrf_field() !!}
-					<div class="error-placeholder panel-danger"></div>
+					<div style="display:none;" class="error-placeholder alert alert-danger"></div>
 
 					<label for="client-name">Client Name:</label>
 					<input type="text" name="name" id="client-name" value="@{{ currentApp.name }}" required />
@@ -251,6 +287,8 @@
 
 var apps = {!! json_encode($client_apps) !!};
 var app_credits = {!! json_encode($credit_groups) !!};
+
+var errorTimeout = null;
 
 var vm = new Vue({
   el: '#appsController',
@@ -285,9 +323,8 @@ var vm = new Vue({
       console.log(formUrl);
       console.log(formMethod);
       console.log(formString);
-      var errorTimeout = null;
       // clear the error
-      $('.error-placeholder', $form).empty();
+      $('.error-placeholder', $form).empty().hide();
       if (errorTimeout) { clearTimeout(errorTimeout); }
 
       $.ajax({
@@ -315,9 +352,9 @@ var vm = new Vue({
         }
 
         // show the error
-        $('.error-placeholder', $form).html(errorMsg);
+        $('.error-placeholder', $form).html(errorMsg).show();
         errorTimeout = setTimeout(function() {
-          $('.error-placeholder', $form).empty();
+          $('.error-placeholder', $form).empty().fadeOut();
           errorTimeout = null;
         }, 10000);
       });
@@ -348,6 +385,10 @@ editAppModal.init(document.getElementById('editAppModal'));
 // Initialize edit app modal
 var editAppCreditModal = new Modal();
 editAppCreditModal.init(document.getElementById('editAppCreditModal'));
+
+// Initialize transfer credit modal
+var transferAppCreditModal = new Modal();
+transferAppCreditModal.init(document.getElementById('transferAppCreditModal'));
 
 </script>
 @endsection

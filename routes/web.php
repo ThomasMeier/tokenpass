@@ -87,14 +87,15 @@ Route::post('auth/apps/{app}/edit',                    ['uses' => 'Auth\AppsCont
 Route::patch('auth/apps/{app}/regen',                  ['uses' => 'Auth\AppsController@regenerateApp']);
 Route::get('auth/apps/{app}/delete',                   ['uses' => 'Auth\AppsController@deleteApp']);
 
-Route::post('auth/apps/new-credits',                           ['uses' => 'Auth\AppsController@registerAppCreditGroup']);
-Route::post('auth/apps/credits/{uuid}/edit',                           ['uses' => 'Auth\AppsController@updateAppCreditGroup']);
-Route::get('auth/apps/credits/{uuid}/delete',                           ['uses' => 'Auth\AppsController@deleteAppCreditGroup']);
-Route::get('auth/apps/credits/{uuid}/users',                           ['uses' => 'Auth\AppsController@viewAppCreditGroupUsers']);
-Route::get('auth/apps/credits/{uuid}/history',                           ['as' => 'app-credits.history', 'uses' => 'Auth\AppsController@viewAppCreditGroupTransactions']);
-Route::get('auth/apps/credits/{uuid}/history/download',                           ['as' => 'app-credits.history.download', 'uses' => 'Auth\AppsController@downloadAppCreditHistory']);
-Route::get('auth/apps/credits/{uuid}/history/{account}',                           ['as' => 'app-credits.history.account', 'uses' => 'Auth\AppsController@viewAppCreditGroupTransactions']);
-Route::get('auth/apps/credits/{uuid}/history/{account}/download',                           ['as' => 'app-credits.history.account.download', 'uses' => 'Auth\AppsController@downloadAppCreditHistory']);
+Route::post('auth/apps/new-credits',                               ['uses' => 'Auth\AppsController@registerAppCreditGroup']);
+Route::post('auth/apps/credits/{uuid}/edit',                       ['uses' => 'Auth\AppsController@updateAppCreditGroup']);
+Route::post('auth/apps/credits/{uuid}/transfer',                   ['as' => 'app-credits.transfer', 'uses' => 'Auth\AppsController@transferAppCredits']);
+Route::get('auth/apps/credits/{uuid}/delete',                      ['uses' => 'Auth\AppsController@deleteAppCreditGroup']);
+Route::get('auth/apps/credits/{uuid}/users',                       ['uses' => 'Auth\AppsController@viewAppCreditGroupUsers']);
+Route::get('auth/apps/credits/{uuid}/history',                     ['as' => 'app-credits.history', 'uses' => 'Auth\AppsController@viewAppCreditGroupTransactions']);
+Route::get('auth/apps/credits/{uuid}/history/download',            ['as' => 'app-credits.history.download', 'uses' => 'Auth\AppsController@downloadAppCreditHistory']);
+Route::get('auth/apps/credits/{uuid}/history/{account}',           ['as' => 'app-credits.history.account', 'uses' => 'Auth\AppsController@viewAppCreditGroupTransactions']);
+Route::get('auth/apps/credits/{uuid}/history/{account}/download',  ['as' => 'app-credits.history.account.download', 'uses' => 'Auth\AppsController@downloadAppCreditHistory']);
 
 // token chats
 Route::get('tokenchats',                                ['as' => 'tokenchats.index',  'uses' => 'Tokenchats\TokenchatsController@index']);

@@ -2,17 +2,21 @@
 namespace Tokenpass\Http\Controllers\Auth;
 
 use Exception, Input, Session, DB;
+use Illuminate\Http\Request as HttpRequest;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 use Tokenpass\Http\Controllers\Controller;
-use Tokenpass\Models\OAuthClient;
+use Tokenpass\Models\AppCreditAccount;
+use Tokenpass\Models\AppCreditTransaction;
 use Tokenpass\Models\AppCredits;
+use Tokenpass\Models\OAuthClient;
 use Tokenpass\Repositories\OAuthClientRepository;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class AppsController extends Controller
 {
@@ -285,8 +289,8 @@ class AppsController extends Controller
     
     protected function updateAppCreditGroup($uuid)
     {
-		$input = Input::all();
-		$user = Auth::user();        
+        $input = Input::all();
+        $user = Auth::user();        
         $credit_group = AppCredits::where('uuid', $uuid)->first();
         
         if(!$credit_group OR $credit_group->user_id != $user->id){
@@ -323,6 +327,96 @@ class AppsController extends Controller
         }
         
         return $this->ajaxEnabledSuccessResponse('App Credit Group updated!', route('auth.apps').'#app-credits');
+    }
+
+    protected function transferAppCredits($uuid, HttpRequest $request)
+    {
+        try {
+            $this->validate($request, [
+                'amount' => 'required|integer|min:1|max:100000000',
+                'from'   => 'required|max:255',
+                'to'     => 'required|max:255',
+                'ref'    => 'sometimes|max:255',
+            ]);
+        } catch (ValidationException $e) {
+            return $this->returnInvalidResponse($e);
+        }
+
+		$input = Input::all();
+		$user = Auth::user();
+        $credit_group = AppCredits::where('uuid', $uuid)->first();
+        
+        if(!$credit_group OR $credit_group->user_id != $user->id){
+            return $this->ajaxEnabledErrorResponse('Invalid App Credit Group', route('auth.apps').'#app-credits');
+        }
+
+        $amount = abs(intval($input['amount']));
+        $to     = $input['to'];
+        $from   = $input['from'];
+        $ref    = $input['ref'];
+
+        $destination_account = $credit_group->getAccount($to, false);
+        if (!$destination_account) {
+            return $this->ajaxEnabledErrorResponse('Invalid "To Account" Name', route('auth.apps').'#app-credits');
+        }
+
+        $source = null; //debit this same balance from a source account... if null then use default system account
+        if(isset($from) AND trim($from) != ''){
+            $find_source = $credit_group->getAccount($from);
+            if (!$find_source AND $from == 'admin.comp') {
+                // create a new account
+                $account = new AppCreditAccount();
+                $account->app_credit_group_id = $credit_group->id;
+                $account->name = 'admin.comp';  
+                $account->uuid = Uuid::uuid4()->toString();
+                $save = $account->save();
+
+                // reload
+                $find_source = $credit_group->getAccount($from);
+            }
+
+            if (!$find_source){
+                return $this->ajaxEnabledErrorResponse('"From Account" does not exist', 422);
+            }
+            $source = $find_source->id;
+        }
+        else{
+            //use system default as debit destination
+            $default_source = $credit_group->getDefaultAccount();
+            if(!$default_source){
+                return $this->ajaxEnabledErrorResponse('Error loading default credit source account', 422);
+            }
+            $source = $default_source->id;                
+        }
+
+        // ref
+        if(!strlen($ref)) {
+            $ref = null;
+        }
+        
+        //create one positive TX for the account, create one negative TX for source (double entry)
+        $error_response = DB::transaction(function() use ($credit_group, $amount, $destination_account, $source, $ref) {
+            $error_response = null;
+
+            $credit_amount = $amount;
+            $debit_amount = 0 - $amount;
+
+            $credit_tx = AppCreditTransaction::newTX($credit_group->id, $destination_account->id, $credit_amount, $ref);
+            if(!$credit_tx){
+                return $this->ajaxEnabledErrorResponse('Error saving credit transaction', 500);
+            }
+
+            $debit_tx = AppCreditTransaction::newTX($credit_group->id, $source, $debit_amount, $ref);
+            if(!$debit_tx){
+                $credit_tx->delete();
+                return $this->ajaxEnabledErrorResponse('Error saving debit entry for credit transaction', 500);
+            }
+
+            return null;
+        });
+        if ($error_response !== null) { return $error_response; }
+        
+        return $this->ajaxEnabledSuccessResponse('Transfer complete', route('auth.apps').'#app-credits');
     }
     
     protected function deleteAppCreditGroup($uuid)
@@ -456,8 +550,22 @@ class AppsController extends Controller
         return Response::make(rtrim($csv_text, "\n"), 200, $headers);
     }
     
-
     // ------------------------------------------------------------------------
+
+    protected function returnInvalidResponse(ValidationException $e) {
+        $messages = $e->validator->messages();
+
+        $all_error_messages = [];
+        foreach($messages->messages() as $message_texts) {
+            foreach($message_texts as $message_text) {
+                $all_error_messages[] = $message_text;
+            }
+        }
+
+        return $this->ajaxEnabledErrorResponse(implode('<br />', $all_error_messages), route('tokenchats.index'));
+    }
+
+
     protected function ajaxEnabledErrorResponse($error_message, $redirect_url, $error_code = 400) {
         if (Request::ajax()) {
             return Response::json(['success' => false, 'error' => $error_message], $error_code);

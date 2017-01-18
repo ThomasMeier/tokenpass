@@ -197,6 +197,5 @@ class APIAppCreditsTest extends TestCase {
         PHPUnit::assertEquals(2, $response['count']);
         PHPUnit::assertEquals(500, $response['account']['balance']);
     }
-    
-    
+
 }
