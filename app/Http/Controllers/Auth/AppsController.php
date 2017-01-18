@@ -422,17 +422,17 @@ class AppsController extends Controller
         if($credit_txs){
             foreach($credit_txs as $tx){
                 $line = array();
-                $line[] = $tx->uuid;
-                $line[] = $tx->account->name;
-                if($tx->account->tokenpass_user){
-                    $line[] = $tx->account->tokenpass_user['username'];
+                $line[] = $tx['uuid'];
+                $line[] = $tx['account']['name'];
+                if($tx['account']['tokenpass_user']){
+                    $line[] = $tx['account']['tokenpass_user']['username'];
                 }
                 else{
                     $line[] = '';
                 }
-                $line[] = $tx->amount;
-                $line[] = $tx->created_at;
-                $line[] = $tx->ref;
+                $line[] = $tx['amount'];
+                $line[] = $tx['created_at'];
+                $line[] = $tx['ref'];
                 
                 $csv[] = $line;
             }
