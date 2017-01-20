@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
+use Tokenly\CurrencyLib\CurrencyUtil;
 use Tokenpass\Http\Controllers\Controller;
 use Tokenpass\Models\AppCreditAccount;
 use Tokenpass\Models\AppCreditTransaction;
@@ -333,7 +334,7 @@ class AppsController extends Controller
     {
         try {
             $this->validate($request, [
-                'amount' => 'required|integer|min:1|max:100000000',
+                'amount' => 'required|numeric|min:0.00000001|max:100000000.0',
                 'from'   => 'required|max:255',
                 'to'     => 'required|max:255',
                 'ref'    => 'sometimes|max:255',
@@ -350,7 +351,7 @@ class AppsController extends Controller
             return $this->ajaxEnabledErrorResponse('Invalid App Credit Group', route('auth.apps').'#app-credits');
         }
 
-        $amount = abs(intval($input['amount']));
+        $amount = abs(CurrencyUtil::valueToSatoshis($input['amount']));
         $to     = $input['to'];
         $from   = $input['from'];
         $ref    = $input['ref'];

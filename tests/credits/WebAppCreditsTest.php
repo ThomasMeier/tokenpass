@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use PHPUnit_Framework_Assert as PHPUnit;
+use Tokenly\CurrencyLib\CurrencyUtil;
 use Tokenpass\Models\AppCreditAccount;
 use Tokenpass\Models\AppCreditTransaction;
 use Tokenpass\Models\AppCredits;
@@ -32,10 +33,10 @@ class WebAppCreditsTest extends TestCase {
         $account2 = $credit_group->newAccount('Test account 2');
         
         // setup samples
-        $credit_group->credit($account1->uuid, 2500);
-        $credit_group->credit($account2->uuid, 5000);
+        $credit_group->credit($account1->uuid, 2500*CurrencyUtil::SATOSHI);
+        $credit_group->credit($account2->uuid, 5000*CurrencyUtil::SATOSHI);
         
-        // do a web transfer
+        // do a web transfer (amount is assumed float)
         Auth::setUser($user1);
         $parameters = ['from' => $account1->name, 'to' => $account2->name, 'amount' => 200, 'ref' => 'fooref'];
         // echo "\route('app-credits.transfer', ['uuid' => \$credit_group->uuid]): ".json_encode(route('app-credits.transfer', ['uuid' => $credit_group->uuid]), 192)."\n";
@@ -44,8 +45,8 @@ class WebAppCreditsTest extends TestCase {
         PHPUnit::assertEquals(302, $response->getStatusCode(), Session::get('message'));
 
         // check balances
-        PHPUnit::assertEquals(2300, AppCreditTransaction::where('app_credit_account_id', $account1->id)->sum('amount'));
-        PHPUnit::assertEquals(5200, AppCreditTransaction::where('app_credit_account_id', $account2->id)->sum('amount'));
+        PHPUnit::assertEquals(2300*CurrencyUtil::SATOSHI, AppCreditTransaction::where('app_credit_account_id', $account1->id)->sum('amount'));
+        PHPUnit::assertEquals(5200*CurrencyUtil::SATOSHI, AppCreditTransaction::where('app_credit_account_id', $account2->id)->sum('amount'));
 
     }
 

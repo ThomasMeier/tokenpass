@@ -67,12 +67,9 @@
                         </span>
                     </td>                    
 					<td>
-                        <span v-if="tx.amount >= 0">
-                            <strong class="text-success">+@{{ tx.amount }}</strong>
-                        </span>
-                        <span v-else>
-                            <strong class="text-danger">@{{ tx.amount }}</strong>
-                        </span>
+                        <strong :class="{'text-success': tx.amount > 0, 'text-danger': tx.amount < 0, 'muted': tx.amount == 0}">
+                            @{{ formatSatohis(tx.amount) }}
+                        </strong>
                     </td>
 					<td>@{{ formatDate(tx.created_at) }}</td>
 					<td>
@@ -117,18 +114,16 @@
         <div class="input-group">
             <label>Amount:</label>
             <div class="name">
-                <span v-if="currentTx.amount >= 0">
-                    <strong class="text-success">+@{{ currentTx.amount }}</strong>
-                </span>
-                <span v-else>
-                    <strong class="text-danger">@{{ currentTx.amount }}</strong>
-                </span>
+                <strong :class="{'text-success': currentTx.amount > 0, 'text-danger': currentTx.amount < 0, 'muted': currentTx.amount == 0}">
+                    @{{ formatSatohis(currentTx.amount) }}
+                </strong>
             </div>
         </div>        
+
         
         <div class="input-group">
             <label>TX Created:</label>
-            @{{ formatDate(currentTx.created_at) }}
+            @{{ formatDate(currentTx.created_at) }} @{{ formatTime(currentTx.created_at) }}
         </div>        
         
         <div class="input-group">
@@ -166,11 +161,20 @@ var vm = new Vue({
       this.currentTx = tx;
     },    
     formatDate: function(dateString){
-    	var options = {
-			    year: "numeric", month: "short", day: "numeric"
-			};
-    	return new Date(dateString).toLocaleDateString('en-us', options);
+        var options = {
+                year: "numeric", month: "short", day: "numeric"
+            };
+        return new Date(dateString).toLocaleDateString('en-us', options);
     },
+    formatTime: function(dateString){
+        var options = { timeZone: 'UTC', timeZoneName: 'short' };
+    	return new Date(dateString).toLocaleTimeString('en-us', options);
+    },
+    formatSatohis: function(value) {
+      var SATOSHI = 100000000;
+      var formatted = window.numeral(value / SATOSHI).format('0,0[.]00000000');
+      return formatted;
+    }
   },
   ready:function(){
     this.bindEvents();

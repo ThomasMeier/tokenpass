@@ -3,6 +3,7 @@
 namespace Tokenpass\Providers;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
@@ -41,6 +42,12 @@ class AppServiceProvider extends ServiceProvider
         Validator::extend('token', function($attribute, $value, $parameters, $validator) {
             return AssetValidator::isValidAssetName($value);
         });
+
+        // blade
+        Blade::directive('formatSatoshis', function ($expression) {
+            return "<?php echo \Tokenly\CurrencyLib\CurrencyUtil::satoshisToFormattedString($expression); ?>";
+        });
+
     }
 
     /**

@@ -11,6 +11,7 @@
 <script type="text/javascript" src="/vendor/vue-file-upload-component/vue.pretty-bytes.js"></script>
 <script type="text/javascript" src="/vendor/jquery.inputmask.bundle.js" ></script>
 
-<script type="text/javascript" src="/js/moment.js" ></script>
+<script type="text/javascript" src="/js/moment.min.js" ></script>
+<script type="text/javascript" src="/js/numeral.min.js" ></script>
 <script type="text/javascript" src="/js/application.js" ></script>
 @yield('page-js')

@@ -21,7 +21,7 @@
         <p>
             <strong>App Credit Group:</strong> {{ $credit_group->name }}<br>
             <strong>Credit Group Unique ID:</strong> {{ $credit_group->uuid }}<br>
-            <strong>Credit Balance:</strong> {{ $credit_balance }}<br>
+            <strong>Credit Balance:</strong> @formatSatoshis($credit_balance)<br>
             <strong># Credit Accounts</strong> {{ $num_accounts }}
 		</p>
 	</div>
@@ -45,7 +45,9 @@
                             <strong>@{{ account.name }}</strong>
                         </span>
                     </td>
-					<td>@{{ account.balance }}</td>
+					<td><strong :class="{'text-success': account.balance > 0, 'text-danger': account.balance < 0, 'muted': account.balance == 0}">
+            @{{ formatSatohis(account.balance) }}
+          </strong></td>
 					<td>@{{ formatDate(account.created_at) }}</td>
 					<td>
 						<a href="/auth/apps/credits/{{ $credit_group->uuid }}/history/@{{ account.uuid }}" ><i class="material-icons">history</i> History</a>
@@ -80,6 +82,11 @@ var vm = new Vue({
 			};
     	return new Date(dateString).toLocaleDateString('en-us', options);
     },
+    formatSatohis: function(value) {
+      var SATOSHI = 100000000;
+      var formatted = window.numeral(value / SATOSHI).format('0,0[.]00000000');
+      return formatted;
+    }
   },
   ready:function(){
     this.bindEvents();

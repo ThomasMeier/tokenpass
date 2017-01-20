@@ -192,7 +192,7 @@
                 </p>
 
                 <label for="transfer-credit-amount">Amount: *</label>
-                <input type="text" name="amount" id="transfer-credit-amount" placeholder="1000" value="" required/>
+                <input type="text" name="amount" id="transfer-credit-amount" placeholder="100.5" value="" required/>
                 
                 <label for="transfer-credit-to">To Account: *</label>
                 <input type="text" name="to" id="transfer-credit-to" placeholder="johndoe" required/>
