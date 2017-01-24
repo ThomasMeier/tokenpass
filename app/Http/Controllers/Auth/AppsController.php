@@ -358,7 +358,10 @@ class AppsController extends Controller
 
         $destination_account = $credit_group->getAccount($to, false);
         if (!$destination_account) {
-            return $this->ajaxEnabledErrorResponse('Invalid "To Account" Name', route('auth.apps').'#app-credits');
+            $destination_account = $credit_group->newAccount($to);
+            if(!$destination_account){
+                return $this->ajaxEnabledErrorResponse('Invalid "To Account" Name', route('auth.apps').'#app-credits');
+            }
         }
 
         $source = null; //debit this same balance from a source account... if null then use default system account
@@ -377,7 +380,10 @@ class AppsController extends Controller
             }
 
             if (!$find_source){
-                return $this->ajaxEnabledErrorResponse('"From Account" does not exist', 422);
+                $find_source = $credit_group->newAccount($from);
+                if(!$find_source){
+                    return $this->ajaxEnabledErrorResponse('Error selecting "From Account"', 422);
+                }
             }
             $source = $find_source->id;
         }
