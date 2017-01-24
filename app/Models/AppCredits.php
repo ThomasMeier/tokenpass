@@ -57,10 +57,11 @@ class AppCredits extends Model
                 $account_ids[$account->id]->tokenpass_user = false;
                 $user = User::where('uuid', $account->name)->first();
                 if($user){
-                    $account_ids[$account->id]->tokenpass_user = array();
-                    $account_ids[$account->id]->tokenpass_user['uuid'] = $user->uuid;
-                    $account_ids[$account->id]->tokenpass_user['slug'] = $user->slug;
-                    $account_ids[$account->id]->tokenpass_user['username'] = $user->username;
+                    $tokenpass_user = array();
+                    $tokenpass_user['uuid'] = $user->uuid;
+                    $tokenpass_user['slug'] = $user->slug;
+                    $tokenpass_user['username'] = $user->username;
+                    $account_ids[$account->id]->tokenpass_user = $tokenpass_user;
                 }                
             }
             foreach($txs as $tx){
