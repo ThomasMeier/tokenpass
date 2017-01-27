@@ -88,7 +88,7 @@ class AppCreditsAPIController extends Controller
     public function updateCreditGroup($groupId)
     {
         $input = Input::all();
-        $credit_group = $this->checkClientHasCreditAccess($groupId);
+        $credit_group = $this->checkClientHasCreditAccess($groupId, false);
         if(get_class($credit_group) != AppCredits::class){
             return $credit_group; //return alt response (usually error)
         }
@@ -382,18 +382,26 @@ class AppCreditsAPIController extends Controller
     }
     
     
-    protected function checkClientHasCreditAccess($groupId)
+    protected function checkClientHasCreditAccess($groupId, $check_whitelist = true)
     {
         $api_user = $this->getAPIUser();
         $credit_group = AppCredits::where('uuid', $groupId)->first();
         if(!$credit_group){
             return Response::json(array('error' => 'App Credit Group not found'), 404);
         }
-        if($api_user['user_id'] != 0){
-            if($api_user['user_id'] != $credit_group->user_id){
-                return Response::json(array('error' => 'You do not have access to this App Credit Group'), 403);
+        $app_whitelist = explode("\n", $credit_group->app_whitelist);
+        if($check_whitelist){
+            if(!in_array($api_user['client']->id, $app_whitelist)){
+                return Response::json(array('error' => 'Your app does not have access to this App Credit Group'), 403);
             }
         }
+        else{
+            if($api_user['user_id'] != 0){
+                if($api_user['user_id'] != $credit_group->user_id){
+                    return Response::json(array('error' => 'You do not have access to this App Credit Group'), 403);
+                }
+            }
+        }   
         return $credit_group;
     }
     
