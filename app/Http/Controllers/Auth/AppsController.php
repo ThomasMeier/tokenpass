@@ -18,6 +18,7 @@ use Tokenpass\Models\AppCreditTransaction;
 use Tokenpass\Models\AppCredits;
 use Tokenpass\Models\OAuthClient;
 use Tokenpass\Repositories\OAuthClientRepository;
+use Tokenpass\Repositories\UserRepository;
 
 class AppsController extends Controller
 {
@@ -330,7 +331,61 @@ class AppsController extends Controller
         return $this->ajaxEnabledSuccessResponse('App Credit Group updated!', route('auth.apps').'#app-credits');
     }
 
-    protected function transferAppCredits($uuid, HttpRequest $request)
+    public function checkAccounts($uuid, HttpRequest $request, UserRepository $user_repository) {
+        $user = Auth::user();
+        $credit_group = AppCredits::where('uuid', $uuid)->first();
+
+        if(!$credit_group OR $credit_group->user_id != $user->id){
+            return Response::json([
+                'success' => false,
+                'message' => 'Invalid Credit Group',
+            ], 403);
+        }
+
+        $from_account_name = $request->input('fromAccount');
+        $from_account_exists = false;
+        $from_account_is_tokenpass_user = false;
+        if (strlen($from_account_name)) {
+            // try a tokenpass user first
+            $tokenpass_user = $user_repository->findByUsername($from_account_name);
+            if ($tokenpass_user) { $from_account_name = $tokenpass_user['uuid']; }
+
+            $from_account = $credit_group->getAccount($from_account_name, false);
+            if ($from_account) {
+                $from_account_exists = true;
+                $from_account_is_tokenpass_user = !!$from_account->tokenpass_user;
+            }
+        }
+
+        $to_account_name   = $request->input('toAccount');
+        $to_account_exists = false;
+        $to_account_is_tokenpass_user = false;
+        if (strlen($to_account_name)) {
+            // try a tokenpass user first
+            $tokenpass_user = $user_repository->findByUsername($to_account_name);
+            if ($tokenpass_user) { $to_account_name = $tokenpass_user['uuid']; }
+
+            $to_account = $credit_group->getAccount($to_account_name, false);
+            if ($to_account) {
+                $to_account_exists = true;
+                $to_account_is_tokenpass_user = !!$to_account->tokenpass_user;
+            }
+        }
+
+        return Response::json([
+            'success'           => true,
+            'fromAccount' => [
+                'exists' => $from_account_exists,
+                'isTokenpass' => $from_account_is_tokenpass_user,
+            ],
+            'toAccount'   => [
+                'exists' => $to_account_exists,
+                'isTokenpass' => $to_account_is_tokenpass_user,
+            ],
+        ], 200);
+    }
+
+    public function transferAppCredits($uuid, HttpRequest $request, UserRepository $user_repository)
     {
         try {
             $this->validate($request, [
@@ -355,6 +410,12 @@ class AppsController extends Controller
         $to     = $input['to'];
         $from   = $input['from'];
         $ref    = $input['ref'];
+
+        // try tokenpass username first
+        $tokenpass_user = $user_repository->findByUsername($to);
+        if ($tokenpass_user) { $to = $tokenpass_user['uuid']; }
+        $tokenpass_user = $user_repository->findByUsername($from);
+        if ($tokenpass_user) { $from = $tokenpass_user['uuid']; }
 
         $destination_account = $credit_group->getAccount($to, false);
         if (!$destination_account) {

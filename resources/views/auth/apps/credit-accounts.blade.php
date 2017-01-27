@@ -39,10 +39,10 @@
 				<tr v-for="account in accounts">
 					<td>
                         <span v-if="account.tokenpass_user">
-                            <strong>@{{ account.tokenpass_user.username }}</strong>
+                            <strong><i class="material-icons mdi-tiny">person</i> @{{ account.tokenpass_user.username }}</strong>
                         </span>
                         <span v-else>
-                            <strong>@{{ account.name }}</strong>
+                            <strong><i class="material-icons mdi-tiny">label_outline</i> @{{ account.name }}</strong>
                         </span>
                     </td>
 					<td><strong :class="{'text-success': account.balance > 0, 'text-danger': account.balance < 0, 'muted': account.balance == 0}">

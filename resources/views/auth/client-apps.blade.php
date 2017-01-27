@@ -6,8 +6,6 @@
 
 @section('accounts_content')
 
-
-
 <section class="title">
   <span class="heading">Developer Tools</span>
 </section>
@@ -194,11 +192,20 @@
                 <label for="transfer-credit-amount">Amount: *</label>
                 <input type="text" name="amount" id="transfer-credit-amount" placeholder="100.5" value="" required/>
                 
-                <label for="transfer-credit-to">To Account: *</label>
-                <input type="text" name="to" id="transfer-credit-to" placeholder="johndoe" required/>
+                <label for="transfer-credit-to">To Account: * <span class="accountCheck" v-if="toAccountChecked">
+                    <span v-if="toAccountExists && toAccountIsTokenpass">Tokenpass Account</span>
+                    <span v-if="toAccountExists && !toAccountIsTokenpass">Named Account</span>
+                    <span class="not-exists" v-if="!toAccountExists">Account Does Not Exist</span>
+                </span></label>
+                <input v-on:change="checkAccounts()" v-model="toAccount" type="text" name="to" id="transfer-credit-to" placeholder="johndoe" required/>
                 
-                <label for="transfer-credit-from">From Account: </label>
-                <input type="text" name="from" id="transfer-credit-from" placeholder="promotionalCredits" value="admin.comp" />
+                
+                <label for="transfer-credit-from">From Account: <span class="accountCheck" v-if="fromAccountChecked">
+                    <span v-if="fromAccountExists && fromAccountIsTokenpass">Tokenpass Account</span>
+                    <span v-if="fromAccountExists && !fromAccountIsTokenpass">Named Account</span>
+                    <span class="not-exists" v-if="!fromAccountExists">Account Does Not Exist</span>
+                </span></label>
+                <input v-on:change="checkAccounts()" v-model="fromAccount" type="text" name="from" id="transfer-credit-from" placeholder="promotionalCredits" value="admin.comp" />
 
 				<label for="transfer-credit-ref">Reference Data:</label>
 				<textarea name="ref" id="transfer-credit-ref" placeholder="{&quot;desc&quot;: &quot;admin.comp&quot;}" rows="3">{&quot;desc&quot;: &quot;admin.comp&quot;}</textarea>
@@ -287,6 +294,7 @@
 
 var apps = {!! json_encode($client_apps) !!};
 var app_credits = {!! json_encode($credit_groups) !!};
+var csrf_token = '{{csrf_token()}}';
 
 var errorTimeout = null;
 
@@ -296,7 +304,15 @@ var vm = new Vue({
     apps: apps,
     app_credits: app_credits,
     currentApp: {},
-    currentAppCredit: {}
+    currentAppCredit: {},
+
+    fromAccountChecked: false,
+    fromAccountExists: false,
+    fromAccountIsTokenpass: false,
+
+    toAccountChecked: false,
+    toAccountExists: false,
+    toAccountIsTokenpass: false,
   },
   methods: {
     bindEvents: function(){
@@ -313,6 +329,36 @@ var vm = new Vue({
 			    year: "numeric", month: "short", day: "numeric"
 			};
     	return new Date(dateString).toLocaleDateString('en-us', options);
+    },
+    checkAccounts: function() {
+        var self = this;
+        (function(fromAccount, toAccount, uuid) {
+            console.log('checkAccounts', self);
+            console.log('checkAccounts fromAccount', fromAccount);
+            console.log('checkAccounts toAccount', toAccount);
+
+            $.ajax({
+              type: 'POST',
+              url: '/auth/apps/credits/'+uuid+'/check/accounts',
+              data: {
+                fromAccount: fromAccount,
+                toAccount: toAccount,
+                _token: csrf_token,
+              },
+              dataType: 'json'
+            }).done(function(data) {
+              console.log('SUCCESS', data);
+              self.fromAccountChecked = true;
+              self.fromAccountExists = data.fromAccount.exists;
+              self.fromAccountIsTokenpass = data.fromAccount.isTokenpass;
+
+              self.toAccountChecked = true;
+              self.toAccountExists = data.toAccount.exists;
+              self.toAccountIsTokenpass = data.toAccount.isTokenpass;
+            }).fail(function(data, status, error) {
+              console.error('failed to check accounts', data);
+            });
+        })(this.fromAccount, this.toAccount, this.currentAppCredit.uuid);
     },
     submitFormAjax: function(e){
       e.preventDefault();

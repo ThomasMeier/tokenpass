@@ -90,6 +90,7 @@ Route::get('auth/apps/{app}/delete',                   ['uses' => 'Auth\AppsCont
 Route::post('auth/apps/new-credits',                               ['uses' => 'Auth\AppsController@registerAppCreditGroup']);
 Route::post('auth/apps/credits/{uuid}/edit',                       ['uses' => 'Auth\AppsController@updateAppCreditGroup']);
 Route::post('auth/apps/credits/{uuid}/transfer',                   ['as' => 'app-credits.transfer', 'uses' => 'Auth\AppsController@transferAppCredits']);
+Route::post('auth/apps/credits/{uuid}/check/accounts',             ['as' => 'app-credits.accounts.check', 'uses' => 'Auth\AppsController@checkAccounts']);
 Route::get('auth/apps/credits/{uuid}/delete',                      ['uses' => 'Auth\AppsController@deleteAppCreditGroup']);
 Route::get('auth/apps/credits/{uuid}/users',                       ['uses' => 'Auth\AppsController@viewAppCreditGroupUsers']);
 Route::get('auth/apps/credits/{uuid}/history',                     ['as' => 'app-credits.history', 'uses' => 'Auth\AppsController@viewAppCreditGroupTransactions']);
