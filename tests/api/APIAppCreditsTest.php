@@ -113,7 +113,7 @@ class APIAppCreditsTest extends TestCase {
         $credits_helper = app('AppCreditsHelper');
         
         //create sample app credit group
-        $credit_group = $credits_helper->defaultAppCreditGroup($user1->id);
+        $credit_group = $credits_helper->defaultAppCreditGroup($user1->id, array($oauth_client->id));
         $account2 = $credit_group->newAccount('Master funds');
         
         //create an account via API
@@ -160,7 +160,7 @@ class APIAppCreditsTest extends TestCase {
         $credits_helper = app('AppCreditsHelper');
         
         //create sample app credit group and accounts
-        $credit_group = $credits_helper->defaultAppCreditGroup($user1->id);
+        $credit_group = $credits_helper->defaultAppCreditGroup($user1->id, array($oauth_client->id));
         $account1 = $credit_group->newAccount('Test account');
         $account2 = $credit_group->newAccount('Test account 2');
 
@@ -179,7 +179,7 @@ class APIAppCreditsTest extends TestCase {
         $credits_helper = app('AppCreditsHelper');
         
         //create sample app credit group, accounts and txs
-        $credit_group = $credits_helper->defaultAppCreditGroup($user1->id);
+        $credit_group = $credits_helper->defaultAppCreditGroup($user1->id, array($oauth_client->id));
         $account1 = $credit_group->newAccount('Test account 1');
         $account2 = $credit_group->newAccount('Test account 2');
         

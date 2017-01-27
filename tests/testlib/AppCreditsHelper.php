@@ -14,10 +14,11 @@ use Tokenpass\Models\AppCreditTransaction;
 class AppCreditsHelper
 {
     
-    public function defaultAppCreditGroup($userId)
+    public function defaultAppCreditGroup($userId, $app_whitelist = array())
     {
         $vals = $this->getDefaultAppCreditVals();
         $vals['user_id'] = $userId;
+        $vals['app_whitelist'] = join("\n", $app_whitelist);
         $get = AppCredits::where('uuid', $vals['uuid'])->first();
         if($get){
             return $get;
