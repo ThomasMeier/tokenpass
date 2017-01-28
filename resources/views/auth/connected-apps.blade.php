@@ -54,8 +54,8 @@
       </div>
     </li>
   </ul>
-  <div class="panel with-padding">
-    <p v-else>You don't have any applications connected yet.  Please login at the application and grant authorization when prompted.</p>
+  <div class="panel with-padding" v-if="entries.length == 0">
+    <p>You don't have any applications connected yet.  Please login at the application and grant authorization when prompted.</p>
   </div>
 </section>
 
