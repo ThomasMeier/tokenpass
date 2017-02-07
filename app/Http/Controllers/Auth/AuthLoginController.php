@@ -316,9 +316,15 @@ public function getBitcoinLogin(Request $request) {
 }
 
 public function postBitcoinLogin(Request $request) {
-    
-    $sig = Address::extractSignature($request->request->get('signed_message'));
+    $signed_message = $request->request->get('signed_message');
+    if(trim($signed_message) == ''){
+        $signed_message = Input::get('signature');
+    }
+    $sig = Address::extractSignature($signed_message);
     $input_msg_hash = $request->request->get('msg_hash');
+    if(trim($input_msg_hash) == ''){
+        $input_msg_hash = Input::get('msg_hash');
+    }
     $msg_hash = null;
     if($input_msg_hash != null){
         //click-to-sign functionality, look for session that contains this hash

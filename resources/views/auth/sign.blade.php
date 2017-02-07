@@ -34,7 +34,7 @@
                 <div class="signature__wrapper">
                     <a class="signature__cts" href="{{ env('POCKETS_URI') }}:sign?message={{ str_replace('+', '%20', urlencode($sigval)) }}&label={{ str_replace('+', '%20', urlencode('Sign in to Tokenpass')) }}&callback={{ urlencode(route('auth.signed', array('msg_hash' => $msg_hash))) }}">
                         <img src="/img/pockets-icon-64-light.png" alt="Pockets Icon" width="36px" style="margin-right: 15px">
-                        Click To Sign
+                        Sign with Pockets
                     </a>                 
                 </div>
                 <button type="submit" class="login-btn" id="auth-btc">Authenticate</button>

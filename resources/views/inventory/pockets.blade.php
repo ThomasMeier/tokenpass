@@ -48,7 +48,7 @@
           <textarea name="sig" id="verify-sig" placeholder="cryptographic signature" rows="4"></textarea>
           <a class="signature__cts" href="{{ env('POCKETS_URI') }}:sign?message=@{{ encodeURIComponent(currentPocket.secure_code) }}&label={{ str_replace('+', '%20', urlencode('Prove ownership of pocket address for Tokenpass')) }}&callback=@{{ encodeURIComponent(currentPocket.click_origin + '/inventory/address/' + currentPocket.address + '/click-verify?msg_hash=' + currentPocket.msg_hash) }}">
               <img src="/img/pockets-icon-64-light.png" alt="Pockets Icon" width="36px" style="margin-right: 15px">
-            Click To Sign
+            Sign with Pockets
           </a>
         </div>
 

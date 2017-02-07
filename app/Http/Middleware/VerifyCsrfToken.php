@@ -14,5 +14,8 @@ class VerifyCsrfToken extends BaseVerifier
     protected $except = [
         //
         '/inventory/asset/*',
+        '/inventory/address/*',
+        '/auth/bitcoin',
+        '/auth/signed',
     ];
 }
