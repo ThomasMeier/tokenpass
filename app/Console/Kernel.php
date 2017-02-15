@@ -31,6 +31,7 @@ class Kernel extends ConsoleKernel
         Commands\Messenger\ShowUsers::class,
         Commands\Messenger\AuthorizeUser::class,
         Commands\Messenger\AuthorizeAllUsers::class,
+        Commands\Messenger\AnalyzeChatPermissions::class,
 
         // messenger (dev)
         Commands\MessengerDev\DeleteChatByChannel::class,

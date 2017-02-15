@@ -13,7 +13,7 @@ class ResyncChat extends Command
      * @var string
      */
     protected $signature = 'messenger:resync-chat 
-                            {chatId : UUID of the Token Chat}
+                            {chatId : UUID of the Token Chat or ALL}
                             {--f|full : Do a full re-authorization}';
 
     /**
@@ -44,23 +44,33 @@ class ResyncChat extends Command
         $chat_id = $this->argument('chatId');
         $do_full_reauthorization = $this->option('full');
         $token_chat_repository = app(TokenChatRepository::class);
-        $token_chat = $token_chat_repository->findByUuid($chat_id);
-        if (!$token_chat) {
-            $token_chat = $token_chat_repository->findById($chat_id);
-        }
-        if (!$token_chat) {
-            $this->error("Chat not found for id $chat_id");
-            return;
-        }
 
-        if ($do_full_reauthorization) {
-            $this->comment('Re-authorizing chat '.$token_chat['name'].' ('.$token_chat['uuid'].')');
-            app('Tokenpass\Providers\TCAMessenger\TCAMessenger')->authorizeChat($token_chat);
-
+        $token_chats = [];
+        if (strtolower($chat_id) == 'all') {
+            $token_chats = $token_chat_repository->findAll();
         } else {
-            $this->comment('Syncing chat '.$token_chat['name'].' ('.$token_chat['uuid'].')');
-            app('Tokenpass\Providers\TCAMessenger\TCAMessenger')->syncUsersWithChat($token_chat);
+            $token_chat = $token_chat_repository->findByUuid($chat_id);
+            if (!$token_chat) {
+                $token_chat = $token_chat_repository->findById($chat_id);
+            }
+            if (!$token_chat) {
+                $this->error("Chat not found for id $chat_id");
+                return;
+            }
             
+            $token_chats[] = $token_chat;
+        }
+
+        foreach($token_chats as $token_chat) {
+            if ($do_full_reauthorization) {
+                $this->comment('Re-authorizing chat '.$token_chat['name'].' ('.$token_chat['uuid'].')');
+                app('Tokenpass\Providers\TCAMessenger\TCAMessenger')->authorizeChat($token_chat);
+
+            } else {
+                $this->comment('Syncing chat '.$token_chat['name'].' ('.$token_chat['uuid'].')');
+                app('Tokenpass\Providers\TCAMessenger\TCAMessenger')->syncUsersWithChat($token_chat);
+                
+            }
         }
 
         $this->comment('done');
