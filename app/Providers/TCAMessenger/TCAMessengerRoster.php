@@ -54,7 +54,7 @@ class TCAMessengerRoster
 
     public function userIsAddedToChat(User $user, TokenChat $token_chat) {
         $rows = DB::table('chat_rosters')
-            ->select('1')
+            ->select('id')
             ->where('chat_id', '=', $token_chat['id'])
             ->where('user_id', '=', $user['id'])
             ->get();
