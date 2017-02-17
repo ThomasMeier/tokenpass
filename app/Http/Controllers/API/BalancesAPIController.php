@@ -64,17 +64,23 @@ class BalancesAPIController extends Controller
             $this->_sumBalanceEntry($entry->asset, 0 - $entry->balance, $balances);
         }
 
+        // load disabled tokens
+        $disabled_tokens = Address::getDisabledTokens($user['id']);
+        $disabled_tokens_map = array_fill_keys($disabled_tokens, true);
 
-        // filter zeros and return
+        // filter zeros and disabled_tokens and return
         return $balances
-            ->values()
             ->filter(function($balance_entry) {
                 return ($balance_entry['balanceSat'] != 0);
+            })
+            ->filter(function($balance_entry) use ($disabled_tokens_map) {
+                return !isset($disabled_tokens_map[$balance_entry['asset']]);
             })
             ->map(function($balance_entry) {
                 $balance_entry['balanceSat'] = (string)$balance_entry['balanceSat'];
                 return $balance_entry;
             })
+            ->values()
             ->toArray();
     }
 

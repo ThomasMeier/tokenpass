@@ -4,6 +4,7 @@ use PHPUnit_Framework_Assert as PHPUnit;
 use Tokenpass\Models\Address;
 use Tokenpass\Models\OAuthClient;
 use Tokenpass\Models\Provisional;
+use Tokenpass\Models\UserMeta;
 
 class APIProtectedBalancesTest extends TestCase {
 
@@ -56,6 +57,7 @@ class APIProtectedBalancesTest extends TestCase {
         $address_helper->addBalancesToAddress([
             'ASSETONE' => 6,
             'TOKENTWO' => 11,
+            'DISABLED' => 3,
         ], $addresses[1]);
         $address_helper->addBalancesToAddress([
             'ASSETONE' => 7,
@@ -74,6 +76,9 @@ class APIProtectedBalancesTest extends TestCase {
             'TOKENTWO' => 15,
         ], $addresses[5]);
 
+        // set DISABLED token as disabled
+        $disabled_tokens = ['DISABLED'];
+        UserMeta::setMeta($user1['id'], 'disabled_tokens', json_encode($disabled_tokens));
 
         // setup api client
         $oauth_helper = app('OAuthClientHelper');
