@@ -157,6 +157,11 @@ Route::group(['middleware' => 'oauth-user-guard:tca'], function () {
                                         'as'   => 'api.messenger.token.privileges',  
                                         'uses' => 'MessengerAPIController@getTokenPrivileges']);
 
+    // check privilege information for a chat
+    Route::match(['GET',    'OPTIONS'], 'api/v1/tca/messenger/chat/{chat}', [
+                                        'as'   => 'api.messenger.chat.authorization',
+                                        'uses' => 'MessengerAPIController@getChatPrivileges']);
+
     // join a chat
     Route::match(['POST',   'OPTIONS'], 'api/v1/tca/messenger/roster/{chatId}', [
                                         'as'   => 'api.messenger.joinroster',  

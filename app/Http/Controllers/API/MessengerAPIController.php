@@ -25,6 +25,27 @@ class MessengerAPIController extends Controller
     }
 
 
+    public function getChatPrivileges(TCAMessenger $tca_messenger, TokenChatRepository $token_chat_repository, APIControllerHelper $api_controller_helper, $chat_id)
+    {
+        $user = OAuthGuard::user();
+
+        $uuid = TokenChat::channelNameToUuid($chat_id);
+        $token_chat = $token_chat_repository->findByUuid($uuid);
+        if (!$token_chat) {
+            return $api_controller_helper->newJsonResponseWithErrors('Chat not found', 404);
+        }
+
+        $token_auth = $tca_messenger->userAuthorizationInformationForTokenChat($user, $token_chat);
+
+        $response = [
+            'authorized'         => $tca_messenger->userIsAuthorized($user, $token_chat),
+            'isGlobal'           => $token_chat['global'],
+            'tokenAuthorization' => $token_auth,
+        ];
+
+        return $api_controller_helper->transformValueForOutput($response);
+    }
+
     public function getTokenPrivileges(TCAMessenger $tca_messenger, APIControllerHelper $api_controller_helper, $token)
     {
         $user = OAuthGuard::user();

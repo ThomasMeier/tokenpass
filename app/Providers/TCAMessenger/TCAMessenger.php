@@ -157,6 +157,31 @@ class TCAMessenger
         }
     }
 
+    public function userAuthorizationInformationForTokenChat(User $user, TokenChat $token_chat) {
+        $tca = new Access();
+        $balances = Address::getAllUserBalances($user['id'], $filter_disabled = true, $and_provisional = true, $subtract_loans = true);
+
+        $tca_rules = $token_chat['tca_rules'];
+        $token_auth = [];
+        if ($tca_rules) {
+            foreach ($tca_rules as $tca_rule) {
+                if ($tca->checkAccess([$tca_rule], $balances)) {
+                    $token_auth[] = [
+                        'asset'  => $tca_rule['asset'],
+                        'amount' => $tca_rule['amount'],
+                    ];
+                }
+            }
+        }
+
+        return $token_auth;
+    }
+
+    public function userIsAuthorized(User $user, TokenChat $token_chat) {
+        if ($token_chat['global']) { return true; }
+        return $this->userIDIsAuthorized($user['id'], $token_chat['tca_rules']);
+    }
+
 
     // --------------------------------
     // Single user

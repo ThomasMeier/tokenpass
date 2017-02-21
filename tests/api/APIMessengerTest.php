@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\DB;
 use PHPUnit_Framework_Assert as PHPUnit;
+use Tokenly\CurrencyLib\CurrencyUtil;
 use Tokenpass\Models\Address;
 use Tokenpass\Models\OAuthClient;
 use Tokenpass\Models\Provisional;
@@ -241,6 +242,80 @@ class APIMessengerTest extends TestCase {
         PHPUnit::assertCount(1, $all_db_rows);
         PHPUnit::assertEquals($user1['id'], $all_db_rows[0]->user_id);
         PHPUnit::assertEquals($token_chat['id'], $all_db_rows[0]->chat_id);
+
+    }
+
+    // ------------------------------------------------------------------------
+    // chat authorization
+
+    public function testMessengerAuthorizationAPI() {
+        $user_helper = app('UserHelper')->setTestCase($this);
+        $address_helper = app('AddressHelper');
+        $token_chat_helper = app('TokenChatHelper');
+
+        // add test users and addresses
+        $user = $user_helper->createRandomUser();
+        $user1 = $user_helper->createRandomUser();
+        $user2 = $user_helper->createRandomUser();
+        $token_chat = $token_chat_helper->createNewTokenChat($user);
+        $global_token_chat = $token_chat_helper->createNewTokenChat($user, ['global' => true]);
+        $other_global_token_chat = $token_chat_helper->createNewTokenChat($user, ['global' => true, 'token' => 'OTHERTOKEN']);
+        $unauthorized_token_chat = $token_chat_helper->createNewTokenChat($user, ['global' => false, 'token' => 'OTHERTOKEN']);
+
+        // add MYCOIN to user
+        $address_helper->addBalancesToAddress(['MYCOIN' => 50], $address_helper->createNewAddress($user1));
+
+        // setup api client
+        $oauth_helper = app('OAuthClientHelper');
+        $oauth_client = $oauth_helper->createConnectedOAuthClientWithTCAScopes($user1);
+        $user1_token = $oauth_helper->connectUserSession($user1, $oauth_client);
+        $api_tester = app('OauthUserAPITester')->setToken($user1_token);
+
+        $route_spec = ['api.messenger.chat.authorization', $token_chat->getChannelName()];
+        $result = $api_tester->expectAuthenticatedResponse('GET', $route_spec);
+        PHPUnit::assertEquals([
+                'authorized'         => true,
+                'isGlobal'           => false,
+                'tokenAuthorization' => [
+                    [
+                        'asset'  => 'MYCOIN',
+                        'amount' => CurrencyUtil::valueToSatoshis(10),
+                    ]
+                ],
+            ], $result
+        );
+
+        $route_spec = ['api.messenger.chat.authorization', $global_token_chat->getChannelName()];
+        $result = $api_tester->expectAuthenticatedResponse('GET', $route_spec);
+        PHPUnit::assertEquals([
+                'authorized'         => true,
+                'isGlobal'           => true,
+                'tokenAuthorization' => [
+                    [
+                        'asset'  => 'MYCOIN',
+                        'amount' => CurrencyUtil::valueToSatoshis(10),
+                    ]
+                ],
+            ], $result
+        );
+
+        $route_spec = ['api.messenger.chat.authorization', $other_global_token_chat->getChannelName()];
+        $result = $api_tester->expectAuthenticatedResponse('GET', $route_spec);
+        PHPUnit::assertEquals([
+                'authorized'         => true,
+                'isGlobal'           => true,
+                'tokenAuthorization' => [],
+            ], $result
+        );
+
+        $route_spec = ['api.messenger.chat.authorization', $unauthorized_token_chat->getChannelName()];
+        $result = $api_tester->expectAuthenticatedResponse('GET', $route_spec);
+        PHPUnit::assertEquals([
+                'authorized'         => false,
+                'isGlobal'           => false,
+                'tokenAuthorization' => [],
+            ], $result
+        );
 
     }
 
