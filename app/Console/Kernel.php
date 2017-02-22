@@ -32,6 +32,7 @@ class Kernel extends ConsoleKernel
         Commands\Messenger\AuthorizeUser::class,
         Commands\Messenger\AuthorizeAllUsers::class,
         Commands\Messenger\AnalyzeChatPermissions::class,
+        Commands\Messenger\ResyncUser::class,
 
         // messenger (dev)
         Commands\MessengerDev\DeleteChatByChannel::class,

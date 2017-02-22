@@ -3,6 +3,7 @@
 namespace Tokenpass\Http\Controllers\Auth;
 
 use Exception;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Exception\HttpResponseException;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\Session;
 use InvalidArgumentException;
 use ReCaptcha;
 use Tokenpass\Commands\SendUserConfirmationEmail;
+use Tokenpass\Events\UserRegistered;
 use Tokenpass\Http\Controllers\Auth\Base\BaseAuthController;
 use Tokenpass\Models\Address;
 use Tokenpass\Models\User;
@@ -64,9 +66,9 @@ class AuthRegisterController extends BaseAuthController
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function postRegister(Request $request)
+    public function register(Request $request)
     {
-        if (env('APP_ENV') != 'testing') {
+        if (env('APP_ENV') != 'testing' AND env('APP_ENV') != 'local') {
             $captcha = $this->checkCaptcha($request);
             if (is_null($captcha)) {
                 return redirect()->back()->withErrors([$this->getGenericFailedMessage()]);
@@ -96,7 +98,9 @@ class AuthRegisterController extends BaseAuthController
 
 
         $new_user = $this->create($request->all());
-        app(TCAMessenger::class)->authorizeUser($new_user);
+        event(new UserRegistered($new_user));
+        event(new Registered($new_user));
+
         Auth::login($new_user);
 
         // send the confirmation email

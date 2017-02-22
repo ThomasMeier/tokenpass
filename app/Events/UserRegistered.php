@@ -5,7 +5,7 @@ namespace Tokenpass\Events;
 use Illuminate\Queue\SerializesModels;
 use Tokenpass\Models\User;
 
-class UserBalanceChanged
+class UserRegistered
 {
     use SerializesModels;
 

@@ -11,6 +11,7 @@ use Tokenly\LaravelEventLog\Facade\EventLog;
 use Tokenly\TCA\Access;
 use Tokenpass\Events\AddressBalanceChanged;
 use Tokenpass\Events\UserBalanceChanged;
+use Tokenpass\Events\UserRegistered;
 use Tokenpass\Jobs\SyncUsersWithTokenChat;
 use Tokenpass\Models\Address;
 use Tokenpass\Models\TokenChat;
@@ -196,6 +197,18 @@ class TCAMessenger
         $this->syncUserToAllChats($user);
     }
 
+    public function onUserRegistered(UserRegistered $user_registered) {
+        Log::debug("onUserRegistered fired...");
+
+        $user = $user_registered->user;
+
+        // authorize control channel
+        $this->authorizeUserControlChannel($user);
+
+        // add all general chats
+        $this->syncUserToAllChats($user);
+    }
+
     public function syncUserToAllChats(User $user) {
         $token_chat_repository = app(TokenChatRepository::class);
         foreach($token_chat_repository->findAll() as $token_chat) {
@@ -324,6 +337,7 @@ class TCAMessenger
     {
         $events->listen(AddressBalanceChanged::class, 'Tokenpass\Providers\TCAMessenger\TCAMessenger@onAddressBalanceChanged');
         $events->listen(UserBalanceChanged::class, 'Tokenpass\Providers\TCAMessenger\TCAMessenger@onUserBalanceChanged');
+        $events->listen(UserRegistered::class, 'Tokenpass\Providers\TCAMessenger\TCAMessenger@onUserRegistered');
     }
 
     // ------------------------------------------------------------------------

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
 use Input, \Exception, Session, Response, Cache, Config;
 use Tokenly\BvamApiClient\BVAMClient;
+use Tokenpass\Events\UserBalanceChanged;
 use Tokenpass\Http\Controllers\Controller;
 use Tokenpass\Models\Address;
 use Tokenpass\Models\Provisional;
@@ -239,6 +240,9 @@ class InventoryController extends Controller
 
 		// sync with XChain
 		$new_address->syncWithXChain();
+
+        // fire a balance changed event
+        event(new UserBalanceChanged($authed_user));
 
 		return $this->ajaxEnabledSuccessResponse('Bitcoin address registered!', route('inventory.pockets'));
 	}

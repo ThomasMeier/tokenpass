@@ -48,6 +48,10 @@ class User extends APIUser implements AuthenticatableContract, CanResetPasswordC
         'privileges' => 'json',
     ];
 
+    protected $_channel_name;     // not public attribute
+    protected $_channel_auth_key; // not public attribute
+    protected $_ecc_public_key;   // not public attribute
+
 
     public function updateableFields() {
         return ['name', 'username', 'email', 'password'];

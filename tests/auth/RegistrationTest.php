@@ -10,7 +10,9 @@ class RegistrationTest extends TestCase {
 
     protected $use_database = true;
 
-    public function testRegisterUser() {
+    public function testSimpleRegisterUser() {
+        app('TCAMessengerHelper')->mockTCAMessengerAuth();
+
         $user_helper = app('UserHelper')->setTestCase($this);
 
         // create a user
@@ -25,6 +27,8 @@ class RegistrationTest extends TestCase {
     }
 
     public function testRegistrationLogsInUser() {
+        app('TCAMessengerHelper')->mockTCAMessengerAuth();
+
         $user_helper = app('UserHelper')->setTestCase($this);
 
         // create a user
