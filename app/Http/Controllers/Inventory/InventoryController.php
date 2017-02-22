@@ -359,6 +359,9 @@ class InventoryController extends Controller
 			}
 		}
 
+        // fire a balance changed event
+        event(new UserBalanceChanged($authed_user));
+
 		return Response::json($output, $response_code);
 	}
 
