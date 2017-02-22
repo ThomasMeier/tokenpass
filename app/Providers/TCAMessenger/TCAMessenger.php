@@ -232,10 +232,12 @@ class TCAMessenger
         $user_is_already_authorized = $this->tca_messenger_auth->userIsAuthorized($user['id'], $chat_channel);
 
         if ($is_authorized AND !$user_is_already_authorized) {
+            // authorize but don't add
             $this->authorizeUserToChat($user, $token_chat);
         }
 
         if (!$is_authorized AND $user_is_already_authorized) {
+            $this->removeUserFromChatIfAdded($user, $token_chat);
             $this->deauthorizeUserFromChat($user, $token_chat);
         }
     }
