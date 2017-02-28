@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Event;
 use Tokenpass\Providers\CMSAuth\CMSAccountLoaderMockBuilder;
 
 class TestCase extends Illuminate\Foundation\Testing\TestCase
@@ -13,12 +14,14 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase
 
 
     protected $use_database = false;
+    protected $mock_events  = true;
 
     public function setUp()
     {
         parent::setUp();
 
         if ($this->use_database) { $this->setUpDb(); }
+        if ($this->mock_events) { $this->mockEvents(); }
 
         CMSAccountLoaderMockBuilder::installMockCMSAccountLoader();
     }
@@ -41,6 +44,10 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase
     public function setUpDb()
     {
         $this->app['Illuminate\Contracts\Console\Kernel']->call('migrate');
+    }
+
+    public function mockEvents() {
+        Event::fake();
     }
 
     public function teardownDb()

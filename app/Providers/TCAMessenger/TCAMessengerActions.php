@@ -16,6 +16,9 @@ class TCAMessengerActions
         $this->pubnub->setAuthKey(env('PUBNUB_TOKENPASS_AUTH_KEY'));
     }
 
+    // ------------------------------------------------------------------------
+    // Identities
+
     public function sendIdentity(User $user, TokenChat $token_chat) {
         $chat_identities_channel = "identities-".$token_chat->getChannelName();
         return $this->_publish($chat_identities_channel, [
@@ -41,6 +44,9 @@ class TCAMessengerActions
         ], __FUNCTION__);
     }
 
+    // ------------------------------------------------------------------------
+    // Control
+
     public function sendChatInvitation(User $user, TokenChat $token_chat) {
         $chat_identities_channel = "control-".$user->getChannelName();
         return $this->_publish($chat_identities_channel, [
@@ -61,6 +67,26 @@ class TCAMessengerActions
             ]
         ], __FUNCTION__);
     }
+
+    // ------------------------------------------------------------------------
+    // Events
+
+    public function tcaUpdated(User $user, $args=[]) {
+        $chat_identities_channel = "event-".$user->getChannelName();
+        return $this->_publish($chat_identities_channel, [
+            'action' => 'tcaUpdated',
+            'args'   => $args,
+        ], __FUNCTION__);
+    }
+
+    public function creditsUpdated(User $user, $args) {
+        $chat_identities_channel = "event-".$user->getChannelName();
+        return $this->_publish($chat_identities_channel, [
+            'action' => 'creditsUpdated',
+            'args'   => $args,
+        ], __FUNCTION__);
+    }
+
 
 
     // ------------------------------------------------------------------------

@@ -384,6 +384,11 @@ class Address extends Model
     
     public function user()
     {
+        return $this->getUser();
+    }
+
+    public function getUser()
+    {
         return User::find($this->user_id);
     }
 

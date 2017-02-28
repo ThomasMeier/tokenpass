@@ -10,8 +10,10 @@ use Tokenly\CurrencyLib\CurrencyUtil;
 use Tokenly\LaravelEventLog\Facade\EventLog;
 use Tokenly\TCA\Access;
 use Tokenpass\Events\AddressBalanceChanged;
+use Tokenpass\Events\CreditsUpdated;
 use Tokenpass\Events\UserBalanceChanged;
 use Tokenpass\Events\UserRegistered;
+use Tokenpass\Jobs\PublishPubnubEvent;
 use Tokenpass\Jobs\SyncUsersWithTokenChat;
 use Tokenpass\Models\Address;
 use Tokenpass\Models\TokenChat;
@@ -101,6 +103,7 @@ class TCAMessenger
 
     public function authorizeUser(User $user) {
         $this->authorizeUserControlChannel($user);
+        $this->authorizeUserEventChannel($user);
     }
 
     // --------------------------------
@@ -184,30 +187,7 @@ class TCAMessenger
     }
 
 
-    // --------------------------------
-    // Single user
-
-    public function onAddressBalanceChanged(AddressBalanceChanged $address_balance_changed) {
-        $address = $address_balance_changed->address;
-        $this->syncUserToAllChats($address->user());
-    }
-
-    public function onUserBalanceChanged(UserBalanceChanged $user_balanced_changed) {
-        $user = $user_balanced_changed->user;
-        $this->syncUserToAllChats($user);
-    }
-
-    public function onUserRegistered(UserRegistered $user_registered) {
-        Log::debug("onUserRegistered fired...");
-
-        $user = $user_registered->user;
-
-        // authorize control channel
-        $this->authorizeUserControlChannel($user);
-
-        // add all general chats
-        $this->syncUserToAllChats($user);
-    }
+    // ------------------------------------------------------------------------
 
     public function syncUserToAllChats(User $user) {
         $token_chat_repository = app(TokenChatRepository::class);
@@ -243,7 +223,7 @@ class TCAMessenger
     }
 
     public function authorizeUserToChat(User $user, TokenChat $token_chat) {
-        $this->authorizeUserControlChannel($user);
+        $this->authorizeUser($user);
 
         $channel_name            = $token_chat->getChannelName();
         $chat_channel            = "chat-{$channel_name}";
@@ -334,13 +314,58 @@ class TCAMessenger
     }
 
     // ------------------------------------------------------------------------
+    // events
     
     public function subscribe($events)
     {
+        $events->listen(UserRegistered::class, 'Tokenpass\Providers\TCAMessenger\TCAMessenger@onUserRegistered');
         $events->listen(AddressBalanceChanged::class, 'Tokenpass\Providers\TCAMessenger\TCAMessenger@onAddressBalanceChanged');
         $events->listen(UserBalanceChanged::class, 'Tokenpass\Providers\TCAMessenger\TCAMessenger@onUserBalanceChanged');
-        $events->listen(UserRegistered::class, 'Tokenpass\Providers\TCAMessenger\TCAMessenger@onUserRegistered');
+        $events->listen(CreditsUpdated::class, 'Tokenpass\Providers\TCAMessenger\TCAMessenger@onCreditsUpdated');
     }
+
+    public function onUserRegistered(UserRegistered $user_registered) {
+        $user = $user_registered->user;
+
+        // authorize control channel
+        $this->authorizeUser($user);
+
+        // add all general chats
+        $this->syncUserToAllChats($user);
+    }
+
+
+    public function onAddressBalanceChanged(AddressBalanceChanged $address_balance_changed) {
+        $address = $address_balance_changed->address;
+        $this->syncUserToAllChats($address->user());
+
+        dispatch(new PublishPubnubEvent($address->getUser(), 'tcaUpdated'));
+
+    }
+
+    public function onUserBalanceChanged(UserBalanceChanged $user_balanced_changed) {
+        $user = $user_balanced_changed->user;
+        $this->syncUserToAllChats($user);
+
+        dispatch(new PublishPubnubEvent($user, 'tcaUpdated'));
+    }
+
+    public function onCreditsUpdated(CreditsUpdated $credits_updated) {
+        $account = $credits_updated->account;
+        $credit_group = $account->appCreditGroup;
+
+        // only publish events for certain credit groups
+        if (!$credit_group['publish_events']) { return; }
+
+        // only some accounts belong to a user
+        $user = $account->getUser();
+        if (!$user) { return null; }
+
+        $slug = $credit_group['event_slug'];
+        $balance = $account->calculateBalance();
+        dispatch(new PublishPubnubEvent($user, 'creditsUpdated', ['slug' => $slug, 'balance' => $balance,]));
+    }
+
 
     // ------------------------------------------------------------------------
 
@@ -360,6 +385,18 @@ class TCAMessenger
 
         // user can read from control channel
         $auth->authorizeUser($user, $read=true, $write=false, $user_control_channel);
+
+    }
+
+    protected function authorizeUserEventChannel(User $user) {
+        $auth = $this->tca_messenger_auth;
+        $user_event_channel = "event-".$user->getChannelName();
+
+        // tokenpass can read/write to user's event channel
+        $auth->authorizeTokenpass($read=true, $write=true, $user_event_channel);
+
+        // user can read from event channel
+        $auth->authorizeUser($user, $read=true, $write=false, $user_event_channel);
 
     }
 

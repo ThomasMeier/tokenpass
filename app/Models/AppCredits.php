@@ -11,7 +11,7 @@ class AppCredits extends Model
 {
     protected $table = 'app_credit_groups';
     public $timestamps = true;
-    protected $fillable = ['name', 'uuid', 'user_id', 'app_whitelist'];
+    protected $fillable = ['name', 'uuid', 'user_id', 'app_whitelist', 'active', 'publish_events', 'event_slug'];
     
     
     public static function getCreditGroupsOwnedByUser($userId)

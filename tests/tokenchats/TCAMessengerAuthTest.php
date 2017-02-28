@@ -14,6 +14,7 @@ class TCAMessengerAuthTest extends TestCase
 {
 
     protected $use_database = true;
+    protected $mock_events  = false;
 
     public function testAuthorizeChat() {
         // user
@@ -215,6 +216,13 @@ class TCAMessengerAuthTest extends TestCase
         $tca_messenger = app('Tokenpass\Providers\TCAMessenger\TCAMessenger');
         $tca_messenger->authorizeChat($token_chat);
 
+        // check the authorization table
+        $this->checkAuthorizationTable([
+            $users[0]['id'],
+            $users[1]['id'],
+            $users[2]['id'],
+        ]);
+
 
         // now create a 4th new user
         $user_offset = 3;
@@ -369,7 +377,7 @@ class TCAMessengerAuthTest extends TestCase
     protected function checkAuthorizationTable($expected_user_ids) {
         $user_ids_authorized = DB::table('pubnub_user_access')->get()
             ->filter(function($r) {
-                if (substr($r->channel, 0, 8) == 'control-') { return false; }
+                if (substr($r->channel, 0, 5) != 'chat-') { return false; }
                 return !!$r->read;
             })
             ->pluck('user_id')

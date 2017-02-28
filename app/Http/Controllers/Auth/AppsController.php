@@ -12,6 +12,7 @@ use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 use Tokenly\CurrencyLib\CurrencyUtil;
+use Tokenpass\Events\CreditsUpdated;
 use Tokenpass\Http\Controllers\Controller;
 use Tokenpass\Models\AppCreditAccount;
 use Tokenpass\Models\AppCreditTransaction;
@@ -425,7 +426,7 @@ class AppsController extends Controller
             }
         }
 
-        $source = null; //debit this same balance from a source account... if null then use default system account
+        $source_account = null; //debit this same balance from a source account... if null then use default system account
         if(isset($from) AND trim($from) != ''){
             $find_source = $credit_group->getAccount($from);
             if (!$find_source AND $from == 'admin.comp') {
@@ -446,7 +447,7 @@ class AppsController extends Controller
                     return $this->ajaxEnabledErrorResponse('Error selecting "From Account"', 422);
                 }
             }
-            $source = $find_source->id;
+            $source_account = $find_source;
         }
         else{
             //use system default as debit destination
@@ -454,7 +455,7 @@ class AppsController extends Controller
             if(!$default_source){
                 return $this->ajaxEnabledErrorResponse('Error loading default credit source account', 422);
             }
-            $source = $default_source->id;                
+            $source_account = $default_source;                
         }
 
         // ref
@@ -463,7 +464,7 @@ class AppsController extends Controller
         }
         
         //create one positive TX for the account, create one negative TX for source (double entry)
-        $error_response = DB::transaction(function() use ($credit_group, $amount, $destination_account, $source, $ref) {
+        $error_response = DB::transaction(function() use ($credit_group, $amount, $destination_account, $source_account, $ref) {
             $error_response = null;
 
             $credit_amount = $amount;
@@ -474,11 +475,15 @@ class AppsController extends Controller
                 return $this->ajaxEnabledErrorResponse('Error saving credit transaction', 500);
             }
 
-            $debit_tx = AppCreditTransaction::newTX($credit_group->id, $source, $debit_amount, $ref);
+            $debit_tx = AppCreditTransaction::newTX($credit_group->id, $source_account->id, $debit_amount, $ref);
             if(!$debit_tx){
                 $credit_tx->delete();
                 return $this->ajaxEnabledErrorResponse('Error saving debit entry for credit transaction', 500);
             }
+
+            event(new CreditsUpdated($destination_account));
+            event(new CreditsUpdated($source_account));
+
 
             return null;
         });

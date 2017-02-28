@@ -1,9 +1,11 @@
 <?php
 
+use Illuminate\Support\Facades\Event;
 use PHPUnit_Framework_Assert as PHPUnit;
-use Tokenpass\Models\AppCredits;
+use Tokenpass\Events\CreditsUpdated;
 use Tokenpass\Models\AppCreditAccount;
 use Tokenpass\Models\AppCreditTransaction;
+use Tokenpass\Models\AppCredits;
 use Tokenpass\Models\OAuthClient;
 use Tokenpass\Models\Provisional;
 
@@ -113,7 +115,7 @@ class APIAppCreditsTest extends TestCase {
         $credits_helper = app('AppCreditsHelper');
         
         //create sample app credit group
-        $credit_group = $credits_helper->defaultAppCreditGroup($user1->id, array($oauth_client->id));
+        $credit_group = $credits_helper->defaultAppCreditGroup($user1->id, array($oauth_client->id), 'app-creds');
         $account2 = $credit_group->newAccount('Master funds');
         
         //create an account via API
@@ -124,6 +126,10 @@ class APIAppCreditsTest extends TestCase {
         
         $account = $response['account'];
         
+        // expect a CreditsUpdated events
+        Event::fake();
+        Event::fake();
+
         //credit account
         $credit_list = array(array('account' => $account['uuid'], 'amount' => 5000),
                              array('account' => $account['uuid'], 'amount' => 1000, 'source' => $account2->uuid));
@@ -131,6 +137,13 @@ class APIAppCreditsTest extends TestCase {
         $credit_params['accounts'] = $credit_list;
         $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('POST', route('api.credits.accounts.credit', $credit_group->uuid), $credit_params);
         PHPUnit::assertArrayHasKey('transactions', $response);
+
+        // make sure events were fired
+        Event::assertFired(CreditsUpdated::class, function($e) { return $e->account->name == 'Master funds'; });
+        Event::assertFired(CreditsUpdated::class, function($e) { return $e->account->name == 'Test account 123'; });
+
+
+        Event::fake();
         
         //debit account
         $debit_list = array(array('account' => $account['uuid'], 'amount' => 1500, 'destination' => $account2->uuid));
@@ -148,8 +161,71 @@ class APIAppCreditsTest extends TestCase {
         $get_account2 = $get_account2['account'];
         PHPUnit::assertEquals(500, $get_account2['balance']);
 
+        // make sure events were fired
+        Event::assertFired(CreditsUpdated::class, function($e) { return $e->account->name == 'Master funds'; });
+        Event::assertFired(CreditsUpdated::class, function($e) { return $e->account->name == 'Test account 123'; });
+
     }
-    
+
+        public function testDebitAndCreditUserAccount()
+    {
+        //setup testing stuff
+        $user_helper = app('UserHelper')->setTestCase($this);
+        $user1 = $user_helper->createRandomUser();
+        $user2 = $user_helper->createRandomUser();
+        $user3 = $user_helper->createRandomUser();
+        $oauth_client = app('OAuthClientHelper')->createConnectedOAuthClientWithTCAScopes($user1);
+        $api_tester = app('OAuthClientAPITester')->be($oauth_client);        
+        $credits_helper = app('AppCreditsHelper');
+        
+        //create sample app credit group
+        $credit_group = $credits_helper->defaultAppCreditGroup($user1->id, array($oauth_client->id), 'app-creds');
+        $master_funds_account = $credit_group->newAccount('Master funds');
+
+        //create an account via API
+        $params = array();
+        $params['name'] = $user2['uuid'];
+        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('POST', route('api.credits.accounts.new', $credit_group->uuid), $params);
+        PHPUnit::assertEquals($params['name'], $response['account']['name']);
+        $user2_account = $response['account'];
+       
+        $params = array();
+        $params['name'] = $user3['uuid'];
+        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('POST', route('api.credits.accounts.new', $credit_group->uuid), $params);
+        PHPUnit::assertEquals($params['name'], $response['account']['name']);
+        $user3_account = $response['account'];
+       
+        // expect a CreditsUpdated events
+        Event::fake();
+
+        //credit user2
+        $credit_list = array(array('account' => $user2_account['uuid'], 'amount' => 1000, 'source' => $master_funds_account->uuid));
+        $credit_params = array();
+        $credit_params['accounts'] = $credit_list;
+        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('POST', route('api.credits.accounts.credit', $credit_group->uuid), $credit_params);
+        PHPUnit::assertArrayHasKey('transactions', $response);
+
+        // make sure events were fired
+        Event::assertFired(CreditsUpdated::class, function($e) { return $e->account->name == 'Master funds'; });
+        Event::assertFired(CreditsUpdated::class, function($e) use ($user2_account) { return $e->account->name == $user2_account['name']; });
+
+
+        // expect CreditsUpdated events
+        Event::fake();
+        
+        //debit account
+        $debit_list = array(array('account' => $user2_account['uuid'], 'amount' => 1500, 'destination' => $user3_account['uuid']));
+        $debit_params = array();
+        $debit_params['accounts'] = $debit_list;
+        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('POST', route('api.credits.accounts.debit', $credit_group->uuid), $debit_params);
+        PHPUnit::assertArrayHasKey('transactions', $response);        
+        
+        // make sure events were fired
+        Event::assertFired(CreditsUpdated::class, function($e) use ($user2_account) { return $e->account->name == $user2_account['name']; });
+        Event::assertFired(CreditsUpdated::class, function($e) use ($user3_account) { return $e->account->name == $user3_account['name']; });
+
+    }
+
     public function testListAppCreditAccounts()
     {
         //setup testing stuff

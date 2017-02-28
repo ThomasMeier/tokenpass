@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Response;
 use Log;
 use Ramsey\Uuid\Uuid;
 use Tokenly\CurrencyLib\CurrencyUtil;
+use Tokenpass\Events\CreditsUpdated;
 use Tokenpass\Http\Controllers\Controller;
+use Tokenpass\Jobs\PublishPubnubEvent;
 use Tokenpass\Models\AppCreditAccount;
 use Tokenpass\Models\AppCreditTransaction;
 use Tokenpass\Models\AppCredits;
@@ -215,18 +217,18 @@ class AppCreditsAPIController extends Controller
                 return Response::json(array('error' => 'Missing key "amount"'), 400);
             }            
             $account = $row['account'];
-            $get_account = $credit_group->getAccount($account, false);
-            if(!$get_account){
+            $source_account = $credit_group->getAccount($account, false);
+            if(!$source_account){
                 return Response::json(array('error' => 'Invalid account "'.$account.'"'), 400);
             }
             $amount = abs(intval($row['amount']));
-            $destination = null; //credit this same balance to a destination account... if null then use default system account
+            $destination_account = null; //credit this same balance to a destination account... if null then use default system account
             if(isset($row['destination']) AND trim($row['destination']) != ''){
                 $find_destination = $credit_group->getAccount($row['destination']);
                 if(!$find_destination){
                     return Response::json(array('error' => 'Destination account '.$row['destination'].' does not exist'), 400);
                 }
-                $destination = $find_destination->id;
+                $destination_account = $find_destination;
             }
             else{
                 //use system default as debit destination
@@ -234,7 +236,7 @@ class AppCreditsAPIController extends Controller
                 if(!$default_destination){
                     return Response::json(array('error' => 'Error loading default debit destination account'), 400);
                 }
-                $destination = $default_destination->id;                
+                $destination_account = $default_destination;
             }
             $ref = null;
             if(isset($row['ref'])){
@@ -242,18 +244,23 @@ class AppCreditsAPIController extends Controller
             }
             
             //create one negative TX for the account, create one positive TX for destination (double entry)
-            list ($tx_item, $error_response) = DB::transaction(function() use ($amount, $credit_group, $get_account, $destination, $ref) {
+            list ($tx_item, $error_response) = DB::transaction(function() use ($amount, $credit_group, $source_account, $destination_account, $ref) {
                 $debit_amount = 0 - $amount;
                 $credit_amount = $amount;
-                $debit_tx = AppCreditTransaction::newTX($credit_group->id, $get_account->id, $debit_amount, $ref);
+                $debit_tx = AppCreditTransaction::newTX($credit_group->id, $source_account->id, $debit_amount, $ref);
                 if(!$debit_tx){
                     return [null, Response::json(array('error' => 'Error saving debit transaction'), 500)];
                 }
-                $credit_tx = AppCreditTransaction::newTX($credit_group->id, $destination, $credit_amount, $ref);
+                $credit_tx = AppCreditTransaction::newTX($credit_group->id, $destination_account->id, $credit_amount, $ref);
                 if(!$credit_tx){
                     $debit_tx->delete();
                     return [null, Response::json(array('error' => 'Error saving credit entry for debit transaction'), 500)];
                 }
+
+                // send the events
+                event(new CreditsUpdated($source_account));
+                event(new CreditsUpdated($destination_account));
+
                 return [array('debit' => $debit_tx->APIObject(), 'credit' => $credit_tx->APIObject()), null];
             });
             if ($error_response !== null) {
@@ -284,18 +291,18 @@ class AppCreditsAPIController extends Controller
                 return Response::json(array('error' => 'Missing key "amount"'), 400);
             }            
             $account = $row['account'];
-            $get_account = $credit_group->getAccount($account, false);
-            if(!$get_account){
+            $recipient_account = $credit_group->getAccount($account, false);
+            if(!$recipient_account){
                 return Response::json(array('error' => 'Invalid account "'.$account.'"'), 400);
             }
             $amount = abs(intval($row['amount']));
-            $source = null; //debit this same balance from a source account... if null then use default system account
+            $source_account = null; //debit this same balance from a source account... if null then use default system account
             if(isset($row['source']) AND trim($row['source']) != ''){
                 $find_source = $credit_group->getAccount($row['source']);
                 if(!$find_source){
                     return Response::json(array('error' => 'Source account '.$row['source'].' does not exist'), 400);
                 }
-                $source = $find_source->id;
+                $source_account = $find_source;
             }
             else{
                 //use system default as debit destination
@@ -303,7 +310,7 @@ class AppCreditsAPIController extends Controller
                 if(!$default_source){
                     return Response::json(array('error' => 'Error loading default credit source account'), 400);
                 }
-                $source = $default_source->id;                
+                $source_account = $default_source;
             }
             $ref = null;
             if(isset($row['ref'])){
@@ -311,18 +318,23 @@ class AppCreditsAPIController extends Controller
             }
             
             //create one positive TX for the account, create one negative TX for source (double entry)
-            list ($tx_item, $error_response) = DB::transaction(function() use ($amount, $credit_group, $get_account, $source, $ref) {
+            list ($tx_item, $error_response) = DB::transaction(function() use ($amount, $credit_group, $recipient_account, $source_account, $ref) {
                 $credit_amount = $amount;            
                 $debit_amount = 0 - $amount;
-                $credit_tx = AppCreditTransaction::newTX($credit_group->id, $get_account->id, $credit_amount, $ref);
+                $credit_tx = AppCreditTransaction::newTX($credit_group->id, $recipient_account->id, $credit_amount, $ref);
                 if(!$credit_tx){
                     return [null, Response::json(array('error' => 'Error saving credit transaction'), 500)];
                 }
-                $debit_tx = AppCreditTransaction::newTX($credit_group->id, $source, $debit_amount, $ref);
+                $debit_tx = AppCreditTransaction::newTX($credit_group->id, $source_account->id, $debit_amount, $ref);
                 if(!$debit_tx){
                     $credit_tx->delete();
                     return [null, Response::json(array('error' => 'Error saving debit entry for credit transaction'), 500)];
                 }
+
+                // send the events
+                event(new CreditsUpdated($recipient_account));
+                event(new CreditsUpdated($source_account));
+
                 return [array('credit' => $credit_tx->APIObject(), 'debit' => $debit_tx->APIObject()), null];
             });
             if ($error_response !== null) {
