@@ -146,7 +146,7 @@ class TCAMessengerAuthTest extends TestCase
         app()->instance(TCAMessengerAuth::class, $tca_messenger_auth_mock);
 
         // add the user to the chat so it can be removed
-        app(TCAMessengerRoster::class)->addUserToChat($user, $token_chat);
+        app(TCAMessengerRoster::class)->addUserToChat($user, $token_chat, 'member');
 
         // messages
         $tca_messenger_actions_mock = Mockery::mock(TCAMessengerActions::class, [Mockery::mock('Pubnub\Pubnub')->shouldIgnoreMissing()]);

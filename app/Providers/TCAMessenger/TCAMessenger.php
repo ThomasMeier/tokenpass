@@ -3,6 +3,7 @@
 namespace Tokenpass\Providers\TCAMessenger;
 
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Pubnub\Pubnub;
 use Tokenly\BvamApiClient\BVAMClient;
@@ -272,20 +273,26 @@ class TCAMessenger
 
     }
 
-    public function addUserToChat(User $user, TokenChat $token_chat) {
-        $channel_name            = $token_chat->getChannelName();
-        $chat_channel            = "chat-{$channel_name}";
-        $chat_presence_channel   = $chat_channel."-pnpres";
-        $chat_identities_channel = "identities-{$channel_name}";
+    public function addUserToChat(User $user, TokenChat $token_chat, $force=false) {
+        DB::transaction(function() use ($user, $token_chat, $force) {
+            $is_added = $this->tca_messenger_roster->userIsAddedToChat($user, $token_chat);
 
-        $auth = $this->tca_messenger_auth;
+            // do not add a user more than once
+            if ($is_added AND !$force) { return; }
 
-        // send identity
-        $this->tca_messenger_actions->sendIdentity($user, $token_chat);
+            // send identity
+            $role = 'member';
+            if ($token_chat['user_id'] == $user['id']) {
+                $role = 'creator';
+            }
+            $this->tca_messenger_actions->sendIdentity($user, $token_chat, $role);
 
-        // add to roster
-        $this->tca_messenger_roster->addUserToChat($user, $token_chat);
-
+            // delete first, then add to roster
+            if ($is_added) {
+                $this->tca_messenger_roster->removeUserFromChat($user, $token_chat);
+            }
+            $this->tca_messenger_roster->addUserToChat($user, $token_chat, $role);
+        });
     }
 
     public function removeUserFromChatIfAdded(User $user, TokenChat $token_chat) {

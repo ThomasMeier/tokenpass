@@ -25,10 +25,11 @@ class TCAMessengerRoster
     //     });
     // }
 
-    public function addUserToChat(User $user, TokenChat $token_chat) {
+    public function addUserToChat(User $user, TokenChat $token_chat, $role) {
         return DB::table('chat_rosters')->insert([
-            'user_id' => $user['id'],
-            'chat_id' => $token_chat['id'],
+            'user_id'    => $user['id'],
+            'chat_id'    => $token_chat['id'],
+            'role'       => $role,
             'updated_at' => time(),
         ]);
     }

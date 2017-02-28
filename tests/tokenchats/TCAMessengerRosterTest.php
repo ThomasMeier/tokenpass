@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Session;
 use Tokenpass\Events\AddressBalanceChanged;
+use Tokenpass\Providers\TCAMessenger\TCAMessenger;
 use Tokenpass\Providers\TCAMessenger\TCAMessengerActions;
 use Tokenpass\Providers\TCAMessenger\TCAMessengerAuth;
 use Tokenpass\Providers\TCAMessenger\TCAMessengerRoster;
@@ -15,6 +16,28 @@ class TCAMessengerRosterTest extends TestCase
 
     protected $use_database = true;
 
+    public function testCreateChatAddsOwnerAsCreator() {
+        app('TCAMessengerHelper')->mockAll();
+
+        // user
+        $user_helper       = app('UserHelper');
+        $token_chat_helper = app('TokenChatHelper');
+
+        $user = $user_helper->createRandomUser();
+        $token_chat = $token_chat_helper->createNewTokenChat($user);
+        $user_2 = $user_helper->createRandomUser();
+
+
+        $messenger = app(TCAMessenger::class);
+        $messenger->addUserToChat($user, $token_chat);
+        $messenger->addUserToChat($user_2, $token_chat);
+
+
+        $all_db_rows = DB::table('chat_rosters')->get();
+        PHPUnit::assertEquals('creator', $all_db_rows[0]->role);
+        PHPUnit::assertEquals('member', $all_db_rows[1]->role);
+    }
+
     public function testAddUserToRoster() {
         // user
         $user_helper       = app('UserHelper');
@@ -24,7 +47,7 @@ class TCAMessengerRosterTest extends TestCase
         $token_chat = $token_chat_helper->createNewTokenChat($user);
 
         $roster = app(TCAMessengerRoster::class);
-        $roster->addUserToChat($user, $token_chat);
+        $roster->addUserToChat($user, $token_chat, 'member');
 
         $this->verifyRoster([[$user, $token_chat]]);
     }
@@ -45,13 +68,15 @@ class TCAMessengerRosterTest extends TestCase
         $users[1] = $user_helper->createRandomUser();
 
         $roster = app(TCAMessengerRoster::class);
-        $roster->addUserToChat($users[0], $token_chats[0]);
-        $roster->addUserToChat($users[1], $token_chats[0]);
+        $roster->addUserToChat($users[0], $token_chats[0], 'member');
+        $roster->addUserToChat($users[1], $token_chats[0], 'creator');
 
         $roster_rows = $roster->loadChatRoster($token_chats[0]);
         PHPUnit::assertCount(2, $roster_rows);
         PHPUnit::assertEquals($users[0]['id'], $roster_rows[0]->user_id);
         PHPUnit::assertEquals($users[1]['id'], $roster_rows[1]->user_id);
+        PHPUnit::assertEquals('member', $roster_rows[0]->role);
+        PHPUnit::assertEquals('creator', $roster_rows[1]->role);
 
         PHPUnit::assertTrue($roster->userIsAddedToChat($users[0], $token_chats[0]));
         PHPUnit::assertTrue($roster->userIsAddedToChat($users[1], $token_chats[0]));
@@ -77,9 +102,9 @@ class TCAMessengerRosterTest extends TestCase
         $users[2] = $user_helper->createRandomUser();
 
         $roster = app(TCAMessengerRoster::class);
-        $roster->addUserToChat($users[0], $token_chats[0]);
-        $roster->addUserToChat($users[1], $token_chats[0]);
-        $roster->addUserToChat($users[2], $token_chats[0]);
+        $roster->addUserToChat($users[0], $token_chats[0], 'member');
+        $roster->addUserToChat($users[1], $token_chats[0], 'member');
+        $roster->addUserToChat($users[2], $token_chats[0], 'member');
 
         // remove 1 real user
         $roster->removeUserFromChat($users[1], $token_chats[1]); // doesn't exist

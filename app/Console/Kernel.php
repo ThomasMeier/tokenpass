@@ -36,6 +36,7 @@ class Kernel extends ConsoleKernel
 
         // messenger (dev)
         Commands\MessengerDev\DeleteChatByChannel::class,
+        Commands\MessengerDev\ResendChatOwnerIdentities::class,
 
         // Migration Commands
         Commands\Migrations\SyncUnmanagedAddressesWithXChain::class,

@@ -19,14 +19,14 @@ class TCAMessengerActions
     // ------------------------------------------------------------------------
     // Identities
 
-    public function sendIdentity(User $user, TokenChat $token_chat) {
+    public function sendIdentity(User $user, TokenChat $token_chat, $role) {
         $chat_identities_channel = "identities-".$token_chat->getChannelName();
         return $this->_publish($chat_identities_channel, [
             'action'    => 'identityJoined',
             'args'      => [
                 'chatId'    => $token_chat->getChannelName(),
                 'username'  => $user['username'],
-                'role'      => 'member',
+                'role'      => $role,
                 'avatar'    => null,
                 'publicKey' => $user->getECCPublicKey(),
             ]
