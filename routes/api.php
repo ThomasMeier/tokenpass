@@ -12,6 +12,12 @@ Route::match(['POST',   'OPTIONS'],     'api/v1/instant-verify/{username}', [
                                         'as'   => 'api.instant-verify',              
                                         'uses' => 'APIController@instantVerifyAddress']);
 
+
+Route::match(['GET',    'OPTIONS'],     'api/v1/perks/{token}', [
+                                        'as'   => 'api.token-perks',           
+                                        'uses' => 'PerksController@getPerks']);
+
+
 // requires client_id and signed request
 Route::group(['middleware' => 'oauth-client-guard'], function () {
 
