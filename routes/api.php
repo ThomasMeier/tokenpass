@@ -173,6 +173,10 @@ Route::group(['middleware' => 'oauth-user-guard:tca'], function () {
                                         'as'   => 'api.messenger.joinroster',  
                                         'uses' => 'MessengerAPIController@joinChat']);
 
+    // get chats
+    Route::match(['GET',    'OPTIONS'], 'api/v1/tca/messenger/chats', [
+                                        'as'   => 'api.messenger.getchats',  
+                                        'uses' => 'MessengerAPIController@getChats']);
     // Send a message to token holders
     // Route::match(['POST',   'OPTIONS'], 'api/v1/tca/messenger/broadcast', [
     //                                     'as'   => 'api.messenger.broadcast',         

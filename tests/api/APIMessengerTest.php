@@ -319,5 +319,63 @@ class APIMessengerTest extends TestCase {
 
     }
 
+    // ------------------------------------------------------------------------
+    // load chats
+
+    public function testGetChatsAPI() {
+        $user_helper = app('UserHelper')->setTestCase($this);
+        $address_helper = app('AddressHelper');
+        $token_chat_helper = app('TokenChatHelper');
+
+        // add test users and addresses
+        $user = $user_helper->createRandomUser();
+        $user1 = $user_helper->createRandomUser();
+        $user2 = $user_helper->createRandomUser();
+        $token_chat = $token_chat_helper->createNewTokenChat($user);
+        $other_token_chat = $token_chat_helper->createNewTokenChat($user2);
+        $global_token_chat = $token_chat_helper->createNewTokenChat($user, ['global' => true]);
+        $other_global_token_chat = $token_chat_helper->createNewTokenChat($user, ['global' => true, 'token' => 'OTHERTOKEN']);
+        $unauthorized_token_chat = $token_chat_helper->createNewTokenChat($user, ['global' => false, 'token' => 'OTHERTOKEN']);
+
+        // setup api client
+        $oauth_helper = app('OAuthClientHelper');
+        $oauth_client = $oauth_helper->createConnectedOAuthClientWithTCAScopes($user1);
+        $user_token = $oauth_helper->connectUserSession($user, $oauth_client);
+        $api_tester = app('OauthUserAPITester')->setToken($user_token);
+
+        $result = $api_tester->expectAuthenticatedResponse('GET', 'api.messenger.getchats');
+        PHPUnit::assertCount(4, $result);
+        PHPUnit::assertEquals($token_chat['uuid'], $result[0]['id']);
+
+        // $route_spec = ['api.messenger.chat.authorization', $token_chat->getChannelName()];
+        // PHPUnit::assertEquals([
+        //         'authorized'         => true,
+        //         'isGlobal'           => false,
+        //         'tokenAuthorization' => [
+        //             [
+        //                 'asset'  => 'MYCOIN',
+        //                 'amount' => CurrencyUtil::valueToSatoshis(10),
+        //             ]
+        //         ],
+        //     ], $result
+        // );
+
+        // $route_spec = ['api.messenger.chat.authorization', $global_token_chat->getChannelName()];
+        // $result = $api_tester->expectAuthenticatedResponse('GET', $route_spec);
+        // PHPUnit::assertEquals([
+        //         'authorized'         => true,
+        //         'isGlobal'           => true,
+        //         'tokenAuthorization' => [
+        //             [
+        //                 'asset'  => 'MYCOIN',
+        //                 'amount' => CurrencyUtil::valueToSatoshis(10),
+        //             ]
+        //         ],
+        //     ], $result
+        // );
+
+ 
+    }
+
 
 }

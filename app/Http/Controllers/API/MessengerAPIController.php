@@ -25,6 +25,13 @@ class MessengerAPIController extends Controller
     }
 
 
+    public function getChats(TCAMessenger $tca_messenger, TokenChatRepository $token_chat_repository, APIControllerHelper $api_controller_helper) {
+        $user = OAuthGuard::user();
+
+        $chat_models = $token_chat_repository->findAllByUser($user);
+        return $api_controller_helper->transformResourcesForOutput($chat_models);
+    }
+
     public function getChatPrivileges(TCAMessenger $tca_messenger, TokenChatRepository $token_chat_repository, APIControllerHelper $api_controller_helper, $chat_id)
     {
         $user = OAuthGuard::user();

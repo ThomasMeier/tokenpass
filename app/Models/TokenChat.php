@@ -5,12 +5,13 @@ namespace Tokenpass\Models;
 use Exception;
 use StephenHill\Base58;
 use StephenHill\GMPService;
+use Tokenly\CurrencyLib\CurrencyUtil;
 use Tokenly\LaravelApiProvider\Model\APIModel;
 use Tokenpass\Models\User;
 
 class TokenChat extends APIModel {
 
-    protected $api_attributes = ['id',];
+    protected $api_attributes = ['id','name','active','global','tokens',];
 
     protected $casts = [
         'tca_rules' => 'json',
@@ -42,5 +43,21 @@ class TokenChat extends APIModel {
 
     public function user() {
         return $this->belongsTo(User::class);
+    }
+
+    public function getTokensAttribute() {
+        $tokens = [];
+
+        // insert rules if active
+        $tca_rules = $this['tca_rules'];
+        if ($tca_rules) {
+            foreach ($tca_rules as $tca_rule) {
+                if (strlen($tca_rule['asset'])) {
+                    $tokens[$tca_rule['asset']] = CurrencyUtil::satoshisToValue($tca_rule['amount']);
+                }
+            }
+        }
+
+        return $tokens;
     }
 }
