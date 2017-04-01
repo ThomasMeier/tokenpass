@@ -39,10 +39,6 @@ Route::group(['middleware' => 'oauth-client-guard'], function () {
                                         'as'   => 'api.lookup.addresses',            
                                         'uses' => 'APILookupsController@lookupMultipleUsersByAddresses']);
                                         
-    Route::match(['GET',    'OPTIONS'], 'api/v1/lookup/user/exists/{username}', [
-                                        'as'   => 'api.lookup.user.check-exists',
-                                        'uses' => 'APILookupsController@checkUserExists']);                    
-                                        
     Route::match(['GET',    'OPTIONS'], 'api/v1/lookup/user/{username}', [
                                         'as'   => 'api.lookup.user',                 
                                         'uses' => 'APILookupsController@lookupAddressByUser']);
@@ -248,4 +244,10 @@ Route::group(['middleware' => 'api.protectedAuth'], function () {
     Route::match(['GET', 'OPTIONS'],    'api/v1/tca/users', [
                                         'as'   => 'api.tca.usersbytca',              
                                         'uses' => 'APITCAController@findUsersByTCARules']);
+
+    Route::match(['GET', 'OPTIONS'],    'api/v1/lookup/user/exists/{username}', [
+                                        'as'   => 'api.lookup.user.check-exists',
+                                        'uses' => 'APILookupsController@checkUserExists']);
+                                        
+
 });
