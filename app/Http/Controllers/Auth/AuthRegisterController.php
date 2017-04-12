@@ -89,13 +89,6 @@ class AuthRegisterController extends BaseAuthController
             );
         }
 
-        // we can't create a new user with an existing LTB username
-        $loader = app('Tokenpass\Providers\CMSAuth\CMSAccountLoader');
-        if ($loader->usernameExists($register_vars['username'])) {
-            $register_error = 'This username was found at LetsTalkBitcoin.com.  Please login with your existing credentials instead of creating a new account.';
-            throw new HttpResponseException($this->buildFailedValidationResponse($request, ['username' => $register_error]));
-        }
-
 
         $new_user = $this->create($request->all());
         event(new UserRegistered($new_user));

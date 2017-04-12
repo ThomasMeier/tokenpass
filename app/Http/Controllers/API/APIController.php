@@ -234,12 +234,6 @@ class APIController extends Controller
             $data['name'] = $input['name'];
         }   
         
-        // we can't create a new user with an existing LTB username
-        $loader = app('Tokenpass\Providers\CMSAuth\CMSAccountLoader');
-        if ($loader->usernameExists($data['username'])) {
-            $error = true;
-            $output['error'] = 'This username was found at LetsTalkBitcoin.com.  Please login with your existing credentials instead of creating a new account.';
-        }   
         
         $find_user = User::where('email', $data['email'])->orWhere('username', $data['username'])->first();
         if($find_user){
