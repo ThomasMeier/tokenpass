@@ -316,8 +316,43 @@ class APIMessengerTest extends TestCase {
                 'tokenAuthorization' => [],
             ], $result
         );
-
     }
+
+    // TODO
+    // public function testMessengerAuthorizationWithMultipleTokensAPI() {
+    //     $user_helper = app('UserHelper')->setTestCase($this);
+    //     $address_helper = app('AddressHelper');
+    //     $token_chat_helper = app('TokenChatHelper');
+
+    //     // add test users and addresses
+    //     $user = $user_helper->createRandomUser();
+    //     $user1 = $user_helper->createRandomUser();
+    //     $token_chat = $token_chat_helper->createNewTokenChat($user);
+
+    //     // add MYCOIN to user
+    //     $address_helper->addBalancesToAddress(['MYCOIN' => 50], $address_helper->createNewAddress($user1));
+
+    //     // setup api client
+    //     $oauth_helper = app('OAuthClientHelper');
+    //     $oauth_client = $oauth_helper->createConnectedOAuthClientWithTCAScopes($user1);
+    //     $user1_token = $oauth_helper->connectUserSession($user1, $oauth_client);
+    //     $api_tester = app('OauthUserAPITester')->setToken($user1_token);
+
+    //     $route_spec = ['api.messenger.chat.authorization', $token_chat->getChannelName()];
+    //     $result = $api_tester->expectAuthenticatedResponse('GET', $route_spec);
+    //     PHPUnit::assertEquals([
+    //             'authorized'         => true,
+    //             'isGlobal'           => false,
+    //             'tokenAuthorization' => [
+    //                 [
+    //                     'asset'  => 'MYCOIN',
+    //                     'amount' => CurrencyUtil::valueToSatoshis(10),
+    //                 ]
+    //             ],
+    //         ], $result
+    //     );
+    // }
+
 
     // ------------------------------------------------------------------------
     // load chats

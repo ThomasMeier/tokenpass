@@ -3,9 +3,11 @@
 namespace Tokenpass\Providers\TCAMessenger;
 
 use Exception;
+use InvalidArgumentException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Pubnub\Pubnub;
+use Tokenly\AssetNameUtils\Validator as AssetValidator;
 use Tokenly\BvamApiClient\BVAMClient;
 use Tokenly\CurrencyLib\CurrencyUtil;
 use Tokenly\LaravelEventLog\Facade\EventLog;
@@ -76,6 +78,31 @@ class TCAMessenger
 
         return $users;
 
+    }
+
+    public function makeSimpleTCAStackFromSerializedInput($serialized_input) {
+        $stack = [];
+        foreach($serialized_input as $serialized_tca_rule) {
+            if (!isset($serialized_tca_rule['quantity']) OR !isset($serialized_tca_rule['token'])) { continue; }
+            if (!strlen($serialized_tca_rule['quantity']) AND !strlen($serialized_tca_rule['token'])) { continue; }
+
+            $amount = CurrencyUtil::valueToSatoshis($serialized_tca_rule['quantity']);
+            if ($amount <= 0) {
+                throw new InvalidArgumentException("Invalid quantity");
+            }
+            $token = $serialized_tca_rule['token'];
+            if (!AssetValidator::isValidAssetName($token)) {
+                throw new InvalidArgumentException("Invalid token name");
+            }
+
+            $stack[] = [
+                'asset'   => $token,
+                'amount'  => $amount,
+                'op'      => '>=',
+                'stackOp' => 'AND',
+            ];
+        }
+        return $stack;
     }
 
     public function makeSimpleTCAStack($quantity, $token) {

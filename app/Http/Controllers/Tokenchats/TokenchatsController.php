@@ -3,6 +3,7 @@
 namespace Tokenpass\Http\Controllers\Tokenchats;
 
 use Exception;
+use InvalidArgumentException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -49,20 +50,27 @@ class TokenchatsController extends Controller
         try {
             $rules = [
                 'name'     => 'required|max:255',
-                'quantity' => $is_global ? 'in:' : 'required|numeric|not_in:0',
-                'token'    => $is_global ? 'in:' : 'required|token',
+                // 'quantity' => $is_global ? 'in:' : 'required|numeric|not_in:0',
+                // 'token'    => $is_global ? 'in:' : 'required|token',
+                'tca_rules'   => 'sometimes|max:2048',
                 'global'   => 'sometimes|boolean',
             ];
             $this->validate($request, $rules);
+
+            $tca_rules = [];
+            if (!$is_global AND isset($input['tca_rules'])) {
+                $tca_rules = $tca_messenger->makeSimpleTCAStackFromSerializedInput(is_array($input['tca_rules']) ? $input['tca_rules'] : json_decode($input['tca_rules'], true));
+            }
+            if (!$is_global AND !$tca_rules) {
+                throw new InvalidArgumentException('Non-global chats require one or more access tokens');
+            }
+        } catch (InvalidArgumentException $e) {
+            return $this->ajaxEnabledErrorResponse($e->getMessage(), route('tokenchats.index'), 422);
         } catch (ValidationException $e) {
             return $this->returnInvalidResponse($e);
         }
 
         // create a new chat
-        $tca_rules = [];
-        if (!$is_global) {
-            $tca_rules = $tca_messenger->makeSimpleTCAStack($input['quantity'], $input['token']);
-        }
         $token_chat = $token_chat_repository->create([
             'user_id'   => $user['id'],
             'name'      => $input['name'],
@@ -102,12 +110,24 @@ class TokenchatsController extends Controller
         try {
             $rules = [
                 // 'name'     => 'required|max:255',
-                'quantity' => $is_global ? 'in:' : 'required|numeric|not_in:0',
-                'token'    => $is_global ? 'in:' : 'required|token',
-                'active'   => 'required|boolean',
-                'global'   => 'sometimes|boolean',
+                // 'quantity' => $is_global ? 'in:' : 'required|numeric|not_in:0',
+                // 'token'    => $is_global ? 'in:' : 'required|token',
+                'tca_rules'   => 'sometimes|max:2048',
+                'active'      => 'required|boolean',
+                'global'      => 'sometimes|boolean',
             ];
             $this->validate($request, $rules);
+
+            $tca_rules = [];
+            if (!$is_global AND isset($input['tca_rules'])) {
+                $tca_rules = $tca_messenger->makeSimpleTCAStackFromSerializedInput(is_array($input['tca_rules']) ? $input['tca_rules'] : json_decode($input['tca_rules'], true));
+            }
+            if (!$is_global AND !$tca_rules) {
+                throw new InvalidArgumentException('Non-global chats require one or more access tokens');
+            }
+
+        } catch (InvalidArgumentException $e) {
+            return $this->ajaxEnabledErrorResponse($e->getMessage(), route('tokenchats.index'), 422);
         } catch (ValidationException $e) {
             return $this->returnInvalidResponse($e);
         }
@@ -115,7 +135,6 @@ class TokenchatsController extends Controller
         $input = $request->input();
 
         // edit the chat
-        $tca_rules = $tca_messenger->makeSimpleTCAStack($input['quantity'], $input['token']);
         $token_chat_repository->update($chat_model, [
             // 'name'      => $input['name'],
             'tca_rules' => $tca_rules,

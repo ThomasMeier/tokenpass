@@ -54,13 +54,17 @@ class TokenChatsTest extends TestCase
         ];
         $response = $this->call('POST', route('tokenchats.create'), $vars);
         $this->assertEquals(302, $response->getStatusCode());
-        $this->assertContains('token field is required', Session::get('message'));
+        $this->assertContains('Non-global chats require one or more access tokens', Session::get('message'));
 
         // add a new chat
         $vars = [
             'name'     => 'My New Chat',
-            'token'    => 'MYCOIN',
-            'quantity' => 10,
+            'tca_rules' => [
+                [
+                    'token'    => 'MYCOIN',
+                    'quantity' => 10,
+                ],
+            ],
         ];
         $response = $this->call('POST', route('tokenchats.create'), $vars);
         $this->assertEquals(302, $response->getStatusCode(), "Failed with error ".Session::get('message'));
@@ -92,16 +96,24 @@ class TokenChatsTest extends TestCase
         $token_chat_repository = app('Tokenpass\Repositories\TokenChatRepository');
         $vars = [
             'name'     => 'My New Chat',
-            'token'    => 'MYCOIN',
-            'quantity' => 10,
+            'tca_rules' => [
+                [
+                    'token'    => 'MYCOIN',
+                    'quantity' => 10,
+                ],
+            ],
         ];
         $response = $this->call('POST', route('tokenchats.create'), $vars);
         $this->assertContains('Token Chat created', Session::get('message'));
 
         $vars = [
             'name'     => 'My New Chat EDITED',
-            'token'    => 'OTHERCOIN',
-            'quantity' => 11,
+            'tca_rules' => [
+                [
+                    'token'    => 'OTHERCOIN',
+                    'quantity' => 11,
+                ],
+            ],
             'active'   => false,
         ];
         $chat = $token_chat_repository->findAll()->first();
@@ -154,8 +166,12 @@ class TokenChatsTest extends TestCase
         $token_chat_repository = app('Tokenpass\Repositories\TokenChatRepository');
         $vars = [
             'name'     => 'My New Chat',
-            'token'    => 'MYCOIN',
-            'quantity' => 10,
+            'tca_rules' => [
+                [
+                    'token'    => 'MYCOIN',
+                    'quantity' => 10,
+                ],
+            ],
         ];
         $response = $this->call('POST', route('tokenchats.create'), $vars);
         $this->assertContains('Token Chat created', Session::get('message'));
@@ -163,8 +179,12 @@ class TokenChatsTest extends TestCase
         // add a new chat
         $vars = [
             'name'     => 'My New Chat 2',
-            'token'    => 'MYCOINTWO',
-            'quantity' => 10,
+            'tca_rules' => [
+                [
+                    'token'    => 'MYCOINTWO',
+                    'quantity' => 10,
+                ],
+            ],
         ];
         $response = $this->call('POST', route('tokenchats.create'), $vars);
         $this->assertContains('Token Chat created', Session::get('message'));
