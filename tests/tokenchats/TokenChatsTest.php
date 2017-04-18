@@ -79,7 +79,7 @@ class TokenChatsTest extends TestCase
             'asset'   => 'MYCOIN',
             'amount'  => 1000000000,
             'op'      => '>=',
-            'stackOp' => 'AND',
+            'stackOp' => 'OR',
         ]], $chats[0]['tca_rules']);
 
     }
@@ -129,7 +129,7 @@ class TokenChatsTest extends TestCase
             'asset'   => 'OTHERCOIN',
             'amount'  => 1100000000,
             'op'      => '>=',
-            'stackOp' => 'AND',
+            'stackOp' => 'OR',
         ]], $chats[0]['tca_rules']);
 
     }

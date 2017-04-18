@@ -99,7 +99,7 @@ class TCAMessenger
                 'asset'   => $token,
                 'amount'  => $amount,
                 'op'      => '>=',
-                'stackOp' => 'AND',
+                'stackOp' => 'OR',
             ];
         }
         return $stack;

@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Log;
 use Tokenpass\Models\User;
+use Tokenpass\Providers\TCAMessenger\TCAMessenger;
+use Tokenpass\Repositories\TokenChatRepository;
 
 /*
 * TokenChatHelper
@@ -23,7 +25,7 @@ class TokenChatHelper
 
         $token_chat_vars = $this->processTCARules($token_chat_vars);
 
-        $token_chat = app('Tokenpass\Repositories\TokenChatRepository')->create($token_chat_vars);
+        $token_chat = app(TokenChatRepository::class)->create($token_chat_vars);
 
         return $token_chat;
     }
@@ -39,8 +41,12 @@ class TokenChatHelper
     }
 
     protected function processTCARules($token_chat_vars) {
-        $tca_messenger = app('Tokenpass\Providers\TCAMessenger\TCAMessenger');
-        $tca_rules = $tca_messenger->makeSimpleTCAStack($token_chat_vars['quantity'], $token_chat_vars['token']);
+        $tca_messenger = app(TCAMessenger::class);
+        if (isset($token_chat_vars['tca_rules'])) {
+            $tca_rules = $tca_messenger->makeSimpleTCAStackFromSerializedInput($token_chat_vars['tca_rules']);
+        } else {
+            $tca_rules = $tca_messenger->makeSimpleTCAStack($token_chat_vars['quantity'], $token_chat_vars['token']);
+        }
 
         $token_chat_vars['tca_rules'] = $tca_rules;
         unset($token_chat_vars['token']);

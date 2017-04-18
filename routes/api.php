@@ -239,12 +239,14 @@ Route::match(['POST',   'OPTIONS'],     'api/v1/login', [
                                         'uses' => 'APIController@loginWithUsernameAndPassword']);
 
 
-// privileged client endpoint - finds all public and protected usernames/user ids by TCA rules
+// privileged client endpoints
 Route::group(['middleware' => 'api.protectedAuth'], function () {
+    // finds all usernames and user ids by TCA rules - uses public and protected balances
     Route::match(['GET', 'OPTIONS'],    'api/v1/tca/users', [
                                         'as'   => 'api.tca.usersbytca',              
                                         'uses' => 'APITCAController@findUsersByTCARules']);
 
+    // determine if a user exists
     Route::match(['GET', 'OPTIONS'],    'api/v1/lookup/user/exists/{username}', [
                                         'as'   => 'api.lookup.user.check-exists',
                                         'uses' => 'APILookupsController@checkUserExists']);
