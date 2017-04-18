@@ -90,31 +90,4 @@ class MessengerAPIController extends Controller
         return $api_controller_helper->transformValueForOutput($response);
     }
 
-    // public function broadcast(Request $request, TCAMessenger $tca_messenger, APIControllerHelper $api_controller_helper) {
-    //     $user = OAuthGuard::user();
-
-    //     $rules = [
-    //         'quantity' => 'required|numeric|not_in:0',
-    //         'token'    => 'required|token',
-    //         'message'  => 'required|max:30000',
-    //     ];
-    //     $this->validate($request, $rules);
-    //     $attributes = $request->only(array_keys($rules));
-
-    //     if (env('DEBUG_ANYONE_CAN_SEND_TOKEN', null) == $attributes['token']) {
-    //         Log::debug("DEBUG: allowing anyone to send to token {$attributes['token']}.");
-    //     } else if (!$tca_messenger->userCanSendMessages($user, $attributes['token'])) {
-    //         return $api_controller_helper->newJsonResponseWithErrors('You are not authorized to send to holders of this token.', 403);
-    //     }
-
-    //     $count = $tca_messenger->broadcast($attributes['quantity'], $attributes['token'], $attributes['message']);
-    //     return $api_controller_helper->transformValueForOutput([
-    //         'success' => true,
-    //         'count'   => $count,
-    //     ]);
-    // }
-
-    // ------------------------------------------------------------------------
-    
-
 }
