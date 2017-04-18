@@ -114,15 +114,6 @@ Route::get('dashboard', [
     'uses'       => 'Accounts\DashboardController@getDashboard'
 ]);
 
-// launch TCA messenger interface
-Route::get('messenger', [
-    'as'         => 'user.messenger',
-    'middleware' => ['auth'],
-    'uses'       => 'Messenger\MessengerLaunchController@launch',
-]);
-
-
-
 // -------------------------------------------------------------------------
 // oAuth routes
 
