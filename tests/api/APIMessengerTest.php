@@ -475,5 +475,107 @@ class APIMessengerTest extends TestCase {
 
     }
 
+    // ------------------------------------------------------------------------
+    
+    public function testCreateChatAPI() {
+        $user_helper       = app('UserHelper')->setTestCase($this);
+        $address_helper    = app('AddressHelper');
+        $token_chat_helper = app('TokenChatHelper');
+        app('TCAMessengerHelper')->mockAll();
+
+        $user = $user_helper->createRandomUser();
+
+        // setup api client
+        $oauth_helper = app('OAuthClientHelper');
+        $oauth_client = $oauth_helper->createConnectedOAuthClientWithTCAScopes($user);
+        $user_token = $oauth_helper->connectUserSession($user, $oauth_client);
+        $api_tester = app('OauthUserAPITester')->setToken($user_token);
+
+        // create a chat
+        $result = $api_tester->expectAuthenticatedResponse('POST', 'api.messenger.chat.create', $token_chat_helper->getSampleCreateChatPostVars());
+        PHPUnit::assertNotEmpty($result);
+
+        PHPUnit::assertEquals([
+            'COINONE' => 1,
+        ], $result['tokens']);
+        PHPUnit::assertEquals('API Chat One', $result['name']);
+    }
+
+    public function testEditChatAPI() {
+        $user_helper       = app('UserHelper')->setTestCase($this);
+        $address_helper    = app('AddressHelper');
+        $token_chat_helper = app('TokenChatHelper');
+        app('TCAMessengerHelper')->mockAll();
+
+        $user = $user_helper->createRandomUser();
+
+        // create a chat
+        $token_chat = $token_chat_helper->createNewTokenChat($user, ['tca_rules' => [
+            [
+                'token'    => 'COINONE',
+                'quantity' => 1,
+            ],
+        ]]);
+
+        // setup api client
+        $oauth_helper = app('OAuthClientHelper');
+        $oauth_client = $oauth_helper->createConnectedOAuthClientWithTCAScopes($user);
+        $user_token = $oauth_helper->connectUserSession($user, $oauth_client);
+        $api_tester = app('OauthUserAPITester')->setToken($user_token);
+
+        // edit a chat
+        $edit_vars = ['tca_rules' => [
+            [
+                'token'    => 'COINONE',
+                'quantity' => 1,
+            ],
+            [
+                'token'    => 'COINTWO',
+                'quantity' => 2,
+            ],
+        ]];
+        $result = $api_tester->expectAuthenticatedResponse('POST', ['api.messenger.chat.edit', ['chatId' => $token_chat['uuid']]], $edit_vars);
+        PHPUnit::assertNotEmpty($result);
+
+        PHPUnit::assertEquals([
+            'COINONE' => 1,
+            'COINTWO' => 2,
+        ], $result['tokens']);
+        PHPUnit::assertEquals('My New Chat', $result['name']);
+    }
+
+
+    public function testGetGetChatAPI() {
+        $user_helper       = app('UserHelper')->setTestCase($this);
+        $address_helper    = app('AddressHelper');
+        $token_chat_helper = app('TokenChatHelper');
+
+        $user = $user_helper->createRandomUser();
+
+        // create a chat
+        $token_chat = $token_chat_helper->createNewTokenChat($user, ['tca_rules' => [
+            [
+                'token'    => 'COINONE',
+                'quantity' => 1,
+            ],
+        ]]);
+
+        // setup api client
+        $oauth_helper = app('OAuthClientHelper');
+        $oauth_client = $oauth_helper->createConnectedOAuthClientWithTCAScopes($user);
+        $user_token = $oauth_helper->connectUserSession($user, $oauth_client);
+        $api_tester = app('OauthUserAPITester')->setToken($user_token);
+
+        // get the chat
+        $result = $api_tester->expectAuthenticatedResponse('GET', ['api.messenger.chat.get', ['chatId' => $token_chat['uuid']]]);
+        PHPUnit::assertNotEmpty($result);
+
+        PHPUnit::assertEquals([
+            'COINONE' => 1,
+        ], $result['tokens']);
+        PHPUnit::assertEquals('My New Chat', $result['name']);
+    }
+
+
 
 }

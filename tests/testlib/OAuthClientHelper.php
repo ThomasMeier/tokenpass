@@ -149,6 +149,14 @@ class OAuthClientHelper
                 'id'          => 'private-balances',
                 'description' => 'Private Balances',
             ],
+            [
+                'id'          => 'chats',
+                'description' => 'Read and Join Chats',
+            ],
+            [
+                'id'          => 'manage-chats',
+                'description' => 'Create, Edit and Delete Chats',
+            ],
         ];
     }
 

@@ -214,6 +214,21 @@ class TCAMessenger
         return $this->userIDIsAuthorized($user['id'], $token_chat['tca_rules']);
     }
 
+    public function onChatLifecycle(TokenChat $token_chat) {
+        if ($token_chat['active']) {
+            // authorize the chat
+            $this->authorizeChat($token_chat);
+        } else {
+            // deauthorize the users
+            $this->removeChat($token_chat);
+        }
+    }
+
+    public function onChatDeleted(TokenChat $token_chat) {
+        // deauthorize the users
+        $this->removeChat($token_chat);
+    }
+
 
     // ------------------------------------------------------------------------
 

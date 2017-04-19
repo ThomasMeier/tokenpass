@@ -80,9 +80,7 @@ class TokenchatsController extends Controller
         ]);
 
         // authorize the chat
-        if ($token_chat['active']) {
-            $tca_messenger->authorizeChat($token_chat);
-        }
+        $tca_messenger->onChatLifecycle($token_chat);
 
         return $this->ajaxEnabledSuccessResponse('New Token Chat created.', route('tokenchats.index'));
     }
@@ -142,13 +140,7 @@ class TokenchatsController extends Controller
         ]);
 
         // authorize the chat
-        if ($chat_model['active']) {
-            $tca_messenger->authorizeChat($chat_model);
-        } else {
-            // the chat is no longer active...
-            // deauthorize the users
-            $tca_messenger->removeChat($chat_model);
-        }
+        $tca_messenger->onChatLifecycle($chat_model);
 
         return $this->ajaxEnabledSuccessResponse('Token Chat updated.', route('tokenchats.index'));
     }
@@ -164,7 +156,7 @@ class TokenchatsController extends Controller
         }
 
         // deauthorize the chat for everyone
-        $tca_messenger->removeChat($chat_model);
+        $tca_messenger->onChatDeleted($chat_model);
 
         $token_chat_repository->delete($chat_model);
 

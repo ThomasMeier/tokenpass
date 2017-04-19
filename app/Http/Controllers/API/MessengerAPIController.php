@@ -90,4 +90,109 @@ class MessengerAPIController extends Controller
         return $api_controller_helper->transformValueForOutput($response);
     }
 
+    public function createChat(Request $request, TCAMessenger $tca_messenger, TokenChatRepository $token_chat_repository, APIControllerHelper $api_controller_helper) {
+        $user = OAuthGuard::user();
+
+        $input = $this->validateChatAttributes($request, $api_controller_helper, [
+            'name'      => 'required',
+            'active'    => 'sometimes|boolean',
+            'global'    => 'sometimes|boolean',
+            'tca_rules' => 'sometimes|max:2048',
+        ]);
+
+        // create the chat
+        $new_chat = $token_chat_repository->create(array_merge($input, [
+            'user_id'   => $user['id'],
+        ]));
+
+        // update the chat
+        $tca_messenger->onChatLifecycle($new_chat);
+
+        // return the chat
+        return $api_controller_helper->transformResourceForOutput($new_chat);
+    }
+
+    public function updateChat($uuid, Request $request, TCAMessenger $tca_messenger, TokenChatRepository $token_chat_repository, APIControllerHelper $api_controller_helper) {
+        $user = OAuthGuard::user();
+        $token_chat = $api_controller_helper->requireResourceOwnedByUser($uuid, $user, $token_chat_repository);
+
+        // validate
+        $input = $this->validateChatAttributes($request, $api_controller_helper, [
+            'active'    => 'sometimes|boolean',
+            'global'    => 'sometimes|boolean',
+            'tca_rules' => 'sometimes|max:2048',
+        ]);
+
+        // edit the chat
+        $token_chat_repository->update($token_chat, $input);
+
+        // update the chat
+        $tca_messenger->onChatLifecycle($token_chat);
+
+        // return the chat
+        return $api_controller_helper->transformResourceForOutput($token_chat);
+    }
+
+    // public function deleteChat($uuid, Request $request, TokenChatRepository $token_chat_repository, APIControllerHelper $api_controller_helper) {
+    //     $user = OAuthGuard::user();
+    //     $token_chat = $api_controller_helper->requireResourceOwnedByUser($uuid, $user, $token_chat_repository);
+
+    //     // delete the chat
+    //     $token_chat_repository->delete($token_chat);
+
+    //     // update the privileges
+    //     $tca_messenger->onChatDeleted($token_chat);
+
+    //     // return nothing
+    //     return $api_controller_helper->transformValueForOutput([]);
+    // }
+
+    public function getChat($uuid, Request $request, TokenChatRepository $token_chat_repository, APIControllerHelper $api_controller_helper) {
+        $user = OAuthGuard::user();
+        $token_chat = $api_controller_helper->requireResourceOwnedByUser($uuid, $user, $token_chat_repository);
+
+        // return the chat
+        return $api_controller_helper->transformResourceForOutput($token_chat);
+    }
+
+    // ------------------------------------------------------------------------
+
+    protected function validateChatAttributes(Request $request, APIControllerHelper $api_controller_helper, $validation_rules) {
+        $tca_messenger = app(TCAMessenger::class);
+
+        $this->validate($request, $validation_rules);
+        $attributes = $request->only(array_keys($validation_rules));
+
+        $is_global = false;
+        if (isset($attributes['global'])) {
+            $is_global = $attributes['global'];
+            if ($is_global) {
+                $api_controller_helper->requirePermission($user, 'globalChats', 'create global chats');
+            }
+        }
+        $attributes['global'] = $is_global;
+
+        try {
+            $tca_rules = [];
+            if (!$is_global AND isset($attributes['tca_rules'])) {
+                $tca_rules = $tca_messenger->makeSimpleTCAStackFromSerializedInput(is_array($attributes['tca_rules']) ? $attributes['tca_rules'] : json_decode($attributes['tca_rules'], true));
+            }
+            $attributes['tca_rules'] = $tca_rules;
+            if (!$is_global AND !$tca_rules) {
+                throw $api_controller_helper->buildJSONResponseException('Non-global chats require one or more access tokens', 422);
+            }
+        } catch (InvalidArgumentException $e) {
+            throw $api_controller_helper->buildJSONResponseException($e->getMessage(), 422);
+        }
+
+        // remove null attributes
+        $filtered_attributes = [];
+        foreach (array_keys($attributes) as $key) {
+            if (!is_null($attributes[$key])) {
+                $filtered_attributes[$key] = $attributes[$key];
+            }
+        }
+        return $filtered_attributes;
+    }
+
 }

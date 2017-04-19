@@ -40,6 +40,19 @@ class TokenChatHelper
         ];
     }
 
+    public function getSampleCreateChatPostVars() {
+        return [
+            'name'     => 'API Chat One',
+            'tca_rules' => [
+                [
+                    'token'    => 'COINONE',
+                    'quantity' => 1,
+                ],
+            ],
+            'active'   => true,
+        ];
+    }
+
     protected function processTCARules($token_chat_vars) {
         $tca_messenger = app(TCAMessenger::class);
         if (isset($token_chat_vars['tca_rules'])) {

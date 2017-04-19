@@ -153,7 +153,7 @@ Route::group(['middleware' => 'oauth-user-guard:tca'], function () {
                                         'uses' => 'AddressesAPIController@getPrivateAddressDetails']);
 });
 
-Route::group(['middleware' => 'oauth-user-guard:tca'], function () {
+Route::group(['middleware' => 'oauth-user-guard:chats'], function () {
     // check messenger privileges for a token
     Route::match(['GET',    'OPTIONS'], 'api/v1/tca/messenger/privileges/{token}', [
                                         'as'   => 'api.messenger.token.privileges',  
@@ -174,6 +174,25 @@ Route::group(['middleware' => 'oauth-user-guard:tca'], function () {
                                         'as'   => 'api.messenger.getchats',  
                                         'uses' => 'MessengerAPIController@getChats']);
 
+});
+
+Route::group(['middleware' => 'oauth-user-guard:manage-chats'], function () {
+    // get information about a managed chat
+    Route::match(['GET',    'OPTIONS'], 'api/v1/chat/{chatId}', [
+                                        'as'   => 'api.messenger.chat.get',  
+                                        'uses' => 'MessengerAPIController@getChat']);
+    // create a chat
+    Route::match(['POST',   'OPTIONS'], 'api/v1/chats', [
+                                        'as'   => 'api.messenger.chat.create',  
+                                        'uses' => 'MessengerAPIController@createChat']);
+
+    // edit a chat
+    Route::match(['POST',   'OPTIONS'], 'api/v1/chat/{chatId}', [
+                                        'as'   => 'api.messenger.chat.edit',
+                                        'uses' => 'MessengerAPIController@updateChat']);
+
+    // delete a chat
+    // TODO
 });
 
 Route::group(['middleware' => 'oauth-user-guard:manage-address'], function () {
