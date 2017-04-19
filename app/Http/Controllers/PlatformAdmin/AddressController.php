@@ -2,11 +2,12 @@
 
 namespace Tokenpass\Http\Controllers\PlatformAdmin;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Tokenpass\Repositories\AddressRepository;
-use Tokenly\PlatformAdmin\Controllers\ResourceController;
 use Input;
+use Tokenly\PlatformAdmin\Controllers\ResourceController;
 use Tokenpass\Models\User;
+use Tokenpass\Repositories\AddressRepository;
 use Tokenpass\Repositories\UserRepository;
 
 class AddressController extends ResourceController
@@ -37,7 +38,7 @@ class AddressController extends ResourceController
         ];
     }    
 
-    public function index()
+    public function index(Request $request)
     {
         $username = trim(Input::get('username'));
         if($username AND $username != ''){

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "bc950a3b49972affd3d5084e1bafe42f",
+    "content-hash": "ef8cd5a2f237d56136264a84e9cd3ecb",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -4563,16 +4563,16 @@
         },
         {
             "name": "tokenly/laravel-api-provider",
-            "version": "dev-master",
+            "version": "v1.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tokenly/laravel-api-provider.git",
-                "reference": "f05f0ac9448ce69a00155a1c911a5e6fa1cee9b3"
+                "reference": "d0fab6f4faa3bcd250c131e813f9e0bd221fa8a4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tokenly/laravel-api-provider/zipball/f05f0ac9448ce69a00155a1c911a5e6fa1cee9b3",
-                "reference": "f05f0ac9448ce69a00155a1c911a5e6fa1cee9b3",
+                "url": "https://api.github.com/repos/tokenly/laravel-api-provider/zipball/d0fab6f4faa3bcd250c131e813f9e0bd221fa8a4",
+                "reference": "d0fab6f4faa3bcd250c131e813f9e0bd221fa8a4",
                 "shasum": ""
             },
             "require": {
@@ -4603,7 +4603,7 @@
                 }
             ],
             "description": "An API service provider for Laravel",
-            "time": "2017-03-08 16:57:14"
+            "time": "2017-04-18T15:49:20+00:00"
         },
         {
             "name": "tokenly/laravel-event-log",
@@ -4648,16 +4648,16 @@
         },
         {
             "name": "tokenly/platform-admin",
-            "version": "v0.1.2",
+            "version": "v0.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tokenly/platform-admin.git",
-                "reference": "af9abc384ed6ff2568f21c859732572fe6f5a36c"
+                "reference": "e6bef8063492ec3e9748b809ac4279d0aaac668b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tokenly/platform-admin/zipball/af9abc384ed6ff2568f21c859732572fe6f5a36c",
-                "reference": "af9abc384ed6ff2568f21c859732572fe6f5a36c",
+                "url": "https://api.github.com/repos/tokenly/platform-admin/zipball/e6bef8063492ec3e9748b809ac4279d0aaac668b",
+                "reference": "e6bef8063492ec3e9748b809ac4279d0aaac668b",
                 "shasum": ""
             },
             "require": {
@@ -4687,7 +4687,7 @@
                 }
             ],
             "description": "A platform administration module for Tokenly services",
-            "time": "2016-09-23T12:25:14+00:00"
+            "time": "2017-03-08T17:55:43+00:00"
         },
         {
             "name": "tokenly/token-controlled-access",
@@ -6199,7 +6199,6 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "lucadegasperi/oauth2-server-laravel": 20,
-        "tokenly/laravel-api-provider": 20,
         "tokenly/consul-health-daemon": 20,
         "tokenly/token-controlled-access": 20,
         "tokenly/bvam-api-client": 20

@@ -62,7 +62,7 @@ class ConnectedApplicationsController extends ResourceController
         return $view_data;
     }
     
-    public function index()
+    public function index(Request $request)
     {
         
         $client_id = Input::get('client_id');

@@ -6,10 +6,8 @@ header {
     font-size: 1.5rem;
 }
 
-.error-panel {
-  background-color: #A51515;
+.error-panel, .info-panel {
   padding: 3% 3%;
-
 
   color: white;
   border-radius: 6px;
@@ -18,8 +16,15 @@ header {
   margin-bottom: 1.8%;
 }
 
-.error-panel h5.heading {
+.error-panel h5.heading, .info-panel h5.heading {
   margin-bottom: 0.5rem;
+}
+
+.error-panel {
+  background-color: #a51515;
+}
+.info-panel {
+  background-color: #1eaedb;
 }
 
 nav > a {
@@ -46,4 +51,15 @@ nav > a.active {
 nav > a.brand {
   font-weight: bold;
   font-size: 1.6rem;
+}
+
+
+.filter-active {
+    font-weight: bold;
+}
+
+.button-small {
+  height: 30px;
+  line-height: 30px;
+  padding: 0 14px;
 }
