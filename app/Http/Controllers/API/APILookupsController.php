@@ -136,7 +136,15 @@ class APILookupsController extends Controller
     {
         $output = array();
         $output['result'] = false;
-        $user_model = User::where('username', $username)->orWhere('slug', $username)->orWhere('email', $username)->first();
+
+        $query = User::where('username', $username);
+
+        if (!Input::get('strict')) {
+            // loose lookup by default
+            $query->orWhere('slug', $username)->orWhere('email', $username);
+        }
+
+        $user_model = $query->first();
         if($user_model){
             $output['result'] = true;
             $id_hash = Input::get('id_hash');
