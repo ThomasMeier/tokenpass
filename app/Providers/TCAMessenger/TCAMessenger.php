@@ -299,6 +299,21 @@ class TCAMessenger
         $auth->revokeUser($user, $chat_presence_channel);
     }
 
+    public function clearUserGrantCaches(User $user) {
+        $token_chat_repository = app(TokenChatRepository::class);
+        $auth = $this->tca_messenger_auth;
+        foreach($token_chat_repository->findAll() as $token_chat) {
+            $channel_name            = $token_chat->getChannelName();
+            $chat_channel            = "chat-{$channel_name}";
+            $chat_presence_channel   = $chat_channel."-pnpres";
+            $chat_identities_channel = "identities-{$channel_name}";
+
+            $auth->clearCacheForUserGrant($user, $chat_identities_channel);
+            $auth->clearCacheForUserGrant($user, $chat_channel);
+            $auth->clearCacheForUserGrant($user, $chat_presence_channel);
+        }
+    }
+
     public function removeChat(TokenChat $token_chat) {
         $auth = $this->tca_messenger_auth;
         $user_repository = app('Tokenpass\Repositories\UserRepository');

@@ -4,6 +4,7 @@ namespace Tokenpass\Console\Commands\Messenger;
 
 use Illuminate\Console\Command;
 use Tokenpass\Events\UserRegistered;
+use Tokenpass\Providers\TCAMessenger\TCAMessenger;
 use Tokenpass\Repositories\TokenChatRepository;
 use Tokenpass\Repositories\UserRepository;
 
@@ -15,6 +16,7 @@ class ResyncUser extends Command
      * @var string
      */
     protected $signature = 'messenger:resync-user 
+                            {--f|full : Do a full re-authorization}
                             {userId : UUID or username of the User}';
 
     /**
@@ -42,7 +44,8 @@ class ResyncUser extends Command
     public function handle()
     {
         $this->comment('begin');
-        $user_id     = $this->argument('userId');
+        $user_id                 = $this->argument('userId');
+        $do_full_reauthorization = $this->option('full');
 
         $user_repository = app(UserRepository::class);
         $user = $user_repository->findByUuid($user_id);
@@ -52,6 +55,11 @@ class ResyncUser extends Command
         if (!$user) {
             $this->error("User not found for id $user_id");
             return;
+        }
+
+        if ($do_full_reauthorization) {
+            $this->line('Temporarily removing all access for user '.$user['username'].' ('.$user['name'].', '.$user['uuid'].')');
+            app(TCAMessenger::class)->clearUserGrantCaches($user);
         }
 
         $this->line('Resyncing access for user '.$user['username'].' ('.$user['name'].', '.$user['uuid'].')');

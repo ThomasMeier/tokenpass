@@ -25,7 +25,7 @@ class AnalyzeChatPermissions extends Command
      *
      * @var string
      */
-    protected $description = 'Re-syncs permissions for a chat';
+    protected $description = 'Analyzes permissions for a chat';
 
     /**
      * Create a new command instance.

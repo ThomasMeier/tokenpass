@@ -40,6 +40,10 @@ class TCAMessengerAuth
         return true;
     }
 
+    public function clearCacheForUserGrant(User $user, $channel) {
+        $this->forgetUserGrant($user, $channel);
+    }
+
     public function authorizeTokenpass($read, $write, $channel, $ttl=0) {
         if ($this->tokenpassGrantExists($read, $write, $channel, $ttl)) {
             return true;
