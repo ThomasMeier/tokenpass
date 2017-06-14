@@ -104,6 +104,9 @@ Route::post('tokenchats/new',                           ['as' => 'tokenchats.cre
 Route::post('tokenchats/edit/{id}',                     ['as' => 'tokenchats.edit',   'uses' => 'Tokenchats\TokenchatsController@edit']);
 Route::delete('tokenchats/delete/{id}',                 ['as' => 'tokenchats.delete',   'uses' => 'Tokenchats\TokenchatsController@destroy']);
 
+// administration 
+Route::get('assume/role/{username}',                    ['as' => 'assume.role',  'uses' => 'PlatformAdmin\AssumeUserRoleController@assumeRole']);
+
 // -------------------------------------------------------------------------
 // User routes
 
