@@ -55,6 +55,11 @@
         <button type="submit">Verify</button>
 
       </form>
+
+      <h3 class="light">Alternative Method</h3>
+      <p>In case your wallet doesn't support message signing, you can also verify your bitcoin address
+        by doing a payment of any amount to the following address:</p>
+      <input type="text" id="verify-sig" readonly value="@{{ currentPocket.verify_address }}" />
     </div>
   </div> <!-- End Verify Modal  -->
 
