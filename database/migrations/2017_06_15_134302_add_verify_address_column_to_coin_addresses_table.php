@@ -16,6 +16,7 @@ class AddVerifyAddressColumnToCoinAddressesTable extends Migration
         Schema::table('coin_addresses', function (Blueprint $table) {
             $table->string('verify_address');
             $table->string('verify_address_uuid');
+            $table->string('verify_monitor_uuid');
         });
     }
 
@@ -27,7 +28,7 @@ class AddVerifyAddressColumnToCoinAddressesTable extends Migration
     public function down()
     {
         Schema::table('coin_addresses', function (Blueprint $table) {
-            $table->dropColumn(['verify_address', 'verify_address_uuid']);
+            $table->dropColumn(['verify_address', 'verify_address_uuid', 'verify_monitor_uuid']);
         });
     }
 }
