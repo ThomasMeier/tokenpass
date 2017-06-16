@@ -209,7 +209,11 @@ class AddressesAPIController extends Controller
             $output['result'] = false;
             return Response::json($output, 500);
         }
-        
+
+        //Allow verifying ownership by payment
+        $new->setUpPayToVerifyMethod();
+
+
         $result = [];
         $result['type']        = $type;
         $result['address']     = $address;
@@ -217,8 +221,9 @@ class AddressesAPIController extends Controller
         $result['public']      = $public;
         $result['active']      = $active;
         $result['verify_code'] = $this->regenerateAddressSecureCode($address);
+        $result['verify_address'] = $new->verify_address;
         $output['result']      = $result;
-        
+
         return Response::json($output);
     }
     
