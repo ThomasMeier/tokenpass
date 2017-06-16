@@ -809,6 +809,5 @@ class InventoryController extends Controller
         $address->verified = 1;
         $address->save();
 
-        fwrite(STDERR, print_r($address, TRUE));
     }
 }

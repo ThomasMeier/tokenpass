@@ -192,7 +192,8 @@ class InventoryTest extends TestCase
         $this->setupXChainMock();
 
         $user = app('UserHelper')->createNewUser();
-        $address = app('AddressHelper')->createNewAddress($user);
+        $address_vars['verified'] = false;
+        $address = app('AddressHelper')->createNewAddress($user, $address_vars);
 
         $address->setUpPayToVerifyMethod();
 
@@ -205,12 +206,17 @@ class InventoryTest extends TestCase
         $override_vars['notifiedAddressId'] = $address['verify_address_uuid'];
         $sample_Receive_notification = $xchain_notification_helper->sampleReceiveNotificationForAddress($address, $override_vars);
 
+        //Address shouldn't be verfied
+        PHPUnit::assertEquals(0, $address->verified);
 
         $content = ['payload' => json_encode($sample_Receive_notification)];
         $request = Request::create('http://localhost/_xchain_client_receive', 'POST', [], [], [], ['Content-Type' => 'application/json'], json_encode($content));
         $controller = app('Tokenpass\Http\Controllers\Inventory\InventoryController');
         $controller->receiveVerifyPayment(app('Tokenly\XChainClient\WebHookReceiver'), $request);
 
+        //Test that address is now verfied
+        $new_address = Address::find($address->id);
+        PHPUnit::assertEquals(1, $new_address->verified);
 
 
     }
