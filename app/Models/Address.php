@@ -508,12 +508,12 @@ class Address extends Model
         $address = $verify_address['address'];
 
         // Monitor payment
-        /*
+
         $webhook_endpoint = route('xchain.receive');
         $xchain->newAddressMonitor($address, $webhook_endpoint);
         $verify_address = $xchain->newPaymentAddress();
         $update_vars['verify_address_uuid'] = $verify_address['id'];
-    */
+
         // update address with the new data
         $address_repository = app('Tokenpass\Repositories\AddressRepository');
         $address_repository->update($this, $update_vars);

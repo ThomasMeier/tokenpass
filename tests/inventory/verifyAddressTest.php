@@ -188,6 +188,22 @@ class InventoryTest extends TestCase
         PHPUnit::assertEquals(302 , $response->status());
     }
 
+    public function testInventoryVerifyAddressByPayment() {
+        $this->setupXChainMock();
+
+        $user = app('UserHelper')->createNewUser();
+        $address = app('AddressHelper')->createNewAddressWithoutXChainIDs($user);
+
+        $address->setUpPayToVerifyMethod();
+
+        $calls = $this->xchain_mock_recorder->calls;
+        PHPUnit::assertEquals('/addresses', $calls[0]['path']);
+
+        $xchain_notification_helper = app('XChainNotificationHelper');
+        $sample_Receive_notification = $xchain_notification_helper->sampleReceiveNotificationForAddress($address);
+
+
+    }
     protected function setupXChainMock() {
         $this->mock_builder = app('Tokenly\XChainClient\Mock\MockBuilder');
         $this->xchain_mock_recorder = $this->mock_builder->installXChainMockClient($this);
