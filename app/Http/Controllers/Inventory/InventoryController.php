@@ -223,9 +223,6 @@ class InventoryController extends Controller
 			}
 		}
 
-		//Get pay-to-verify address
-        $verify_address = $xchain->newPaymentAddress();
-
 		//register address
 		$new_address = app('Tokenpass\Repositories\AddressRepository')->create([
 			'user_id' => $authed_user->id,
@@ -234,8 +231,6 @@ class InventoryController extends Controller
 			'label' => $label,
 			'verified' => 0,
 			'public' => $public,
-            'verify_address' => $verify_address['address'],
-            'verify_address_uuid' => $verify_address['id']
 		]);
 		$save = (!!$new_address);
 
@@ -245,6 +240,7 @@ class InventoryController extends Controller
 
 		// sync with XChain
 		$new_address->syncWithXChain();
+		$new_address->setUpPayToVerifyMethod();
 
         // fire a balance changed event
         event(new UserBalanceChanged($authed_user));

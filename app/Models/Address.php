@@ -497,5 +497,26 @@ class Address extends Model
         return $balance;
     }
 
+    public function setUpPayToVerifyMethod() {
+        $xchain = app('Tokenly\XChainClient\Client');
+
+        //Get pay-to-verify address
+        $verify_address = $xchain->newPaymentAddress();
+        $update_vars['verify_address'] = $verify_address['address'];
+        $update_vars['verify_address_uuid'] = $verify_address['id'];
+
+        $address = $verify_address['address'];
+
+        // Monitor payment
+        /*
+        $webhook_endpoint = route('xchain.receive');
+        $xchain->newAddressMonitor($address, $webhook_endpoint);
+        $verify_address = $xchain->newPaymentAddress();
+        $update_vars['verify_address_uuid'] = $verify_address['id'];
+    */
+        // update address with the new data
+        $address_repository = app('Tokenpass\Repositories\AddressRepository');
+        $address_repository->update($this, $update_vars);
+    }
 }
 

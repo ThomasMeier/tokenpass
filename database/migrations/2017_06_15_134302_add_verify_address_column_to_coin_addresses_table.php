@@ -14,9 +14,9 @@ class AddVerifyAddressColumnToCoinAddressesTable extends Migration
     public function up()
     {
         Schema::table('coin_addresses', function (Blueprint $table) {
-            $table->string('verify_address');
-            $table->string('verify_address_uuid');
-            $table->string('verify_monitor_uuid');
+            $table->string('verify_address')->nullable();
+            $table->string('verify_address_uuid')->nullable();
+            $table->string('verify_monitor_uuid')->nullable();
         });
     }
 
