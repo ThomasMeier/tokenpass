@@ -395,7 +395,7 @@ $('.add-pocket-btn').click(function(e){
 
 function startSigWatch(){
     window.checkSigInterval = setInterval(function(){
-        $.get('{{ route("inventory.check-sig", array()) }}', function(data){
+        $.get('{{ route("inventory.check-sig", array()) }}?current_address='+window.vm.currentPocket.address, function(data){
            if(typeof data.results != 'undefined' && data.results.length > 0){
                var hit = false;
                 $.each(data.results, function(idx, val){
@@ -405,6 +405,8 @@ function startSigWatch(){
                         var hit = true;
                     }
                 });
+           } else if(data.success && data.success === true && data.redirectUrl !== null) {
+                window.location = data.redirectUrl;
            }
         });
     }, 1000);
