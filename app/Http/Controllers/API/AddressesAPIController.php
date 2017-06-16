@@ -404,6 +404,7 @@ class AddressesAPIController extends Controller
         if(!$result['verified'] AND $private) {
             $result['verify_code'] = $this->regenerateAddressSecureCode($address->address);
             Cache::put(hash('sha256', $address->address), $result['verify_code'], 600);
+            $result['verify_address'] = $address->verify_address;
         }       
         $output['result'] = $result;
         
