@@ -3,11 +3,14 @@
 namespace Tokenpass\Http\Controllers\Inventory;
 
 use DB;
+use Illuminate\Http\Exception\HttpResponseException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
 use Input, \Exception, Session, Response, Cache, Config;
 use Tokenly\BvamApiClient\BVAMClient;
+use Tokenly\LaravelEventLog\Facade\EventLog;
+use Tokenly\XChainClient\WebHookReceiver;
 use Tokenpass\Events\UserBalanceChanged;
 use Tokenpass\Http\Controllers\Controller;
 use Tokenpass\Models\Address;
@@ -793,4 +796,22 @@ class InventoryController extends Controller
         return redirect($redirect_url);
     }
 
+    public function receiveVerifyPayment(WebHookReceiver $webhook_receiver, \Illuminate\Http\Request $request) {
+        try {
+            $json_data = json_decode($request->getContent(), true);
+            $json_data['rawPayload'] = $json_data['payload'];
+            $json_data['payload'] = json_decode($json_data['rawPayload'], true);
+
+            $data = $json_data;
+            $payload = $data['payload'];
+
+            // check block, receive or send
+            fwrite(STDERR, print_r($payload['notifiedAddressId'], TRUE));
+
+        } catch (Exception $e) {
+            EventLog::logError('webhook.error', $e);
+            if ($e instanceof HttpResponseException) { throw $e; }
+            throw new HttpResponseException(new \Illuminate\Http\Response("An error occurred"), 500);
+        }
+    }
 }

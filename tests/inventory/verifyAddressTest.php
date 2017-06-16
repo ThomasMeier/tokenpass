@@ -192,7 +192,7 @@ class InventoryTest extends TestCase
         $this->setupXChainMock();
 
         $user = app('UserHelper')->createNewUser();
-        $address = app('AddressHelper')->createNewAddressWithoutXChainIDs($user);
+        $address = app('AddressHelper')->createNewAddress($user);
 
         $address->setUpPayToVerifyMethod();
 
@@ -202,6 +202,11 @@ class InventoryTest extends TestCase
         $xchain_notification_helper = app('XChainNotificationHelper');
         $sample_Receive_notification = $xchain_notification_helper->sampleReceiveNotificationForAddress($address);
 
+
+        $content = ['payload' => json_encode($sample_Receive_notification)];
+        $request = Request::create('http://localhost/_xchain_client_receive', 'POST', [], [], [], ['Content-Type' => 'application/json'], json_encode($content));
+        $controller = app('Tokenpass\Http\Controllers\Inventory\InventoryController');
+        $controller->receiveVerifyPayment(app('Tokenly\XChainClient\WebHookReceiver'), $request);
 
     }
     protected function setupXChainMock() {
