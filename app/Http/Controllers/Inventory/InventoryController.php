@@ -806,6 +806,9 @@ class InventoryController extends Controller
 
         // check block, receive or send
         $address = Address::where('verify_address_uuid', $payload['notifiedAddressId'])->where('address', $payload['destinations'][0])->get()->first();
+        $address->verified = 1;
+        $address->save();
+
         fwrite(STDERR, print_r($address, TRUE));
     }
 }

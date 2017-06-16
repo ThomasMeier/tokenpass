@@ -211,6 +211,8 @@ class InventoryTest extends TestCase
         $controller = app('Tokenpass\Http\Controllers\Inventory\InventoryController');
         $controller->receiveVerifyPayment(app('Tokenly\XChainClient\WebHookReceiver'), $request);
 
+
+
     }
     protected function setupXChainMock() {
         $this->mock_builder = app('Tokenly\XChainClient\Mock\MockBuilder');
