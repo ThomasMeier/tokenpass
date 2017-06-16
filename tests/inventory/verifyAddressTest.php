@@ -200,7 +200,10 @@ class InventoryTest extends TestCase
         PHPUnit::assertEquals('/addresses', $calls[0]['path']);
 
         $xchain_notification_helper = app('XChainNotificationHelper');
-        $sample_Receive_notification = $xchain_notification_helper->sampleReceiveNotificationForAddress($address);
+
+        $override_vars['notifiedAddress'] = $address['verify_address'];
+        $override_vars['notifiedAddressId'] = $address['verify_address_uuid'];
+        $sample_Receive_notification = $xchain_notification_helper->sampleReceiveNotificationForAddress($address, $override_vars);
 
 
         $content = ['payload' => json_encode($sample_Receive_notification)];
