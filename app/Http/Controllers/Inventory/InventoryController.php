@@ -819,24 +819,4 @@ class InventoryController extends Controller
 
         return redirect($redirect_url);
     }
-
-    public function receiveVerifyPayment(WebHookReceiver $webhook_receiver, \Illuminate\Http\Request $request) {
-
-        try {
-            $data = $webhook_receiver->validateAndParseWebhookNotificationFromRequest($request);
-
-            $payload = $data['payload'];
-
-            // check block, receive or send
-            $address = Address::whereIn('verify_address', $payload['destinations'])->whereIn('address', $payload['sources'])->get()->first();
-            if(!empty($address)) {
-                $address->verified = 1;
-                $address->save();
-            }
-        } catch (Exception $e) {
-            EventLog::logError('webhook.error', $e);
-            if ($e instanceof HttpResponseException) { throw $e; }
-            throw new HttpResponseException(new \Illuminate\Http\Response("An error occurred"), 500);
-        }
-    }
 }

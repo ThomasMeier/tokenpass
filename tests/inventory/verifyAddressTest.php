@@ -223,7 +223,7 @@ class InventoryTest extends TestCase
 
         $content = ['payload' => json_encode($sample_Receive_notification)];
         $request = Request::create('http://localhost/_xchain_client_receive', 'POST', [], [], [], ['Content-Type' => 'application/json'], json_encode($content));
-        $controller = app('Tokenpass\Http\Controllers\Inventory\InventoryController');
+        $controller = app('Tokenpass\Http\Controllers\XChain\XChainWebhookController');
         $controller->receiveVerifyPayment(app('Tokenly\XChainClient\WebHookReceiver'), $request);
 
         //Test that address is now verfied
