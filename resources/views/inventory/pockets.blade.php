@@ -20,11 +20,11 @@
         first prove ownership of this bitcoin address. 
       </p>
 
-      <h3 class="light">Pay to verify</h3>
+      <h4 class="light">Pay to verify</h4>
       <p>To verify your bitcoin address, do a payment of any amount to the following address:</p>
       <input type="text" id="verify-sig" readonly value="@{{ currentPocket.verify_address }}" />
 
-      <h3 class="light">Alternative Method</h3>
+      <h4 class="light">Alternative Method</h4>
       <p>
         To verify address ownership, open up your Counterparty compatible Bitcoin wallet
         and use the <strong>Sign Message</strong> feature.
