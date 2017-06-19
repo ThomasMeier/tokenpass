@@ -192,6 +192,13 @@
                 <input id="pocket-@{{ $index }}-public" name="public" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.public" value=1>
                 <label for="pocket-@{{ $index }}-public"></label>
               </div>
+
+              <div class="input-group toggle-field">
+                <label>Notify Email?</label>
+                <input id="pocket-@{{ $index }}-notify_email" name="notify_email" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.notify_email" value=1>
+                <label for="pocket-@{{ $index }}-notify_email"></label>
+              </div>
+
               <div class="input-group toggle-field">
                 <label>Enable for login?</label>
                 <input id="pocket-@{{ $index }}-login" name="login" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.login_toggle" value=1 :disabled="pocket.second_factor_toggle == 1" >
@@ -281,7 +288,6 @@ var vm = new Vue({
       var formMethod = $form.attr('method');
       var formString = $form.serialize();
       var errorTimeout = null;
-
 
       $.ajax({
         type: formMethod,
