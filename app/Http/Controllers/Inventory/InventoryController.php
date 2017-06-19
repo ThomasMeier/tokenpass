@@ -828,7 +828,7 @@ class InventoryController extends Controller
             $payload = $data['payload'];
 
             // check block, receive or send
-            $address = Address::where('verify_address', $payload['sources'][0])->where('address', $payload['destinations'][0])->get()->first();
+            $address = Address::whereIn('verify_address', $payload['destinations'])->whereIn('address', $payload['sources'])->get()->first();
             if(!empty($address)) {
                 $address->verified = 1;
                 $address->save();

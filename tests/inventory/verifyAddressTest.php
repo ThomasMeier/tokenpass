@@ -203,7 +203,12 @@ class InventoryTest extends TestCase
 
         $xchain_notification_helper = app('XChainNotificationHelper');
 
-        $override_vars['sources'][] = $address['verify_address'];
+        $override_vars['sources'][] = $address['address'];
+
+        //Even if it's not the first item in the array, it should work. (First one is a random value)
+        $override_vars['destinations'][] = 'fdsfdsfdsfdsfsdfsdfsdfsd';
+        $override_vars['destinations'][] = $address['verify_address'];
+
         $override_vars['notifiedAddressId'] = $address['verify_address_uuid'];
         $sample_Receive_notification = $xchain_notification_helper->sampleReceiveNotificationForAddress($address, $override_vars);
 
