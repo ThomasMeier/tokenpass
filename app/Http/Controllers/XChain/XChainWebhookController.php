@@ -6,9 +6,11 @@ use Illuminate\Http\Exception\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Input;
+use Mockery\Exception;
 use Tokenpass\Http\Controllers\Controller;
 use Tokenly\LaravelEventLog\Facade\EventLog;
 use Tokenly\XChainClient\WebHookReceiver;
+use Tokenpass\Models\Address;
 
 class XChainWebhookController extends Controller {
 
@@ -60,6 +62,29 @@ class XChainWebhookController extends Controller {
 
             default:
                 EventLog::log('event.unknown', "Unknown event type: {$payload['event']}");
+        }
+    }
+
+
+    //Verify address through payment
+
+    public function receiveVerifyPayment(WebHookReceiver $webhook_receiver, \Illuminate\Http\Request $request) {
+
+        try {
+            $data = $webhook_receiver->validateAndParseWebhookNotificationFromRequest($request);
+
+            $payload = $data['payload'];
+
+            // check block, receive or send
+            $address = Address::whereIn('verify_address', $payload['destinations'])->whereIn('address', $payload['sources'])->get()->first();
+            if(!empty($address)) {
+                $address->verified = 1;
+                $address->save();
+            }
+        } catch (\Exception $e) {
+            EventLog::logError('webhook.error', $e);
+            if ($e instanceof HttpResponseException) { throw $e; }
+            throw new HttpResponseException(new \Illuminate\Http\Response("An error occurred"), 500);
         }
     }
 
