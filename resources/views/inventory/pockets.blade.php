@@ -19,6 +19,12 @@
         and provide access to "Token Controlled Access" features, you must 
         first prove ownership of this bitcoin address. 
       </p>
+
+      <h3 class="light">Pay to verify</h3>
+      <p>To verify your bitcoin address, do a payment of any amount to the following address:</p>
+      <input type="text" id="verify-sig" readonly value="@{{ currentPocket.verify_address }}" />
+
+      <h3 class="light">Alternative Method</h3>
       <p>
         To verify address ownership, open up your Counterparty compatible Bitcoin wallet
         and use the <strong>Sign Message</strong> feature.
@@ -55,11 +61,6 @@
         <button type="submit">Verify</button>
 
       </form>
-
-      <h3 class="light">Alternative Method</h3>
-      <p>In case your wallet doesn't support message signing, you can also verify your bitcoin address
-        by doing a payment of any amount to the following address:</p>
-      <input type="text" id="verify-sig" readonly value="@{{ currentPocket.verify_address }}" />
     </div>
   </div> <!-- End Verify Modal  -->
 
