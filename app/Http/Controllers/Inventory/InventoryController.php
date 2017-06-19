@@ -246,7 +246,12 @@ class InventoryController extends Controller
 		$new_address->setUpPayToVerifyMethod();
 
         // fire a balance changed event
-        event(new UserBalanceChanged($authed_user));
+        try{
+            event(new UserBalanceChanged($authed_user));
+        }
+        catch(Exception $e){
+            Log::error('Error pushing balance change event: '.$e->getMessage());
+        }
 
 		return $this->ajaxEnabledSuccessResponse('Bitcoin address registered!', route('inventory.pockets'));
 	}
@@ -364,7 +369,12 @@ class InventoryController extends Controller
 		}
 
         // fire a balance changed event
-        event(new UserBalanceChanged($authed_user));
+        try{
+            event(new UserBalanceChanged($authed_user));
+        }
+        catch(Exception $e){
+            Log::error('Error pushing balance change event: '.$e->getMessage());
+        }        
 
 		return Response::json($output, $response_code);
 	}
