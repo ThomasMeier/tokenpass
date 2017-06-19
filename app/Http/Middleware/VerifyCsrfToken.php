@@ -18,6 +18,6 @@ class VerifyCsrfToken extends BaseVerifier
         '/auth/bitcoin',
         '/auth/signed',
         '/_xchain_client_receive',
-        '/inventory/address/verify_payment',
+        '/_xchain_client_receive_verify_payment',
     ];
 }
