@@ -80,6 +80,8 @@ class APIControllerAddressesTest extends TestCase {
             'expectedErrorString'  => 'null',
             'valid'                => false,
         ];
+        $this->buildXChainMock();
+
         $api_tester->testErrors([
             [
                 'postVars'            => ['type' => 'foobar'],
