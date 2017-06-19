@@ -377,7 +377,10 @@ class AddressesAPIController extends Controller
                     continue;
                 }
 
-                $item = array('address' => $address->address, 'balances' => Address::getAddressBalances($address->id, true, true, true), 'public' => boolval($address->public), 'label' => $address->label, 'verify_address' => $address->verify_address);
+                $item = array('address' => $address->address, 'balances' => Address::getAddressBalances($address->id, true, true, true), 'public' => boolval($address->public), 'label' => $address->label);
+                if(!$address->verified) {
+                    $item['verify_address'] = $address->verify_address;
+                }
                 if($and_active == null){
                     $item['active'] = boolval($address->active_toggle);
                 }
