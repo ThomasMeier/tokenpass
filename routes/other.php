@@ -22,3 +22,7 @@ Route::get('oauth/user', [
 // webhook notifications
 
 Route::post('_xchain_client_receive', ['as' => 'xchain.receive', 'uses' => 'XChain\XChainWebhookController@receive']);
+
+//Verify ownership through payment webhook
+Route::post('_xchain_client_receive', ['as' => 'xchain.receive', 'uses' => 'XChain\XChainWebhookController@receive']);
+Route::post('inventory/address/verify_payment', ['as' => 'inventory.pockets.verify_payment', 'uses' => 'Inventory\InventoryController@receiveVerifyPayment']);
