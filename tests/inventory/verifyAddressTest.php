@@ -3,6 +3,7 @@
 
 use \PHPUnit_Framework_Assert as PHPUnit;
 use Tokenpass\Models\Address;
+use Mockery as m;
 
 class InventoryTest extends TestCase
 {
@@ -202,12 +203,18 @@ class InventoryTest extends TestCase
 
         $xchain_notification_helper = app('XChainNotificationHelper');
 
-        $override_vars['notifiedAddress'] = $address['verify_address'];
+        $override_vars['sources'][] = $address['verify_address'];
         $override_vars['notifiedAddressId'] = $address['verify_address_uuid'];
         $sample_Receive_notification = $xchain_notification_helper->sampleReceiveNotificationForAddress($address, $override_vars);
 
         //Address shouldn't be verfied
         PHPUnit::assertEquals(0, $address->verified);
+
+        $mock_webhook_receiver = m::mock('Tokenly\XChainClient\WebHookReceiver')->makePartial();
+        $mock_webhook_receiver->shouldReceive('validateWebhookNotification')->andReturn(true);
+        app()->bind('Tokenly\XChainClient\WebHookReceiver', function ($app) use ($mock_webhook_receiver) {
+            return $mock_webhook_receiver;
+        });
 
         $content = ['payload' => json_encode($sample_Receive_notification)];
         $request = Request::create('http://localhost/_xchain_client_receive', 'POST', [], [], [], ['Content-Type' => 'application/json'], json_encode($content));

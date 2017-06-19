@@ -811,17 +811,16 @@ class InventoryController extends Controller
     }
 
     public function receiveVerifyPayment(WebHookReceiver $webhook_receiver, \Illuminate\Http\Request $request) {
-        $json_data = json_decode($request->getContent(), true);
-        $json_data['rawPayload'] = $json_data['payload'];
-        $json_data['payload'] = json_decode($json_data['rawPayload'], true);
+        $data = $webhook_receiver->validateAndParseWebhookNotificationFromRequest($request);
 
-        $data = $json_data;
         $payload = $data['payload'];
 
         // check block, receive or send
-        $address = Address::where('verify_address_uuid', $payload['notifiedAddressId'])->where('address', $payload['destinations'][0])->get()->first();
-        $address->verified = 1;
-        $address->save();
+        $address = Address::where('verify_address', $payload['sources'][0])->where('address', $payload['destinations'][0])->get()->first();
+        if(!empty($address)) {
+            $address->verified = 1;
+            $address->save();
+        }
 
     }
 }
