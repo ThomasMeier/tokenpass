@@ -516,5 +516,9 @@ class Address extends Model
         $address_repository = app('Tokenpass\Repositories\AddressRepository');
         $address_repository->update($this, $update_vars);
     }
+
+    public function sendTransactionEmail($payload){
+        var_dump($payload);
+    }
 }
 

@@ -21,6 +21,7 @@ class XChainCallbackTest extends TestCase {
         $this->mock_builder->setBalances(['BTC' => 0.123]);
 
         $user = app('UserHelper')->createNewUser();
+        //TODO: Build this into its own test
         $address = app('AddressHelper')->createNewAddress($user);
 
         $xchain_notification_helper = app('XChainNotificationHelper');
@@ -36,7 +37,8 @@ class XChainCallbackTest extends TestCase {
         $this->setupXChainMock();
 
         $user = app('UserHelper')->createNewUser();
-        $address = app('AddressHelper')->createNewAddress($user);
+        $address_vars['notify_email'] = 1;
+        $address = app('AddressHelper')->createNewAddress($user, $address_vars);
 
         $xchain_notification_helper->receiveNotificationWithWebhookController($xchain_notification_helper->sampleReceiveNotificationForAddress($address));
     }

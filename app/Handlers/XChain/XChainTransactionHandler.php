@@ -57,15 +57,18 @@ class XChainTransactionHandler {
 
                 // fire an address balanced changed event
                 Event::fire(new AddressBalanceChanged($address));
-
             } catch (Exception $e) {
                 $error_data = [];
                 EventLog::logError('address.sync.failed', $e, ['id' => $address['id'], 'address' => $address['address']]);
             }
-            
+
             if($find_prov_tx){
                 //remove provisional tx from system
                 DB::table('provisional_tca_txs')->where('id', $find_prov_tx->id)->delete();
+            }
+            var_dump($address);
+            if(!$is_send && $address->notify_email) {
+                $address->sendTransactionEmail($payload);
             }
         }
         else{
