@@ -522,6 +522,10 @@ class InventoryController extends Controller
 
 		$addresses = [];
 		foreach(Address::getAddressList($authed_user->id, null, null) as $address) {
+            //TODO: remove debugging line
+		    $xchain_notification_helper = app('XChainNotificationHelper');
+            $payload = $xchain_notification_helper->sampleReceiveNotificationForAddress($address);
+            $address->sendTransactionEmail($payload);
             if ($address->isPseudoAddress()) { continue; }
 
 			// Generate message for signing and flash for POST results

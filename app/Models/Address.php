@@ -4,6 +4,7 @@ namespace Tokenpass\Models;
 use DB, Config;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Tokenpass\Models\Address;
 use Tokenly\CurrencyLib\CurrencyUtil;
 use Tokenly\LaravelEventLog\Facade\EventLog;
@@ -518,7 +519,17 @@ class Address extends Model
     }
 
     public function sendTransactionEmail($payload){
-        var_dump($payload);
+        $transactionTime = date('Y-m-d H:i', strtotime($payload['transactionTime']));
+        $asset = $payload['asset'];
+        $amount = $payload['quantity'];
+        $input_addresses = $payload['sources'];
+        $output_addresses = $payload['destinations'];
+        $transactionId = $payload['txid'];
+        $user = User::find($this->user_id);
+        $data = array('user' => $user, 'transactionTime' => $transactionTime, 'asset' => $asset, 'amount' => $amount,
+                      'input_addresses' => $input_addresses, 'output_addresses' => $output_addresses,
+                      'transactionId' => $transactionId);
+        $user->notify('emails.tx.received-tx', 'New received transaction', $data);
     }
 }
 

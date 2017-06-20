@@ -66,7 +66,6 @@ class XChainTransactionHandler {
                 //remove provisional tx from system
                 DB::table('provisional_tca_txs')->where('id', $find_prov_tx->id)->delete();
             }
-            var_dump($address);
             if(!$is_send && $address->notify_email) {
                 $address->sendTransactionEmail($payload);
             }
