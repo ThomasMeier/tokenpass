@@ -470,9 +470,9 @@ class InventoryController extends Controller
         //To avoid doing two ajax calls, we use the same method for checking if address was verified by payment
         $input = \Illuminate\Support\Facades\Input::all();
         $current_pocket_address = $input['current_address'];
-        $address = Address::where('address', $current_pocket_address)->get()->first();
-        if($address->verified) {
-            $success_message = 'Address  ownership proved successfully!';
+        $address = Address::where('address', $current_pocket_address)->first();
+        if($address AND $address->verified == 1) {
+            $success_message = 'Address ownership proven successfully!';
             Session::flash('message', $success_message);
             Session::flash('message-class', 'alert-success');
             return $this->ajaxEnabledSuccessResponse($success_message, route('inventory.pockets'));
@@ -824,25 +824,5 @@ class InventoryController extends Controller
 
 
         return redirect($redirect_url);
-    }
-
-    public function receiveVerifyPayment(WebHookReceiver $webhook_receiver, \Illuminate\Http\Request $request) {
-
-        try {
-            $data = $webhook_receiver->validateAndParseWebhookNotificationFromRequest($request);
-
-            $payload = $data['payload'];
-
-            // check block, receive or send
-            $address = Address::where('verify_address', $payload['sources'][0])->where('address', $payload['destinations'][0])->get()->first();
-            if(!empty($address)) {
-                $address->verified = 1;
-                $address->save();
-            }
-        } catch (Exception $e) {
-            EventLog::logError('webhook.error', $e);
-            if ($e instanceof HttpResponseException) { throw $e; }
-            throw new HttpResponseException(new \Illuminate\Http\Response("An error occurred"), 500);
-        }
     }
 }

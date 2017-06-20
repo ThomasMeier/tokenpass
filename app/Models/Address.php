@@ -509,7 +509,7 @@ class Address extends Model
         $address = $verify_address['address'];
         // Monitor payment
 
-        $webhook_endpoint = route('inventory.pockets.verify_payment');
+        $webhook_endpoint = route('xchain.verify_payment');
         $monitor = $xchain->newAddressMonitor($address, $webhook_endpoint);
         $update_vars['verify_monitor_uuid'] = $monitor['id'];
 

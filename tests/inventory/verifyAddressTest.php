@@ -203,7 +203,12 @@ class InventoryTest extends TestCase
 
         $xchain_notification_helper = app('XChainNotificationHelper');
 
-        $override_vars['sources'][] = $address['verify_address'];
+        $override_vars['sources'][] = $address['address'];
+
+        //Even if it's not the first item in the array, it should work. (First one is a random value)
+        $override_vars['destinations'][] = 'fdsfdsfdsfdsfsdfsdfsdfsd';
+        $override_vars['destinations'][] = $address['verify_address'];
+
         $override_vars['notifiedAddressId'] = $address['verify_address_uuid'];
         $sample_Receive_notification = $xchain_notification_helper->sampleReceiveNotificationForAddress($address, $override_vars);
 
@@ -218,7 +223,7 @@ class InventoryTest extends TestCase
 
         $content = ['payload' => json_encode($sample_Receive_notification)];
         $request = Request::create('http://localhost/_xchain_client_receive', 'POST', [], [], [], ['Content-Type' => 'application/json'], json_encode($content));
-        $controller = app('Tokenpass\Http\Controllers\Inventory\InventoryController');
+        $controller = app('Tokenpass\Http\Controllers\XChain\XChainWebhookController');
         $controller->receiveVerifyPayment(app('Tokenly\XChainClient\WebHookReceiver'), $request);
 
         //Test that address is now verfied
