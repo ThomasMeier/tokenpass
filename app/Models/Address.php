@@ -520,16 +520,31 @@ class Address extends Model
 
     public function sendTransactionEmail($payload){
         $transactionTime = date('Y-m-d H:i', strtotime($payload['transactionTime']));
+        $transactionId = $payload['txid'];
+        $user = User::find($this->user_id);
+
+        // IF notification was already sent, leave
+        if(TxMailNotification::where('userId', $user->id)->where('txid', $transactionId)->exists()) {
+            return;
+        }
+
         $asset = $payload['asset'];
         $amount = $payload['quantity'];
         $input_addresses = $payload['sources'];
         $output_addresses = $payload['destinations'];
-        $transactionId = $payload['txid'];
-        $user = User::find($this->user_id);
         $data = array('user' => $user, 'transactionTime' => $transactionTime, 'asset' => $asset, 'amount' => $amount,
                       'input_addresses' => $input_addresses, 'output_addresses' => $output_addresses,
                       'transactionId' => $transactionId);
         $user->notify('emails.tx.received-tx', 'New received transaction', $data);
+
+        if (!Mail::failures()) {
+            $tx_mail_notification = new TxMailNotification;
+            $tx_mail_notification->txid = $transactionId;
+            $tx_mail_notification->userId = $user->id;
+            $tx_mail_notification->save();
+        } else {
+            //TODO: Log error
+        }
     }
 }
 
