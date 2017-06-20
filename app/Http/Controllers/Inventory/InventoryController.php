@@ -464,9 +464,9 @@ class InventoryController extends Controller
         //To avoid doing two ajax calls, we use the same method for checking if address was verified by payment
         $input = \Illuminate\Support\Facades\Input::all();
         $current_pocket_address = $input['current_address'];
-        $address = Address::where('address', $current_pocket_address)->get()->first();
-        if($address->verified) {
-            $success_message = 'Address  ownership proved successfully!';
+        $address = Address::where('address', $current_pocket_address)->first();
+        if($address AND $address->verified == 1) {
+            $success_message = 'Address ownership proven successfully!';
             Session::flash('message', $success_message);
             Session::flash('message-class', 'alert-success');
             return $this->ajaxEnabledSuccessResponse($success_message, route('inventory.pockets'));
