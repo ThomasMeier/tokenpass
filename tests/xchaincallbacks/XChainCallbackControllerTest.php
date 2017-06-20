@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\App;
 use \PHPUnit_Framework_Assert as PHPUnit;
+use Mockery as m;
 
 /*
 * XChainCallbackTest
@@ -37,12 +38,33 @@ class XChainCallbackTest extends TestCase {
         $this->setupXChainMock();
 
         $user = app('UserHelper')->createNewUser();
-        $address_vars['notify_email'] = 1;
-        $address = app('AddressHelper')->createNewAddress($user, $address_vars);
+        $address = app('AddressHelper')->createNewAddress($user);
 
         $xchain_notification_helper->receiveNotificationWithWebhookController($xchain_notification_helper->sampleReceiveNotificationForAddress($address));
     }
 
+    public function testTxEmailNotifications() {
+        $xchain_notification_helper = app('XChainNotificationHelper');
+        $this->setupXChainMock();
+
+        \Illuminate\Support\Facades\Mail::fake();
+
+        $user = app('UserHelper')->createNewUser();
+        $address_vars['notify_email'] = 1;
+        $address = app('AddressHelper')->createNewAddress($user, $address_vars);
+
+        $xchain_notification_helper->receiveNotificationWithWebhookController($xchain_notification_helper->sampleReceiveNotificationForAddress($address));
+
+        \Illuminate\Support\Facades\Mail::shouldReceive('send') -> once() -> with(
+            'emails.tx.receive-tx',
+            m::on( function(\Closure $closure) use ($user){
+                $mock = m::mock('Illuminate\Mailer\Message');
+                $mock -> shouldReceive('to') -> once() -> with( $user -> email )
+                    -> andReturn( $mock ); //simulate the chaining
+                return true;
+            })
+        );
+    }
 
     ////////////////////////////////////////////////////////////////////////
 
