@@ -22,7 +22,6 @@ class XChainCallbackTest extends TestCase {
         $this->mock_builder->setBalances(['BTC' => 0.123]);
 
         $user = app('UserHelper')->createNewUser();
-        //TODO: Build this into its own test
         $address = app('AddressHelper')->createNewAddress($user);
 
         $xchain_notification_helper = app('XChainNotificationHelper');
