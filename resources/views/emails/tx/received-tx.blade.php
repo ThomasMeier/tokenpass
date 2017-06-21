@@ -1,3 +1,6 @@
+<p>
+    Hello {{ $user->username }}, you have received a new transaction to pocket address {{ $output_address }}
+</p>
 <h3>Transaction details:</h3>
 <table>
     <tr>
@@ -9,7 +12,7 @@
         <td>{{ $amount }}</td>
     </tr>
     <tr>
-        <td><strong>Asset:</strong></td>
+        <td><strong>Token:</strong></td>
         <td>{{ $asset }}</td>
     </tr>
     <tr>
