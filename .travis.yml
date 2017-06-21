@@ -4,7 +4,7 @@ php:
 before_script:
   - composer install
 script:
-  - phpunit --coverage-clover build/logs/clover.xml
+  - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 services: ~
 after_success:
   - travis_retry php vendor/bin/coveralls -v
