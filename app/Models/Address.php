@@ -543,7 +543,9 @@ class Address extends Model
             $tx_mail_notification->userId = $user->id;
             $tx_mail_notification->save();
         } else {
+            //
             //TODO: Log error
+            //
         }
     }
 }
