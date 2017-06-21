@@ -530,10 +530,10 @@ class Address extends Model
 
         $asset = $payload['asset'];
         $amount = $payload['quantity'];
-        $input_addresses = $payload['sources'];
-        $output_addresses = $payload['destinations'];
+        $input_address = $payload['sources'][0];
+        $output_address = $this->address;
         $data = array('user' => $user, 'transactionTime' => $transactionTime, 'asset' => $asset, 'amount' => $amount,
-                      'input_addresses' => $input_addresses, 'output_addresses' => $output_addresses,
+                      'input_address' => $input_address, 'output_address' => $output_address,
                       'transactionId' => $transactionId);
         $user->notify('emails.tx.received-tx', 'New received transaction', $data);
 

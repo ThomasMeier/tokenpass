@@ -13,26 +13,12 @@
         <td>{{ $asset }}</td>
     </tr>
     <tr>
-        <td><strong>Input Addresses:</strong></td>
-        <td>
-            @foreach($input_addresses as $key => $address)
-                {{ $address }}
-                @if ($key !== count($input_addresses) - 1)
-                    ,
-                @endif
-            @endforeach
-        </td>
+        <td><strong>Input Address:</strong></td>
+        <td>{{ $input_address }}</td>
     </tr>
     <tr>
         <td><strong>Output Addresses:</strong></td>
-        <td>
-            @foreach($output_addresses as $key => $address)
-                {{ $address }}
-                @if ($key !== count($output_addresses) - 1)
-                    ,
-                @endif
-            @endforeach
-        </td>
+        <td>{{ $output_addressas }}</td>
     </tr>
     <tr>
         <td><strong>Time:</strong></td>
