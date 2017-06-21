@@ -50,20 +50,23 @@ class XChainCallbackTest extends TestCase {
         \Illuminate\Support\Facades\Mail::fake();
 
         $user = app('UserHelper')->createNewUser();
+        $address = app('AddressHelper')->createNewAddress($user);
+        $payload = $xchain_notification_helper->sampleReceiveNotificationForAddress($address);
+
+        $xchain_notification_helper->receiveNotificationWithWebhookController($payload);
+        // Notification shouldn't have been sent since address didn't have notify_email turned on
+        $notification = \Tokenpass\Models\TxMailNotification::where('txid', $payload['txid'])->where('userId', $user->id)->first();
+        PHPUnit::assertNull($notification);
+
         $address_vars['notify_email'] = 1;
         $address = app('AddressHelper')->createNewAddress($user, $address_vars);
+        $payload = $xchain_notification_helper->sampleReceiveNotificationForAddress($address);
 
-        $xchain_notification_helper->receiveNotificationWithWebhookController($xchain_notification_helper->sampleReceiveNotificationForAddress($address));
+        $xchain_notification_helper->receiveNotificationWithWebhookController($payload);
 
-        \Illuminate\Support\Facades\Mail::shouldReceive('send') -> once() -> with(
-            'emails.tx.receive-tx',
-            m::on( function(\Closure $closure) use ($user){
-                $mock = m::mock('Illuminate\Mailer\Message');
-                $mock -> shouldReceive('to') -> once() -> with( $user -> email )
-                    -> andReturn( $mock ); //simulate the chaining
-                return true;
-            })
-        );
+        //Email was sent
+        $notification = \Tokenpass\Models\TxMailNotification::where('txid', $payload['txid'])->where('userId', $user->id)->first();
+        PHPUnit::assertNotNull($notification);
     }
 
     ////////////////////////////////////////////////////////////////////////
