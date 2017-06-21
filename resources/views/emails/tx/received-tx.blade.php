@@ -17,8 +17,8 @@
         <td>{{ $input_address }}</td>
     </tr>
     <tr>
-        <td><strong>Output Addresses:</strong></td>
-        <td>{{ $output_addressas }}</td>
+        <td><strong>Output Address:</strong></td>
+        <td>{{ $output_address }}</td>
     </tr>
     <tr>
         <td><strong>Time:</strong></td>
