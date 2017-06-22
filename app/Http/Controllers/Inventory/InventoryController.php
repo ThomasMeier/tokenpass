@@ -315,6 +315,12 @@ class InventoryController extends Controller
 			}
 			$get->second_factor_toggle = $second_factor;
 
+			$notify_email = 0;
+            if(!$get->from_api AND isset($input['notify_email']) AND intval($input['notify_email']) == 1 AND $get->notify_email == 0){
+                $notify_email = 1;
+            }
+            $get->notify_email = $notify_email;
+
 			if (isset($input['notes'])) {
 				$get->notes = trim(htmlentities($input['notes']));
 			}

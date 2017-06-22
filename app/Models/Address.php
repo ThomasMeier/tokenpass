@@ -4,6 +4,7 @@ namespace Tokenpass\Models;
 use DB, Config;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Tokenpass\Models\Address;
 use Tokenly\CurrencyLib\CurrencyUtil;
 use Tokenly\LaravelEventLog\Facade\EventLog;
@@ -515,6 +516,37 @@ class Address extends Model
         // update address with the new data
         $address_repository = app('Tokenpass\Repositories\AddressRepository');
         $address_repository->update($this, $update_vars);
+    }
+
+    public function sendTransactionEmail($payload){
+        $transactionTime = date('Y-m-d H:i', strtotime($payload['transactionTime']));
+        $transactionId = $payload['txid'];
+        $user = User::find($this->user_id);
+
+        // IF notification was already sent, leave
+        if(TxMailNotification::where('userId', $user->id)->where('txid', $transactionId)->exists()) {
+            return;
+        }
+
+        $asset = $payload['asset'];
+        $amount = $payload['quantity'];
+        $input_address = $payload['sources'][0];
+        $output_address = $this->address;
+        $data = array('user' => $user, 'transactionTime' => $transactionTime, 'asset' => $asset, 'amount' => $amount,
+                      'input_address' => $input_address, 'output_address' => $output_address,
+                      'transactionId' => $transactionId);
+        $user->notify('emails.tx.received-tx', 'New received transaction', $data);
+
+        if (!Mail::failures()) {
+            $tx_mail_notification = new TxMailNotification;
+            $tx_mail_notification->txid = $transactionId;
+            $tx_mail_notification->userId = $user->id;
+            $tx_mail_notification->save();
+        } else {
+            //
+            //TODO: Log error
+            //
+        }
     }
 }
 

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\App;
 use \PHPUnit_Framework_Assert as PHPUnit;
+use Mockery as m;
 
 /*
 * XChainCallbackTest
@@ -41,6 +42,31 @@ class XChainCallbackTest extends TestCase {
         $xchain_notification_helper->receiveNotificationWithWebhookController($xchain_notification_helper->sampleReceiveNotificationForAddress($address));
     }
 
+    public function testTxEmailNotifications() {
+        $xchain_notification_helper = app('XChainNotificationHelper');
+        $this->setupXChainMock();
+
+        \Illuminate\Support\Facades\Mail::fake();
+
+        $user = app('UserHelper')->createNewUser();
+        $address = app('AddressHelper')->createNewAddress($user);
+        $payload = $xchain_notification_helper->sampleReceiveNotificationForAddress($address);
+
+        $xchain_notification_helper->receiveNotificationWithWebhookController($payload);
+        // Notification shouldn't have been sent since address didn't have notify_email turned on
+        $notification = \Tokenpass\Models\TxMailNotification::where('txid', $payload['txid'])->where('userId', $user->id)->first();
+        PHPUnit::assertNull($notification);
+
+        $address_vars['notify_email'] = 1;
+        $address = app('AddressHelper')->createNewAddress($user, $address_vars);
+        $payload = $xchain_notification_helper->sampleReceiveNotificationForAddress($address);
+
+        $xchain_notification_helper->receiveNotificationWithWebhookController($payload);
+
+        //Email was sent
+        $notification = \Tokenpass\Models\TxMailNotification::where('txid', $payload['txid'])->where('userId', $user->id)->first();
+        PHPUnit::assertNotNull($notification);
+    }
 
     ////////////////////////////////////////////////////////////////////////
 
