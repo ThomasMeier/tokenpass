@@ -130,6 +130,10 @@
 
   <section id="pocketsList" class="pockets" v-cloak>
     <div class="panel with-padding">
+      <p style="color: red;">
+          <strong>Notice:</strong> Pocket address verification and Token Controlled Access features may be temporarily unavailable between July 31st and August 3rd due to service closure for the Aug 1st Bitcoin "fork event". 
+          Contact team@tokenly.com if you have any questions or concerns.
+      </p>
       <p>A Pocket is a Token Compatible Bitcoin Address that can be used to store and use Access Tokens - Once you've verified your pockets, Tokenpass keeps track of what access tokens you own at any given time and passes that information along to websites, integrations and applications each user chooses to authorize.</p>
       <p>Need a Token Compatible Wallet? Visit <a href="http://pockets.tokenly.com" target="_blank">http://pockets.tokenly.com</a> to download yours free today.</p>
     </div>
