@@ -278,11 +278,6 @@ class APIProvisionalController extends Controller
                 $destination = $first_address->address;
                 $add_ref = 'user:'.$destination_user->id;
             }
-            else{
-                //TODO: remove this since the tx should be able to pass even if there is no user
-                $output['error'] = 'User not found';
-                return Response::json($output, 404);
-            }
         }
         else{
             //check if valid bitcoin address
@@ -302,7 +297,7 @@ class APIProvisionalController extends Controller
         $get_source = DB::table('provisional_tca_addresses')
                         ->where('address', $input['source'])
                         ->where('client_id', $oauth_client['id'])->first();
-        
+
         // if(!$get_source){
         //     if($user){
         //         //attempt to use a regular verified pocket address instead
