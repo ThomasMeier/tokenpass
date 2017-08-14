@@ -4,6 +4,7 @@ namespace Tokenpass\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Tokenpass\Console\Commands\AssignEmailTxToUser;
 
 class Kernel extends ConsoleKernel
 {
@@ -47,6 +48,9 @@ class Kernel extends ConsoleKernel
 
         // Platform Admin
         \Tokenly\PlatformAdmin\Console\CreatePlatformAdmin::class,
+
+        //Tx
+        AssignEmailTxToUser::class
     ];
 
     /**

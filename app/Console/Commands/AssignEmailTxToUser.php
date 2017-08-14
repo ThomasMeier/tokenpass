@@ -50,8 +50,14 @@ class AssignEmailTxToUser extends Command
 
         $promise_txs = $provisionalRepository->findPromiseTx($email);
 
+        $address = Address::getAddressList($user->id, 1, 1, true)->first();
+
+        if(empty($address)) {
+            throw new \Exception('Address could not be found');
+        }
+
         foreach ($promise_txs as $promise_tx) {
-            $promise_tx->destination = Address::getAddressList($user->id, 1, 1, true);
+            $promise_tx->destination = $address->address;
             $promise_tx->save();
         }
     }

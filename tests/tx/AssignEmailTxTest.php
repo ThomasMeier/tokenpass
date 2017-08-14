@@ -21,11 +21,7 @@ class AssignEmailTxTest extends TestCase {
         $api_tester = app('OAuthClientAPITester')->be($oauth_client);
 
         // add test users and addresses
-        $address = $address_helper->createNewAddress($user1, ['address' => '1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j']);
-        $address_helper->createNewAddress($user1, ['address' => '1AAAA2222xxxxxxxxxxxxxxxxxxy4pQ3tU']);
-        $address_helper->createNewAddress($user1, ['address' => '1AAAA3333xxxxxxxxxxxxxxxxxxxsTtS6v', 'public'        => false,]);
-        $address_helper->createNewAddress($user1, ['address' => '1AAAA4444xxxxxxxxxxxxxxxxxxxxjbqeD', 'active_toggle' => false,]);
-        $address_helper->createNewAddress($user1, ['address' => '1AAAA5555xxxxxxxxxxxxxxxxxxxwEhYkL', 'verified'      => false,]);
+        $address = $address_helper->createNewAddress($user1, ['address' => '1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j', 'verified' => true, 'public' => true, 'active_toggle' => true]);
 
         //New provisional tca Address
         $proof = 'IHnyXpEMX+Dhu/em3SYEC+pLZPQYI1EblsjIGpPEVy2SmPJ1p6CBDvy71llh6lYMt5SxTx51SOImSpIp1PQoGUI=';
@@ -39,8 +35,6 @@ class AssignEmailTxTest extends TestCase {
         $mock_t->shouldReceive('getBalances')->andReturn(array('TOKENLY' => INF));
         app()->instance('Tokenly\XChainClient\Client', $mock_t);
 
-
-        // No user
         $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('POST', route('api.tca.provisional.tx.register', [
             'source' => $address->address,
             'destination' => 'email:fakemmail@tokenly.com',
@@ -48,6 +42,24 @@ class AssignEmailTxTest extends TestCase {
             'quantity' => 15
         ]), [], 200);
 
+        //Now assign the tx to a real user
+        $user_vars = array('email' => 'fakemmail@tokenly.com');
+        $new_user = $user_helper->registerNewUser($this->app, $user_vars);
+
+        //Test that destination didn't change
+        $tx = Provisional::orderBy('id', 'desc')->first();
+        PHPUnit::assertEquals('fakemmail@tokenly.com', $tx->destination);
+
+        //Create address for new user
+        $new_address = $address_helper->createNewAddress($new_user, ['address' => '1AAAA2222xxxxxxxxxxxxxxxxxxy4pQ3tU']);
+
+        \Illuminate\Support\Facades\Artisan::call('tokenpass:assignTx', [
+            'email' => $new_user->email,
+        ]);
+
+        //Test that destination changed
+        $tx = Provisional::orderBy('id', 'desc')->first();
+        PHPUnit::assertEquals($new_address->address, $tx->destination);
     }
 
 }

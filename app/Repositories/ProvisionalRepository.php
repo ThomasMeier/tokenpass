@@ -16,7 +16,7 @@ class ProvisionalRepository extends BaseRepository
 
 
     function findPromiseTx($email) {
-        return Provisional::where('destination', "email:$email")->get();
+        return Provisional::where('destination', "$email")->get();
     }
 
 }
