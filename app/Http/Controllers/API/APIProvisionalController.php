@@ -279,6 +279,7 @@ class APIProvisionalController extends Controller
                 $add_ref = 'user:'.$destination_user->id;
             }
             else{
+                //TODO: remove this since the tx should be able to pass even if there is no user
                 $output['error'] = 'User not found';
                 return Response::json($output, 404);
             }
