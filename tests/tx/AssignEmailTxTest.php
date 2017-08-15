@@ -35,6 +35,11 @@ class AssignEmailTxTest extends TestCase {
         $mock_t->shouldReceive('getBalances')->andReturn(array('TOKENLY' => INF));
         app()->instance('Tokenly\XChainClient\Client', $mock_t);
 
+        //Mock TokenDelivery client
+        $mock_t = \Mockery::mock('\Tokenpass\TokenDelivery\DeliveryClient');
+        $mock_t->shouldReceive('updateEmailTx')->andReturn(true);
+        app()->instance('\Tokenpass\TokenDelivery\DeliveryClient', $mock_t);
+
         $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('POST', route('api.tca.provisional.tx.register', [
             'source' => $address->address,
             'destination' => 'email:fakemmail@tokenly.com',
@@ -60,6 +65,7 @@ class AssignEmailTxTest extends TestCase {
         //Test that destination changed
         $tx = Provisional::orderBy('id', 'desc')->first();
         PHPUnit::assertEquals($new_address->address, $tx->destination);
+
     }
 
 }

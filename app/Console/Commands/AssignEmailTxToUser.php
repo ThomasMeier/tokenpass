@@ -7,7 +7,6 @@ use Tokenly\DeliveryClient\TokenDeliveryServiceProvider;
 use Tokenpass\Models\Address;
 use Tokenpass\Repositories\ProvisionalRepository;
 use Tokenpass\Repositories\UserRepository;
-use Tokenly\DeliveryClient\Client as DeliveryClient;
 
 
 class AssignEmailTxToUser extends Command
@@ -65,7 +64,9 @@ class AssignEmailTxToUser extends Command
         }
 
         //'/v1/email_deliveries/update'
-        $client = new DeliveryClient(env('TOKENDELIVERY_CONNECTION_URL'), env('TOKENDELIVERY_API_TOKEN'), env('TOKENDELIVERY_API_KEY'));
+        $client = app('\Tokenpass\TokenDelivery\DeliveryClient');
 
+        //TODO: Implement error catching
+        $client->updateEmailTx($user->username, $user->email);
     }
 }
