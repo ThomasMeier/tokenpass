@@ -47,26 +47,23 @@ class AssignEmailTxToUser extends Command
         //Check whether there's a user registered with the email
         $user = $userRepository->findByEmail($email);
         if(empty($user)) {
-            throw new \Exception('User not found');
+            return;
         }
 
         $promise_txs = $provisionalRepository->findPromiseTx($email);
 
-        $address = Address::getAddressList($user->id, 1, 1, true)->first();
-
-        if(empty($address)) {
-            throw new \Exception('Address could not be found');
-        }
-
         foreach ($promise_txs as $promise_tx) {
-            $promise_tx->destination = $address->address;
+            $promise_tx->destination = 'user:' . $user->id;
             $promise_tx->save();
         }
 
         //'/v1/email_deliveries/update'
         $client = app('\Tokenpass\TokenDelivery\DeliveryClient');
 
-        //TODO: Implement error catching
-        $client->updateEmailTx($user->username, $user->email);
+        try {
+            $client->updateEmailTx($user->username, $user->email);
+        } catch (\Exception $e) {
+
+        }
     }
 }

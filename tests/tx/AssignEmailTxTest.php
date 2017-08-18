@@ -51,20 +51,10 @@ class AssignEmailTxTest extends TestCase {
         $user_vars = array('email' => 'fakemmail@tokenly.com');
         $new_user = $user_helper->registerNewUser($this->app, $user_vars);
 
-        //Test that destination didn't change
-        $tx = Provisional::orderBy('id', 'desc')->first();
-        PHPUnit::assertEquals('fakemmail@tokenly.com', $tx->destination);
-
-        //Create address for new user
-        $new_address = $address_helper->createNewAddress($new_user, ['address' => '1AAAA2222xxxxxxxxxxxxxxxxxxy4pQ3tU']);
-
-        \Illuminate\Support\Facades\Artisan::call('tokenpass:assignTx', [
-            'email' => $new_user->email,
-        ]);
 
         //Test that destination changed
         $tx = Provisional::orderBy('id', 'desc')->first();
-        PHPUnit::assertEquals($new_address->address, $tx->destination);
+        PHPUnit::assertEquals('user:'.$new_user->id, $tx->destination);
 
     }
 

@@ -89,7 +89,6 @@ class AuthRegisterController extends BaseAuthController
             );
         }
 
-
         $new_user = $this->create($request->all());
         event(new UserRegistered($new_user));
         event(new Registered($new_user));
@@ -98,6 +97,11 @@ class AuthRegisterController extends BaseAuthController
 
         // send the confirmation email
         $this->dispatch(new SendUserConfirmationEmail($new_user));
+
+        //Reassign promise deliveries to the email address
+        \Illuminate\Support\Facades\Artisan::call('tokenpass:assignTx', [
+            'email' => $new_user->email,
+        ]);
 
         // if we came from an authorization request
         //   then continue by redirecting the user to their original, intended request
