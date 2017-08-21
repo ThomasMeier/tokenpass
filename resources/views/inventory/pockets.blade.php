@@ -192,6 +192,12 @@
               </div>
 
               <div class="input-group toggle-field">
+                <label>Primary?</label>
+                <input id="pocket-@{{ $index }}-primary" name="primary" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.primary" value=1>
+                <label for="pocket-@{{ $index }}-primary"></label>
+              </div>
+
+              <div class="input-group toggle-field">
                 <label>Public?</label>
                 <input id="pocket-@{{ $index }}-public" name="public" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.public" value=1>
                 <label for="pocket-@{{ $index }}-public"></label>
