@@ -48,7 +48,7 @@ class Address extends Model
         if($login_toggle !== null){
             $get = $get->where('login_toggle', '=', intval($login_toggle));
         }
-        return $get->orderBy('id', 'asc')->get();
+        return $get->orderBy('primary', 'desc')->get();
     }
     
     public static function getAddressBalances($address_id, $filter_disabled = false, $and_provisional = true, $subtract_loans = false)

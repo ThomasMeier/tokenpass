@@ -172,4 +172,26 @@ class APIPublicLookupTest extends TestCase {
          PHPUnit::assertContains('User or addresses not found', $response['error']);
    }
 
+    public function testFirstAddressIsPrimary() {
+        $user_helper = app('UserHelper')->setTestCase($this);
+        $address_helper = app('AddressHelper');
+
+        // add test users and addresses
+        $user1 = $user_helper->createRandomUser();
+        $address_helper->createNewAddress($user1, ['address' => '1AAAA1111xxxxxxxxxxxxxxxxxxy43CZ9j', 'primary' => false]);
+        $address_helper->createNewAddress($user1, ['address' => '1AAAA2222xxxxxxxxxxxxxxxxxxy4pQ3tU', 'primary' => true]);
+        $address_helper->createNewAddress($user1, ['address' => '1AAAA2222xxxxxxxxxxxxxxxxxxd5gE7hf', 'primary' => false]);
+
+        // setup api client
+        $oauth_client = app('OAuthClientHelper')->createConnectedOAuthClientWithTCAScopes($user1);
+        $api_tester = app('OAuthClientAPITester')->be($oauth_client);
+
+        // Test address is primary
+        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('GET', route('api.lookup.user', [
+            'username' => $user1['username']
+        ]));
+        PHPUnit::assertEquals('1AAAA2222xxxxxxxxxxxxxxxxxxy4pQ3tU', $response['result']['address']);
+
+    }
+
 }
