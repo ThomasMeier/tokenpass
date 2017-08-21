@@ -193,7 +193,7 @@
 
               <div class="input-group toggle-field">
                 <label>Primary?</label>
-                <input id="pocket-@{{ $index }}-primary" name="primary" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.primary" value=1>
+                <input id="pocket-@{{ $index }}-primary" name="primary" type="checkbox" class="toggle toggle-round-flat" v-model="pocket.primary" :disabled="primaryAddress != pocket.id && primaryAddress != 0" value=1>
                 <label for="pocket-@{{ $index }}-primary"></label>
               </div>
 
@@ -252,7 +252,18 @@ var vm = new Vue({
     pockets: pockets,
     currentPocket: {}
   },
-
+  computed: {
+      primaryAddress: function () {
+          var vm = this
+          var primary = 0
+          for (var i=0; i < vm.pockets.length; ++i) {
+              if(vm.pockets[i].primary) {
+                  primary = vm.pockets[i].id
+              }
+          }
+          return primary
+      }
+  },
   methods: {
     bindEvents: function(){
       $('form.js-auto-ajax').on('submit', this.submitFormAjax);
