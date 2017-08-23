@@ -376,7 +376,8 @@ class APIProvisionalController extends Controller
                 return Response::json($output, 400);
             }
         }
-        
+        $expiration = $input['expiration'];
+
         //check for custom note
         $note = null;
         if(isset($input['note'])){
