@@ -375,8 +375,8 @@ class APIProvisionalController extends Controller
                 $output['error'] = 'Invalid expiration, must be set to the future';
                 return Response::json($output, 400);
             }
+            $expiration = $input['expiration'];
         }
-        $expiration = $input['expiration'];
 
         //check for custom note
         $note = null;

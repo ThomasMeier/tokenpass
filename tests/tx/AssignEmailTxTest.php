@@ -40,12 +40,16 @@ class AssignEmailTxTest extends TestCase {
         $mock_t->shouldReceive('updateEmailTx')->andReturn(true);
         app()->instance('\Tokenpass\TokenDelivery\DeliveryClient', $mock_t);
 
-        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('POST', route('api.tca.provisional.tx.register', [
-            'source' => $address->address,
-            'destination' => 'email:fakemmail@tokenly.com',
-            'asset' => 'TOKENLY',
-            'quantity' => 15
-        ]), [], 200);
+
+        $query_params['source'] = $address->address;
+        $query_params['destination'] = 'email:fakemmail@tokenly.com';
+        $query_params['asset'] = 'TOKENLY';
+        $query_params['quantity'] = 1250;
+        $query_params['expiration'] = time()+3600;
+        $query_params['ref'] = 'test ref data';
+        $query_params['debug'] = true;
+        $expiration = time() + 3600;
+        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('POST', route('api.tca.provisional.tx.register', $query_params), [], 200);
 
         //Now assign the tx to a real user
         $user_vars = array('email' => 'fakemmail@tokenly.com');
