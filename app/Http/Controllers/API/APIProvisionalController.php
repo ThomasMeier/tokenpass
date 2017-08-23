@@ -236,7 +236,7 @@ class APIProvisionalController extends Controller
         $destination = trim($input['destination']);
         $add_ref = null;
         if(strpos($destination, 'user:') === 0){
-            //use a username as destination
+            //use an email as destination
             $destination = substr($destination, 5);
             $destination_user = User::where('username', $destination)->first();
             if($destination_user){
