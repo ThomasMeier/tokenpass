@@ -26,6 +26,7 @@ class AddressController extends ResourceController
             'user_id' => 'exists:users,id',
             'label' => 'max:255',
             'verified' => 'numeric',
+            'primary'  => 'numeric',
             'active_toggle' => 'numeric',
             'second_factor_toggle' => 'numeric',
             'public' => 'numeric',
