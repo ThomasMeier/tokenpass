@@ -5,6 +5,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Tokenpass\Models\OAuthClient as AuthClient;
 use Log;
 use Tokenpass\Http\Controllers\Controller;
 use Tokenpass\Models\Address;
@@ -109,9 +110,6 @@ class APILookupsController extends Controller
         $output = array();
         $output['result'] = false;
         $input = Input::all();
-        //check if a valid application client_id
-        $valid_client = false;
-
 
         $user_model = User::where('username', $username)->orWhere('slug', $username)->first();
         if(!$user_model){
@@ -162,9 +160,24 @@ class APILookupsController extends Controller
     public function lookupUserByEmail($email) {
         $output = array();
         $output['result'] = false;
-        //check if a valid application client_id
-        $valid_client = false;
-
+        $input = Input::all();
+        
+        $oauthClient = false;
+        if(isset($input['client_id'])){
+            $oauthClient = AuthClient::find($input['client_id']);
+        }
+        if(!$oauthClient){
+            $output['error'] = 'Invalid API client ID'.json_encode($input);
+            return Response::json($output, 400);
+        }
+        
+        //check oauth client privileges
+        $privs = $oauthClient->privileges();
+        if(!$privs OR !isset($privs['canLookupUsersByEmail']) OR !$privs['canLookupUsersByEmail']){
+            $output['error'] = 'Client does not have permission to use this API method';
+            return Response::json($output, 400);
+        }        
+        
         $user_model = User::where('email', $email)->first();
         if(!$user_model){
             $output['error'] = 'User not found';
