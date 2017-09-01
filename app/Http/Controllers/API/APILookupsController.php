@@ -158,5 +158,29 @@ class APILookupsController extends Controller
         }
         return Response::json($output);
     }
-        
+
+    public function lookupUserByEmail($email) {
+        $output = array();
+        $output['result'] = false;
+        //check if a valid application client_id
+        $valid_client = false;
+
+        $user_model = User::where('email', $email)->first();
+        if(!$user_model){
+            $output['error'] = 'User not found';
+            return Response::json($output, 404);
+        }
+
+        //It doesn't matter if there are no addresses
+        $addresses = Address::getAddressList($user_model->id, 1, 1, true);
+
+        $result = array();
+        $result['username'] = $user_model->username;
+        if (count($addresses) > 0) {
+            $result['address'] = $addresses[0]->address;
+        }
+        $result['email'] = $user_model->email;
+        $output['result'] = $result;
+        return Response::json($output);
+    }
 }

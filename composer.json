@@ -32,7 +32,8 @@
         "pubnub/pubnub": "^3.8",
         "tokenly/asset-name-utils": "^0.2.0",
         "stephenhill/base58": "^1.1",
-        "pda/pheanstalk": "^3.1"
+        "pda/pheanstalk": "^3.1",
+        "tokenly/delivery-client": "^0.3.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
