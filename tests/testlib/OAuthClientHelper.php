@@ -19,7 +19,7 @@ class OAuthClientHelper
         if ($user === null) { $user = app('UserHelper')->getOrCreateSampleUser(); }
 
         // create
-        $oauth_client = $this->createRandomOAuthClient();
+        $oauth_client = $this->createRandomOAuthClient($override_vars);
 
         // connect
         $oauth_connection = $this->connectClient($user, $oauth_client);
@@ -60,7 +60,7 @@ class OAuthClientHelper
     }
 
     public function createRandomOAuthClient($override_vars=[]) {
-        return $this->createSampleOAuthClient($this->getRandomOAuthClientVars());
+        return $this->createSampleOAuthClient(array_merge($this->getRandomOAuthClientVars(), $override_vars));
     }
 
     public function getRandomOAuthClientVars() {
@@ -77,6 +77,7 @@ class OAuthClientHelper
             'id'     => 'MY_API_TOKEN',
             'secret' => 'MY_SECRET',
             'name'   => 'client one',
+            'privileges' => null
         ], $override_vars));
 
         return $oauth_client;

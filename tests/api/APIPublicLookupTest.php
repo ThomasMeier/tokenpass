@@ -29,20 +29,21 @@ class APIPublicLookupTest extends TestCase {
         $address_helper->createNewPseudoAddress($user3);
 
         // setup api client
-        $oauth_client = app('OAuthClientHelper')->createConnectedOAuthClientWithTCAScopes($user1);
-        $api_tester = app('APITestHelper');
-        $api_tester->be($user1);
-
+        $oauth_client = app('OAuthClientHelper')->createConnectedOAuthClientWithTCAScopes($user1, array('privileges' => '{"canLookupUsersByEmail": true}'));
+        $api_tester = app('OAuthClientAPITester')->be($oauth_client);
+        
         // No user
-        $response = $api_tester->callJSON('GET', route('api.lookup.email', [
-            'username' => 'fake person'
+        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('GET', route('api.lookup.email', [
+            'username' => 'fake person',
+            'client_id' => $oauth_client->id
         ]), [], 404);
         PHPUnit::assertContains('User not found', $response['error']);
 
 
         // Get a user
-        $response = $api_tester->callJSON('GET', route('api.lookup.email', [
-            'email' => $user1['email']
+        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('GET', route('api.lookup.email', [
+            'email' => $user1['email'],
+            'client_id' => $oauth_client->id
         ]));
 
         PHPUnit::assertEquals($user1['username'], $response['result']['username']);
@@ -51,8 +52,9 @@ class APIPublicLookupTest extends TestCase {
 
 
         // Get a user with no addresses (404 not found)
-        $response = $api_tester->callJSON('GET', route('api.lookup.email', [
-            'email' => $user2['email']
+        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('GET', route('api.lookup.email', [
+            'email' => $user2['email'],
+            'client_id' => $oauth_client->id
         ]), [], 200);
 
     }
