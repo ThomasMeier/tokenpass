@@ -236,7 +236,7 @@ class APIProvisionalController extends Controller
         $destination = trim($input['destination']);
         $add_ref = null;
         if(strpos($destination, 'user:') === 0){
-            //use a username as destination
+            //use an email as destination
             $destination = substr($destination, 5);
             $destination_user = User::where('username', $destination)->first();
             if($destination_user){
@@ -259,6 +259,26 @@ class APIProvisionalController extends Controller
                 return Response::json($output, 404);        
             }            
         }
+        elseif(strpos($destination, 'email:') === 0) {
+            //use a username as destination
+            $destination = substr($destination, 6);
+            $destination_user = User::where('email', $destination)->first();
+            if($destination_user){
+                // if($user AND $destination_user->id == $user->id){
+                //     $output['error'] = 'Cannot make promise to self';
+                //     return Response::json($output, 400);
+                // }
+                //use their first active verified address
+                $first_address = Address::where('user_id', $destination_user->id)->where('active_toggle', 1)->where('verified', 1)->first();
+                if(!$first_address){
+                    // $output['error'] = 'Destination user does not have any verified addresses';
+                    // return Response::json($output, 400);
+                    $first_address = app(PseudoAddressManager::class)->ensurePseudoAddressForUser($destination_user);
+                }
+                $destination = $first_address->address;
+                $add_ref = 'user:'.$destination_user->id;
+            }
+        }
         else{
             //check if valid bitcoin address
             $address_is_valid = BitcoinUtil::isValidBitcoinAddress($destination);
@@ -277,7 +297,7 @@ class APIProvisionalController extends Controller
         $get_source = DB::table('provisional_tca_addresses')
                         ->where('address', $input['source'])
                         ->where('client_id', $oauth_client['id'])->first();
-        
+
         // if(!$get_source){
         //     if($user){
         //         //attempt to use a regular verified pocket address instead
@@ -355,8 +375,9 @@ class APIProvisionalController extends Controller
                 $output['error'] = 'Invalid expiration, must be set to the future';
                 return Response::json($output, 400);
             }
+            $expiration = $input['expiration'];
         }
-        
+
         //check for custom note
         $note = null;
         if(isset($input['note'])){

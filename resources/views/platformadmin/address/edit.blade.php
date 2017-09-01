@@ -56,6 +56,15 @@
                     <option value="1" @if($model['active_toggle'] == 1) selected @endif >Yes</option>
                 </select>
             </div>
+            <p>
+            </p>
+            <div class="form-group">
+                <label for="primary_toggle">Primary</label>
+                <select name="primary" id="primary_toggle" class="form-control">
+                    <option value="0">No</option>
+                    <option value="1" @if($model['primary'] == 1) selected @endif >Yes</option>
+                </select>
+            </div>
             <div class="form-group">
                 <label for="public">Public</label>
                 <select name="public" id="public" class="form-control">

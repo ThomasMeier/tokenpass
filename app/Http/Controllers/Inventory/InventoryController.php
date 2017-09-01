@@ -316,10 +316,17 @@ class InventoryController extends Controller
 			$get->second_factor_toggle = $second_factor;
 
 			$notify_email = 0;
-            if(!$get->from_api AND isset($input['notify_email']) AND intval($input['notify_email']) == 1 AND $get->notify_email == 0){
+            if(!$get->from_api AND isset($input['notify_email']) AND intval($input['notify_email']) == 1){
                 $notify_email = 1;
             }
             $get->notify_email = $notify_email;
+
+            $primary = 0;
+            $is_there_other_primary_address = Address::where('user_id', $authed_user->id)->where('primary', 1)->exists();
+            if(!$get->from_api AND isset($input['primary']) AND intval($input['primary']) == 1 AND !$is_there_other_primary_address) {
+                $primary = 1;
+            }
+            $get->primary = $primary;
 
 			if (isset($input['notes'])) {
 				$get->notes = trim(htmlentities($input['notes']));
