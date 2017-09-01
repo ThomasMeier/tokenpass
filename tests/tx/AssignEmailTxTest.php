@@ -45,10 +45,10 @@ class AssignEmailTxTest extends TestCase {
         $query_params['destination'] = 'email:fakemmail@tokenly.com';
         $query_params['asset'] = 'TOKENLY';
         $query_params['quantity'] = 1250;
-        $query_params['expiration'] = time()+3600;
+        $query_params['expiration'] = date('Y-m-d H:i:s', time()+86400);
         $query_params['ref'] = 'test ref data';
         $query_params['debug'] = true;
-        $expiration = time() + 3600;
+ 
         $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('POST', route('api.tca.provisional.tx.register', $query_params), [], 200);
 
         //Now assign the tx to a real user
