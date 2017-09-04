@@ -61,7 +61,7 @@ class AssignEmailTxToUser extends Command
         foreach ($promise_txs as $promise_tx) {
             //use their first active/primary address, otherwise create a pseudo address
             if(!$use_address){
-                $promise_tx->destination = app(PseudoAddressManager::class)->ensurePseudoAddressForUser($user);
+                $promise_tx->destination = app(PseudoAddressManager::class)->ensurePseudoAddressForUser($user)->address;
             }
             else{
                 $promise_tx->destination = $use_address;
