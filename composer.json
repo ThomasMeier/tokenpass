@@ -33,7 +33,7 @@
         "tokenly/asset-name-utils": "^0.2.0",
         "stephenhill/base58": "^1.1",
         "pda/pheanstalk": "^3.1",
-        "tokenly/delivery-client": "^0.3.0"
+        "tokenly/delivery-client": "dev-master@dev"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
