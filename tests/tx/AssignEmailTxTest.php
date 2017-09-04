@@ -58,7 +58,7 @@ class AssignEmailTxTest extends TestCase {
 
         //Test that destination changed
         $tx = Provisional::orderBy('id', 'desc')->first();
-        PHPUnit::assertEquals('user:'.$new_user->id, $tx->destination);
+        PHPUnit::assertEquals('user:'.$new_user->id, $tx->ref);
 
     }
 
