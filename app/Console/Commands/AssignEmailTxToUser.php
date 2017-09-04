@@ -74,7 +74,7 @@ class AssignEmailTxToUser extends Command
 
         $client = app('Tokenly\DeliveryClient\Client');
         try {
-            $client->updateEmailTx($user->username, $user->email);
+            $client->updateEmailTx($user->username, $user->email, env('TOKENDELIVERY_TOKENPASS_PRIVILEGED_KEY'));
         } catch (\Exception $e) {
             $this->error('Error updating deliveries: '.$e->getMessage());
         }
