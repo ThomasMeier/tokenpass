@@ -4539,12 +4539,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tokenly/delivery-client.git",
-                "reference": "6aff5a5b4c52f77eaafe294717e08a31dec745a8"
+                "reference": "d8b34c0e59502f88337f05387010f9139b5dbe2c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tokenly/delivery-client/zipball/6aff5a5b4c52f77eaafe294717e08a31dec745a8",
-                "reference": "6aff5a5b4c52f77eaafe294717e08a31dec745a8",
+                "url": "https://api.github.com/repos/tokenly/delivery-client/zipball/d8b34c0e59502f88337f05387010f9139b5dbe2c",
+                "reference": "d8b34c0e59502f88337f05387010f9139b5dbe2c",
                 "shasum": ""
             },
             "require": {
@@ -4573,7 +4573,7 @@
                 }
             ],
             "description": "A library",
-            "time": "2017-09-04 04:44:59"
+            "time": "2017-09-04 06:41:32"
         },
         {
             "name": "tokenly/hmac-auth",
