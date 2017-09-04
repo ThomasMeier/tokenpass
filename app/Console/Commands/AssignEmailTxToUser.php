@@ -3,8 +3,8 @@
 namespace Tokenpass\Console\Commands;
 
 use Illuminate\Console\Command;
-use Tokenly\DeliveryClient\TokenDeliveryServiceProvider;
 use Tokenpass\Models\Address;
+use Tokenpass\Providers\PseudoAddressManager\PseudoAddressManager;
 use Tokenpass\Repositories\ProvisionalRepository;
 use Tokenpass\Repositories\UserRepository;
 
@@ -47,23 +47,36 @@ class AssignEmailTxToUser extends Command
         //Check whether there's a user registered with the email
         $user = $userRepository->findByEmail($email);
         if(empty($user)) {
+            $this->error('User not found for email '.$email);
             return;
+        }
+        
+        $address_list = Address::getAddressList($user->id, null, 1, true);
+        $use_address = false;
+        if($address_list AND isset($address_list[0])){
+            $use_address = $address_list[0]['address'];
         }
 
         $promise_txs = $provisionalRepository->findPromiseTx($email);
-
         foreach ($promise_txs as $promise_tx) {
-            $promise_tx->destination = 'user:' . $user->id;
+            //use their first active/primary address, otherwise create a pseudo address
+            if(!$use_address){
+                $promise_tx->destination = app(PseudoAddressManager::class)->ensurePseudoAddressForUser($user);
+            }
+            else{
+                $promise_tx->destination = $use_address;
+            }
+            
+            //update reference data with their user ID        
+            $promise_tx->ref = 'user:' . $user->id;
             $promise_tx->save();
         }
 
-        //'/v1/email_deliveries/update'
-        $client = app('\Tokenpass\TokenDelivery\DeliveryClient');
-
+        $client = app('Tokenly\DeliveryClient\Client');
         try {
             $client->updateEmailTx($user->username, $user->email);
         } catch (\Exception $e) {
-
+            $this->error('Error updating deliveries: '.$e->getMessage());
         }
     }
 }

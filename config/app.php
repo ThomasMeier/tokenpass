@@ -166,7 +166,7 @@ return [
         
         // make sure to call this after all other service providers
         Tokenly\PlatformAdmin\Provider\PlatformAdminServiceProvider::class,
-
+        Tokenly\DeliveryClient\TokenDeliveryServiceProvider::class,
 
     ],
 
