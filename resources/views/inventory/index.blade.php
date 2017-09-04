@@ -148,13 +148,7 @@
 	  </div>
 	  <a href="/inventory/refresh" class="btn-dash-title">
 	  	<i class="material-icons">refresh</i>Refresh Token Balances
-		</a>
-        <div class="panel with-padding">
-          <p style="color: red;">
-              <strong>Notice:</strong> Pocket address verification and Token Controlled Access features may be temporarily unavailable between July 31st and August 3rd due to service closure for the Aug 1st Bitcoin "fork event". 
-              Contact team@tokenly.com if you have any questions or concerns.
-          </p>
-        </div>        
+		</a>       
 	</section>
 	<section class="tokens" v-cloak>
     <div v-if="tokens.length">
