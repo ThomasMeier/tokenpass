@@ -14,4 +14,8 @@
 <script type="text/javascript" src="/js/moment.min.js" ></script>
 <script type="text/javascript" src="/js/numeral.min.js" ></script>
 <script type="text/javascript" src="/js/application.js" ></script>
+
+<!-- Civic login -->
+<script src="https://hosted-sip.civic.com/js/civic.sip.min.js"></script>
+
 @yield('page-js')

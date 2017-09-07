@@ -47,7 +47,12 @@
 	  </div>
 		<div class="login-with-bitcoin">
 	    <div class="form-wrapper">
-	      <h1 class="login-heading">Login with Bitcoin</h1>
+		  <h1 class="login-heading">Login with Civic</h1>
+		  <a class="signature__cts" href="{{ env('POCKETS_URI') }}:sign?message={{ str_replace('+', '%20', urlencode($sigval)) }}&label={{ str_replace('+', '%20', urlencode('Sign in to Tokenpass (2FA)')) }}&callback={{ urlencode(route('auth.bitcoin.post', array('msg_hash' => $msg_hash))) }}">
+				<img src="/img/pockets-icon-64-light.png" alt="Pockets Icon" width="36px" style="margin-right: 15px">
+				Sign with Civic
+		  </a>
+		  <h1 class="login-heading">Login with Bitcoin</h1>
 	      <form method="POST" action="/auth/bitcoin">
 	        {!! csrf_field() !!}
 

@@ -22,3 +22,6 @@
 <!--[if IE]>
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
+
+<!-- Civic log in -->
+<link rel="stylesheet" href="https://hosted-sip.civic.com/css/civic-modal.css">
