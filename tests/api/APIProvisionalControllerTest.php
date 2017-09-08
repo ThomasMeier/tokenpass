@@ -269,6 +269,12 @@ class APIProvisionalControllerTest extends TestCase {
         $balances = Address::getAllUserBalances($user['id']);
         PHPUnit::assertArrayHasKey('SOUP', $balances);
         PHPUnit::assertEquals((2000+1)*self::SATOSHI, $balances['SOUP']);
+
+        //Edit destination
+        $route = route('api.tca.provisional.tx.update', $promise_id);
+        $query_params['destination'] = '1GifBVCtBsYm9zooyp7B2UDWsN7SXZzRai';
+        $response = $api_tester->callAPIWithAuthenticationAndReturnJSONContent('PATCH', $route, $query_params);
+        PHPUnit::assertEquals($query_params['destination'], $response['tx']['destination']);
     }
 
 

@@ -532,7 +532,12 @@ class APIProvisionalController extends Controller
             }
             $update_data['quantity'] = $quantity;            
         }
-        
+
+
+        if(isset($input['destination']) && BitcoinUtil::isValidBitcoinAddress($input['destination'])) {
+            $update_data['destination'] = $input['destination'];
+        }
+
         $old_tx = false;
         if(isset($input['txid'])){
             $update_data['txid'] = $input['txid'];
