@@ -2,8 +2,7 @@
 
 class JWT {
 
-
-    function createToken ($issuer, $audience, $subject, $expiresIn, $payload, $prvKeyHex) {
+    static function createToken ($issuer, $audience, $subject, $expiresIn, $payload, $prvKeyHex) {
         $now = time();
         $until = strtotime('+3 minutes', time());
 
@@ -21,7 +20,16 @@ class JWT {
             'alg' => 'ES256',
             'typ' => 'JWT'
         );
-        $header = json_encode($header);
-        $sContent = json_encode($content);
+        $headers = json_encode($header);
+        $content = json_encode($content);
+
+        $jws = new \Gamegos\JWS\JWS();
+        return $jws->encode($headers, $content , $prvKeyHex);
+    }
+
+    static function createCivicExt($body, $clientAccessSecret) {
+        $bodyStr = json_encode($body);
+        $hmacBuffer = hash_hmac('sha256', $bodyStr, $clientAccessSecret);
+        return base64_encode($hmacBuffer);
     }
 }
