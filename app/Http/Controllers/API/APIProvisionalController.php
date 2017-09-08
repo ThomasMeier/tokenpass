@@ -240,15 +240,13 @@ class APIProvisionalController extends Controller
             $destination = substr($destination, 5);
             $destination_user = User::where('username', $destination)->first();
             if($destination_user){
-                // if($user AND $destination_user->id == $user->id){
-                //     $output['error'] = 'Cannot make promise to self';
-                //     return Response::json($output, 400);                    
-                // }
                 //use their first active verified address
-                $first_address = Address::where('user_id', $destination_user->id)->where('active_toggle', 1)->where('verified', 1)->first();
-                if(!$first_address){
-                    // $output['error'] = 'Destination user does not have any verified addresses';
-                    // return Response::json($output, 400);                    
+                $address_list = Address::getAddressList($destination_user->id, null, 1, true);
+                $first_address = false;
+                if($address_list AND isset($address_list[0])){
+                    $first_address = $address_list[0];
+                }
+                if(!$first_address){                   
                     $first_address = app(PseudoAddressManager::class)->ensurePseudoAddressForUser($destination_user);
                 }
                 $destination = $first_address->address;
