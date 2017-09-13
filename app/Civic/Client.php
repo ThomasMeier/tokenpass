@@ -1,6 +1,9 @@
 <?php
+namespace Tokenpass\Civic;
 
 use Lcobucci\JWT\Builder;
+use Rize\UriTemplate;
+
 
 class Client {
 
@@ -13,11 +16,6 @@ class Client {
     private $invokeUrl;
     private $endpoint;
     private $pathComponent;
-
-    // extract endpoint and path from url
-    const invokeUrl = hostedServices.SIPHostedService.base_url + config.env;
-    const endpoint = /(^https?:\/\/[^\/]+)/g.exec(invokeUrl)[1];
-  const pathComponent = invokeUrl.substring(endpoint.length);
 
     function __construct($app_id, $api_key, $api_secret) {
         $this->app_id = $app_id;
@@ -33,7 +31,7 @@ class Client {
         );
 
         $this->invokeUrl = $this->hostedServices['SIPHostedService']['base_url'] . 'prod';
-        $this->endpoint = preg_match("/(^https?:\/\/[^\/]+)/g", $this->invokeUrl)[1];
+        $this->endpoint = preg_match("/(^https?:\/\/[^\/]+)/", $this->invokeUrl)[1];
         $this->pathComponent = substr($this->invokeUrl, strlen($this->endpoint));
     }
 
@@ -56,36 +54,42 @@ class Client {
 
     function exchangeCode($jwtToken) {
         $body = array( 'authToken' => $jwtToken );
-        $authHeader = $this->makeAuthorizationHeader('scopeRequest/authCode', 'POST', body);
+        $authHeader = $this->makeAuthorizationHeader('scopeRequest/authCode', 'POST', $body);
         $contentLength = mb_strlen(json_encode($body), 'utf8');
-
-        $additionalParams = array(
-            'headers' => array(
-                'Content-Length' => $contentLength,
-                'Accept' => '*/*',
-                'Authorization' => $authHeader
-            ),
-            'queryParams' => array()
-        );
 
         $params = array();
 
-        $scopeRequestAuthCodePostRequest = array(
-            'verb' => 'POST',
-            'path' => $this->pathComponent
+        $uri = new UriTemplate();
+        $path = $this->pathComponent . $uri->expand('/scopeRequest/authCode', $params);
 
-        );
-        const scopeRequestAuthCodePostRequest = {
-            verb: 'post'.toUpperCase(),
-        path: pathComponent + uritemplate('/scopeRequest/authCode').expand(apiGateway.core.utils.parseParametersToObject(params, [])),
-        headers: apiGateway.core.utils.parseParametersToObject(params, []),
-        queryParams: apiGateway.core.utils.parseParametersToObject(params, []),
-        body: body
-    };
+        try {
+
+            $client = new \GuzzleHttp\Client();
+            $res = $client->request('POST ', $path, [
+                'headers' => array(
+                    'Content-Length' => $contentLength,
+                    'Accept' => '*/*',
+                    'Authorization' => $authHeader
+                ),
+                'form_params' => $body
+            ]);
+
+            if($res->getStatusCode() != 200) {
+                throw new \Exception('\'Error exchanging code for data: ' . $res->getStatusCode());
+            } else {
+                return $this->verifyAndDecrypt($res->getBody());
+            }
+
+        } catch(\Exception $e) {
+            throw new \Exception('Error exchanging code for data: ' . $e->getMessage());
+        }
+
     }
 
     function verifyAndDecrypt($payload) {
+        var_dump($payload);
         $token = $payload['data'];
         echo $token;
+        return $token;
     }
 }

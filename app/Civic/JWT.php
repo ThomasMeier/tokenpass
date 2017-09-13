@@ -1,4 +1,5 @@
 <?php
+namespace Tokenpass\Civic;
 
 class JWT {
 

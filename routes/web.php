@@ -98,6 +98,10 @@ Route::get('auth/apps/credits/{uuid}/history/download',            ['as' => 'app
 Route::get('auth/apps/credits/{uuid}/history/{account}',           ['as' => 'app-credits.history.account', 'uses' => 'Auth\AppsController@viewAppCreditGroupTransactions']);
 Route::get('auth/apps/credits/{uuid}/history/{account}/download',  ['as' => 'app-credits.history.account.download', 'uses' => 'Auth\AppsController@downloadAppCreditHistory']);
 
+//Civic auth
+Route::post('api/v1/civic_auth',                                   ['as' => 'api.civic.auth', 'uses' => 'Auth\CivicAuthController@login']);
+
+
 // token chats
 Route::get('tokenchats',                                ['as' => 'tokenchats.index',  'uses' => 'Tokenchats\TokenchatsController@index']);
 Route::post('tokenchats/new',                           ['as' => 'tokenchats.create', 'uses' => 'Tokenchats\TokenchatsController@create']);

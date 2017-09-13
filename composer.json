@@ -35,7 +35,8 @@
         "pda/pheanstalk": "^3.1",
         "tokenly/delivery-client": "dev-master@dev",
         "gamegos/jws": "^1.0",
-        "lcobucci/jwt": "^3.2"
+        "lcobucci/jwt": "^3.2",
+        "rize/uri-template": "^0.3.2"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
