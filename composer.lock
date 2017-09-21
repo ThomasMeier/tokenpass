@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "aba18010479dad56739053233125cc84",
-    "content-hash": "b4cfe6a9c2b22e0b5cf9b41dcf4e927b",
+    "hash": "c1c9b68c048c41834f21e8ea358dbc6e",
+    "content-hash": "7c283e02945d8c05a69b5be1146fed50",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -314,6 +314,58 @@
                 "secp256k1"
             ],
             "time": "2017-03-09 10:07:06"
+        },
+        {
+            "name": "blockvis/civic-sip-php",
+            "version": "v0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/blockvis/civic-sip-php.git",
+                "reference": "7d48ade5426375efcb39b1234d634f6cb60216ef"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/blockvis/civic-sip-php/zipball/7d48ade5426375efcb39b1234d634f6cb60216ef",
+                "reference": "7d48ade5426375efcb39b1234d634f6cb60216ef",
+                "shasum": ""
+            },
+            "require": {
+                "ext-gmp": "*",
+                "guzzlehttp/guzzle": "^6.3",
+                "lcobucci/jwt": "4.0.0-alpha1",
+                "mdanter/ecc": "^0.4.2",
+                "php": "^7.0",
+                "ramsey/uuid": "^3.7"
+            },
+            "require-dev": {
+                "phpspec/phpspec": "^4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Blockvis\\Civic\\Sip\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Blockvis Team",
+                    "email": "blockvis@blockvis.com",
+                    "homepage": "https://blockvis.com"
+                }
+            ],
+            "description": "The Civic Secure Identity Platform (SIP) API client.",
+            "keywords": [
+                "api",
+                "authorization",
+                "blockchain",
+                "civic",
+                "sip"
+            ],
+            "time": "2017-09-20 14:28:21"
         },
         {
             "name": "classpreloader/classpreloader",
@@ -1915,43 +1967,80 @@
             "time": "2016-05-16 23:22:58"
         },
         {
-            "name": "lcobucci/jwt",
-            "version": "3.2.2",
+            "name": "lcobucci/clock",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/lcobucci/jwt.git",
-                "reference": "0b5930be73582369e10c4d4bb7a12bac927a203c"
+                "url": "https://github.com/lcobucci/clock.git",
+                "reference": "bc2caa64a8a1fda18431d12c623d2059cfc667f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lcobucci/jwt/zipball/0b5930be73582369e10c4d4bb7a12bac927a203c",
-                "reference": "0b5930be73582369e10c4d4bb7a12bac927a203c",
+                "url": "https://api.github.com/repos/lcobucci/clock/zipball/bc2caa64a8a1fda18431d12c623d2059cfc667f4",
+                "reference": "bc2caa64a8a1fda18431d12c623d2059cfc667f4",
                 "shasum": ""
             },
             "require": {
-                "ext-openssl": "*",
-                "php": ">=5.5"
+                "php": "^7.1"
             },
             "require-dev": {
-                "mdanter/ecc": "~0.3.1",
-                "mikey179/vfsstream": "~1.5",
-                "phpmd/phpmd": "~2.2",
-                "phpunit/php-invoker": "~1.1",
-                "phpunit/phpunit": "~4.5",
-                "squizlabs/php_codesniffer": "~2.3"
-            },
-            "suggest": {
-                "mdanter/ecc": "Required to use Elliptic Curves based algorithms."
+                "phpunit/phpunit": "^6.1"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.1-dev"
+                    "dev-master": "1.0-dev"
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "Lcobucci\\JWT\\": "src"
+                    "Lcobucci\\Clock\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Luís Cobucci",
+                    "email": "lcobucci@gmail.com"
+                }
+            ],
+            "description": "Yet another clock abstraction",
+            "time": "2017-05-07 19:02:47"
+        },
+        {
+            "name": "lcobucci/jose-parsing",
+            "version": "2.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lcobucci/jose-parsing.git",
+                "reference": "ea0eaed79c3a5ca9ece3f824ecfe1e798fd1e1f4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lcobucci/jose-parsing/zipball/ea0eaed79c3a5ca9ece3f824ecfe1e798fd1e1f4",
+                "reference": "ea0eaed79c3a5ca9ece3f824ecfe1e798fd1e1f4",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1"
+            },
+            "require-dev": {
+                "phpmd/phpmd": "^2.3",
+                "phpunit/phpunit": "^6.0",
+                "squizlabs/php_codesniffer": "^2.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.2-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Lcobucci\\Jose\\Parsing\\": "src"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1965,12 +2054,72 @@
                     "role": "Developer"
                 }
             ],
+            "description": "A basic Base64Url and JSON encoding/decoding implementation",
+            "keywords": [
+                "JOSE",
+                "base64url"
+            ],
+            "time": "2017-02-12 22:14:17"
+        },
+        {
+            "name": "lcobucci/jwt",
+            "version": "4.0.0-alpha1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lcobucci/jwt.git",
+                "reference": "30969dac05855cf0123b2a8809c77542aba85dfa"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lcobucci/jwt/zipball/30969dac05855cf0123b2a8809c77542aba85dfa",
+                "reference": "30969dac05855cf0123b2a8809c77542aba85dfa",
+                "shasum": ""
+            },
+            "require": {
+                "ext-openssl": "*",
+                "lcobucci/clock": "^1.0",
+                "lcobucci/jose-parsing": "~2.1",
+                "php": "^7.1"
+            },
+            "require-dev": {
+                "mdanter/ecc": "^0.4",
+                "mikey179/vfsstream": "^1.6",
+                "phpmd/phpmd": "^2.5",
+                "phpunit/php-invoker": "^1.1",
+                "phpunit/phpunit": "^6.0",
+                "squizlabs/php_codesniffer": "^2.7"
+            },
+            "suggest": {
+                "mdanter/ecc": "Required to use Elliptic Curves based algorithms."
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Lcobucci\\JWT\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Luís Cobucci",
+                    "email": "lcobucci@gmail.com",
+                    "role": "Developer"
+                }
+            ],
             "description": "A simple library to work with JSON Web Token and JSON Web Signature",
             "keywords": [
                 "JWS",
                 "jwt"
             ],
-            "time": "2017-09-01 08:23:26"
+            "time": "2017-05-07 21:25:30"
         },
         {
             "name": "league/event",

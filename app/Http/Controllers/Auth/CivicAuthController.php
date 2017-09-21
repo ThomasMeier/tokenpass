@@ -2,8 +2,9 @@
 
 namespace Tokenpass\Http\Controllers\Auth;
 
+use Blockvis\Civic\Sip\AppConfig;
+use Blockvis\Civic\Sip\Client;
 use Illuminate\Support\Facades\Input;
-use Tokenpass\Civic\Client;
 use Tokenpass\Http\Controllers\Controller;
 
 class CivicAuthController extends Controller
@@ -12,13 +13,17 @@ class CivicAuthController extends Controller
     function login() {
         $input = Input::all();
         $jwtToken = $input['jwtToken'];
-
-        $civic_client = new Client(
-            'S1WxqN3Y-',
-            '044a7405965f7328467213fa888c08ddd0b4339a5153aea47464da6597f68dfabbb8e513df33695b82da3afd750c640606ec476c95f410cae5e1408d9612f1ec85',
-            '8dd4a588a07964cdbcda03f0616fdd51a036dc96f647e9880ab90ee92f8c6c8776db2ec7b071f8f5299f133fdb744d822843e0d0032e9384c64d29506335a2f6'
+        // Configure Civic App credentials.
+        $config = new AppConfig(
+            'B14QGxljb',
+            '86447b336aa77d680953c97a831b11f6',
+            'ae7c5e68de7f489be0a48bc9527961f84d23e4fbe0d87d5bbc8adccb080d10b5'
         );
+        // Instantiate Civic API client with config and HTTP client.
+        $sipClient = new Client($config, new \GuzzleHttp\Client());
+        // Exchange Civic authorization code for requested user data.
+        $userData = $sipClient->exchangeToken($jwtToken);
 
-        $civic_client->exchangeCode($jwtToken);
+
     }
 }
