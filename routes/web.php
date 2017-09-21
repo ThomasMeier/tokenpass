@@ -31,6 +31,9 @@ Route::post('auth/signed',                             ['as' => 'auth.signed', '
 Route::get('auth/register',                            ['uses' => 'Auth\AuthRegisterController@showRegistrationForm']);
 Route::post('auth/register',                           ['uses' => 'Auth\AuthRegisterController@register']);
 
+//Civic registration routes
+Route::get('auth/civic_registration',                  ['as' => 'auth.civic_registration', 'uses' => 'Auth\CivicAuthController@finalizeRegistration']);
+
 // Update routes...
 Route::get('auth/update',                              ['as' => 'auth.update', 'uses' => 'Auth\AuthRegisterController@getUpdate']);
 Route::post('auth/update',                             ['uses' => 'Auth\AuthRegisterController@postUpdate']);
