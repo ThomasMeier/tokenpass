@@ -5,6 +5,7 @@ namespace Tokenpass\Http\Controllers\Auth;
 use Blockvis\Civic\Sip\AppConfig;
 use Blockvis\Civic\Sip\Client;
 use Illuminate\Support\Facades\Input;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Tokenpass\Http\Controllers\Controller;
 use Tokenpass\Models\User;
 
@@ -30,6 +31,9 @@ class CivicAuthController extends Controller
         if(User::where('civic_userID', $civicId)->where('civic_enabled', true)->exists()) {
             //User is already signed up
         } else {
+            $random_password = bin2hex(random_bytes(16));
+            Session::set('civic_user_password', $random_password);
+            Session::set('civic_user_email', $email);
 
         }
     }
