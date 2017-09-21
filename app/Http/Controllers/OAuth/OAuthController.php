@@ -10,11 +10,12 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\View;
 use LucaDegasperi\OAuth2Server\Facades\Authorizer;
+use LucaDegasperi\OAuth2Server\Storage\FluentScope;
 use Tokenpass\Http\Controllers\Controller;
+use Tokenpass\Models\OAuthScope;
 use Tokenpass\Repositories\ClientConnectionRepository;
 use Tokenpass\Repositories\OAuthClientRepository;
 use Tokenpass\Repositories\UserRepository;
-use Tokenpass\Models\OAuthScope;
 
 /**
  */
@@ -109,6 +110,20 @@ class OAuthController extends Controller
 		if($scope_param AND count($scopes) == 0){
 			$scopes = explode(',', $scope_param);
 		}
+
+        // set the scope entities manually from the authorization form
+        if (!isset($params['scopes']) OR count($params['scopes']) == 0) {
+            $fluent_scope = app(FluentScope::class);
+            $scope_entities = [];
+            foreach($scopes as $scope) {
+                $scope_entity = $fluent_scope->get($scope);
+                Log::debug("for scope $scope \$scope_entity=".json_encode($scope_entity, 192));
+                if ($scope_entity) {
+                    $scope_entities[] = $scope_entity;
+                }
+            }
+            $params['scopes'] = $scope_entities;
+        }
 
         // if the user has allowed the client to access its data, redirect back to the client with an auth code
         if (Input::get('approve') !== null) {
