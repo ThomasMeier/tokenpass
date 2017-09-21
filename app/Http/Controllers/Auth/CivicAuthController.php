@@ -6,6 +6,7 @@ use Blockvis\Civic\Sip\AppConfig;
 use Blockvis\Civic\Sip\Client;
 use Illuminate\Support\Facades\Input;
 use Tokenpass\Http\Controllers\Controller;
+use Tokenpass\Models\User;
 
 class CivicAuthController extends Controller
 {
@@ -24,6 +25,12 @@ class CivicAuthController extends Controller
         // Exchange Civic authorization code for requested user data.
         $userData = $sipClient->exchangeToken($jwtToken);
 
+        $civicId = $userData->userId();
 
+        if(User::where('civic_userID', $civicId)->where('civic_enabled', true)->exists()) {
+            //User is already signed up
+        } else {
+
+        }
     }
 }
