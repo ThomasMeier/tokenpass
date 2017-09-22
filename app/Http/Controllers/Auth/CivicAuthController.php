@@ -4,15 +4,20 @@ namespace Tokenpass\Http\Controllers\Auth;
 
 use Blockvis\Civic\Sip\AppConfig;
 use Blockvis\Civic\Sip\Client;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
 use \Illuminate\Support\Facades\Session;
 use Tokenpass\Http\Controllers\Controller;
+use Tokenpass\Models\Address;
 use Tokenpass\Models\User;
 
 class CivicAuthController extends Controller
 {
+    use AuthenticatesUsers;
 
-    function login() {
+    function login(Request $request) {
         $input = Input::all();
         $jwtToken = $input['jwtToken'];
         // Configure Civic App credentials.
@@ -30,7 +35,21 @@ class CivicAuthController extends Controller
         $email = $userData->items()[0]->value();
 
         if(User::where('civic_userID', $civicId)->exists()) {
-            //User is already signed up
+            $user = User::where('civic_userID', $civicId)->first();
+            try {
+                if(Address::checkUser2FAEnabled($user)) {
+                    Session::set('user', $user);
+                    return redirect()->action('Auth\AuthLoginController@getSignRequirement');
+                }
+            } catch(Exception $e) {
+
+            }
+
+            Auth::login($user);
+
+            $this->authenticated($request, $user);
+            return redirect('/dashboard');
+
         } else {
             $random_password = bin2hex(random_bytes(16));
             Session::set('civic_user_password', $random_password);
