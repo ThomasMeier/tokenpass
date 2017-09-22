@@ -33,6 +33,7 @@ Route::post('auth/register',                           ['uses' => 'Auth\AuthRegi
 
 //Civic registration routes
 Route::get('auth/civic_registration',                  ['as' => 'auth.civic_registration', 'uses' => 'Auth\CivicAuthController@finalizeRegistration']);
+Route::post('auth/disconnect_civic',                    ['as' => 'auth.disconnect_civic', 'uses' => 'Auth\CivicAuthController@disconnectFromCivic']);
 
 // Update routes...
 Route::get('auth/update',                              ['as' => 'auth.update', 'uses' => 'Auth\AuthRegisterController@getUpdate']);

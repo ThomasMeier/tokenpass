@@ -65,4 +65,13 @@ class CivicAuthController extends Controller
         $email = Session::get('civic_user_email');
         return view('auth.civic_registration', array('civic_email' => $email));
     }
+
+    function disconnectFromCivic() {
+        $user = Auth::user();
+
+        $user->civic_userID = '';
+        $user->civic_enabled = 0;
+        $user->save();
+        return redirect('/auth/update');
+    }
 }

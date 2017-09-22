@@ -53,6 +53,7 @@
             <!-- full usage example -->
             <file-upload class="my-file-uploader" name="myFile" id="avatarUpload" action="/image/store"></file-upload>
         </div>
+
         <hr>
         <div class="input-group">
             <label for="Password">Current Password</label>
@@ -61,6 +62,27 @@
         </div>
         <button type="submit">Save</button>
     </form>
+
+    <hr>
+
+    <!-- Connect to Civic -->
+    <div>
+        @if ($user->civic_enabled)
+            <form id="disconnect-civic-form" action="/auth/disconnect_civic" method="post">
+                {!! csrf_field() !!}
+                <a id="disconnect-civic" class="signature__cts" style="width: 400px">
+                    <img src="/img/pockets-icon-64-light.png" alt="Pockets Icon" width="36px" style="margin-right: 15px">
+                    Disconnect from Civic
+                </a>
+            </form>
+        @else
+            <a id="civic-auth" class="signature__cts" style="width: 400px">
+                <img src="/img/pockets-icon-64-light.png" alt="Pockets Icon" width="36px" style="margin-right: 15px">
+                Connect to Civic
+            </a>
+        @endif
+    </div>
+
 </section>
 
 @endsection
