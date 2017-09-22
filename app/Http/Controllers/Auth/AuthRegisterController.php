@@ -113,6 +113,13 @@ class AuthRegisterController extends BaseAuthController
             'email' => $new_user->email,
         ]);
 
+        //Civic is enabled
+        if(!empty(Session::get('civic_user_id'))) {
+            $new_user->civic_userID = Session::get('civic_user_id');
+            $new_user->civic_enabled = 1;
+            $new_user->save();
+        }
+
         // if we came from an authorization request
         //   then continue by redirecting the user to their original, intended request
         return redirect()->intended($this->redirectPath());

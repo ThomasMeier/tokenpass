@@ -29,7 +29,7 @@ class CivicAuthController extends Controller
 
         $email = $userData->items()[0]->value();
 
-        if(User::where('civic_userID', $civicId)->where('civic_enabled', true)->exists()) {
+        if(User::where('civic_userID', $civicId)->exists()) {
             //User is already signed up
         } else {
             $random_password = bin2hex(random_bytes(16));
