@@ -34,7 +34,14 @@ class CivicAuthController extends Controller
 
         $email = $userData->items()[0]->value();
 
-        if(User::where('civic_userID', $civicId)->exists()) {
+        $user = Auth::user();
+        if($user) {
+            //User is already logged in
+            $user->civic_userID = $civicId;
+            $user->civic_enabled = 1;
+            $user->save();
+            return redirect()->back();
+        } elseif(User::where('civic_userID', $civicId)->exists()) {
             $user = User::where('civic_userID', $civicId)->first();
             try {
                 if(Address::checkUser2FAEnabled($user)) {
@@ -69,7 +76,7 @@ class CivicAuthController extends Controller
     function disconnectFromCivic() {
         $user = Auth::user();
 
-        $user->civic_userID = '';
+        $user->civic_userID = NULL;
         $user->civic_enabled = 0;
         $user->save();
         return redirect('/auth/update');
