@@ -98,4 +98,8 @@ class UserRepository extends APIRepository implements APIUserRepositoryContract
         return $attributes;
     }
 
+    function findAllWithCivicEnabled() {
+        return call_user_func([$this->model_type, 'where'], 'civic_enabled', 1)->get();
+    }
+
 }

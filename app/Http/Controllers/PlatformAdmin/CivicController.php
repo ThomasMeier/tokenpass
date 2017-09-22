@@ -25,24 +25,12 @@ class CivicController extends ResourceController
     protected function getValidationRules() {
         return [
             'user_id' => 'exists:users,id',
-            'label' => 'max:255',
-            'verified' => 'numeric',
-            'primary'  => 'numeric',
-            'active_toggle' => 'numeric',
-            'second_factor_toggle' => 'numeric',
-            'public' => 'numeric',
-            'login_toggle' => 'numeric',
-            'from_api' => 'numeric',
-            'address' => 'max:255',
-            'xchain_address_id' => 'max:255',
-            'send_monitor_id' => 'max:255',
-            'receive_monitor_id' => 'max:255',
         ];
     }
 
     public function index(Request $request)
     {
-        $users = User::where('civic_enabled', 1)->get();
+        $users = $this->resourceRepository()->findAllWithCivicEnabled();
         return view('platformadmin.'.$this->view_prefix.'.index', $this->modifyViewData([
             'users' => $users,
         ], __FUNCTION__));
