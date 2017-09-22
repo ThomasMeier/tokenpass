@@ -11,7 +11,7 @@
 </section>
 
 <section>
-    <form method="POST" action="/auth/update">
+    <form id="account-update" method="POST" action="/auth/update">
 
         {!! csrf_field() !!}
 
@@ -61,6 +61,14 @@
             <div class="sublabel">Please verify your current password to save your changes</div>
         </div>
         <button type="submit">Save</button>
+        -
+        <br><br>
+        @if ($user->civic_enabled)
+            <a id="save-account-civic" class="signature__cts" style="width: 400px">
+                <img src="/img/pockets-icon-64-light.png" alt="Pockets Icon" width="36px" style="margin-right: 15px">
+                Save with Civic
+            </a>
+        @endif
     </form>
 
     <hr>

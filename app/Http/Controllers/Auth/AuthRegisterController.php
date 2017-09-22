@@ -2,6 +2,8 @@
 
 namespace Tokenpass\Http\Controllers\Auth;
 
+use Blockvis\Civic\Sip\AppConfig;
+use Blockvis\Civic\Sip\Client;
 use Exception;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -190,11 +192,32 @@ class AuthRegisterController extends BaseAuthController
             }
 
             // check existing password
-            $password_matched = $current_user->passwordMatches($request_params['password']);
-            if (!$password_matched) {
-                $error_text = 'Please provide the correct password to make changes.';
-                Log::debug("\$request->input()=".json_encode($request->input(), 192));
-                throw new HttpResponseException($this->buildFailedValidationResponse($request, ['password' => $error_text]));
+            if(isset($request_params['civic_token'])) {
+                $config = new AppConfig(
+                    'B14QGxljb',
+                    '86447b336aa77d680953c97a831b11f6',
+                    'ae7c5e68de7f489be0a48bc9527961f84d23e4fbe0d87d5bbc8adccb080d10b5'
+                );
+                // Instantiate Civic API client with config and HTTP client.
+                $sipClient = new Client($config, new \GuzzleHttp\Client());
+                // Exchange Civic authorization code for requested user data.
+                try {
+                    $userData = $sipClient->exchangeToken($request_params['civic_token']);
+                    $civicId = $userData->userId();
+                    if($current_user->civic_userID != $civicId) {
+                      throw new \Exception('Wrong civic ID');
+                    }
+                } catch (\Exception $e) {
+                    Log::debug("\$request->input()=".json_encode($request->input(), 192));
+                    throw new HttpResponseException($this->buildFailedValidationResponse($request, ['password' => 'Civic authentication failed']));
+                }
+            } else {
+                $password_matched = $current_user->passwordMatches($request_params['password']);
+                if (!$password_matched) {
+                    $error_text = 'Please provide the correct password to make changes.';
+                    Log::debug("\$request->input()=".json_encode($request->input(), 192));
+                    throw new HttpResponseException($this->buildFailedValidationResponse($request, ['password' => $error_text]));
+                }
             }
 
 
