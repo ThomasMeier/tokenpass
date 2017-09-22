@@ -5,7 +5,7 @@ namespace Tokenpass\Http\Controllers\Auth;
 use Blockvis\Civic\Sip\AppConfig;
 use Blockvis\Civic\Sip\Client;
 use Illuminate\Support\Facades\Input;
-use Symfony\Component\HttpFoundation\Session\Session;
+use \Illuminate\Support\Facades\Session;
 use Tokenpass\Http\Controllers\Controller;
 use Tokenpass\Models\User;
 
@@ -25,8 +25,9 @@ class CivicAuthController extends Controller
         $sipClient = new Client($config, new \GuzzleHttp\Client());
         // Exchange Civic authorization code for requested user data.
         $userData = $sipClient->exchangeToken($jwtToken);
-
         $civicId = $userData->userId();
+
+        $email = $userData->items()[0]->value();
 
         if(User::where('civic_userID', $civicId)->where('civic_enabled', true)->exists()) {
             //User is already signed up
@@ -34,7 +35,10 @@ class CivicAuthController extends Controller
             $random_password = bin2hex(random_bytes(16));
             Session::set('civic_user_password', $random_password);
             Session::set('civic_user_email', $email);
-
+            Session::set('civic_user_id', $civicId);
+            Session::flash('message', 'Please fill the fields below to complete registration!');
+            Session::flash('message-class', 'alert-success');
+            return redirect('/auth/civic_registration');
         }
     }
 
