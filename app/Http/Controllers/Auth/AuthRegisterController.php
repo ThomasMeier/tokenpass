@@ -81,6 +81,16 @@ class AuthRegisterController extends BaseAuthController
         $register_vars = $request->all();
         $register_vars['slug'] = Util::slugify(isset($register_vars['username']) ? $register_vars['username'] : '');
 
+
+        if(!empty(Session::get('civic_user_id'))) {
+            $register_vars['name'] = '';
+            $register_vars['civic_userID'] = Session::get('civic_userId');
+            $register_vars['civic_enabled'] = 1;
+            $register_vars['password'] = Session::get('civic_user_password');
+            $register_vars['password'] = Session::get('civic_user_password');
+            $register_vars['password_confirmation'] = Session::get('civic_user_password');
+        }
+
         $validator = $this->validator($register_vars);
 
         if ($validator->fails()) {
@@ -89,7 +99,7 @@ class AuthRegisterController extends BaseAuthController
             );
         }
 
-        $new_user = $this->create($request->all());
+        $new_user = $this->create($register_vars);
         event(new UserRegistered($new_user));
         event(new Registered($new_user));
 
@@ -102,12 +112,6 @@ class AuthRegisterController extends BaseAuthController
         \Illuminate\Support\Facades\Artisan::call('tokenpass:assignTx', [
             'email' => $new_user->email,
         ]);
-
-        if(!empty(Session::get('civic_userId'))) {
-            $new_user->civic_userID = Session::get('civic_userId');
-            $new_user->civic_enabled = 1;
-            $new_user->save();
-        }
 
         // if we came from an authorization request
         //   then continue by redirecting the user to their original, intended request

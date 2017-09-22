@@ -12,8 +12,8 @@
             @include('partials.alerts')
             <form method="POST" action="/auth/register">
                 {!! csrf_field() !!}
-                <input type="text" name="username" placeholder="username" value="{{ old('username') }}" required>
-                <input type="email" name="email" placeholder="email" value="{{ old('email') }}" required>
+                <input type="text" name="username" placeholder="username" required>
+                <input type="email" name="email" placeholder="email" value="{{ $civic_email }}" required>
                 <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_PUBLIC') }}"></div>
                 <button type="submit" class="login-btn">Register</button>
             </form>

@@ -43,6 +43,7 @@ class CivicAuthController extends Controller
     }
 
     function finalizeRegistration() {
-        return view('auth.civic_registration');
+        $email = Session::get('civic_user_email');
+        return view('auth.civic_registration', array('civic_email' => $email));
     }
 }
