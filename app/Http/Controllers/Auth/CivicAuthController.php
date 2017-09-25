@@ -41,7 +41,7 @@ class CivicAuthController extends Controller
             $user->civic_enabled = 1;
             $user->save();
             return redirect()->back();
-        } elseif(User::where('civic_userID', $civicId)->exists()) {
+        } elseif(User::where('civic_userID', $civicId)->where('civic_enabled', 1)->exists()) {
             $user = User::where('civic_userID', $civicId)->first();
             try {
                 if(Address::checkUser2FAEnabled($user)) {
