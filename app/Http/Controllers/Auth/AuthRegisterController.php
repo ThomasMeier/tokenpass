@@ -196,9 +196,9 @@ class AuthRegisterController extends BaseAuthController
             // check existing password
             if(isset($request_params['civic_token'])) {
                 $config = new AppConfig(
-                    'B14QGxljb',
-                    '86447b336aa77d680953c97a831b11f6',
-                    'ae7c5e68de7f489be0a48bc9527961f84d23e4fbe0d87d5bbc8adccb080d10b5'
+                    env('CIVIC_APP_ID'),
+                    env('CIVIC_APP_SECRET'),
+                    env('CIVIC_PRIVATE_KEY')
                 );
                 // Instantiate Civic API client with config and HTTP client.
                 // Instantiate Civic API client with config and HTTP client.
