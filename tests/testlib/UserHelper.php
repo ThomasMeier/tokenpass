@@ -262,6 +262,20 @@ class UserHelper
         return $response;
     }
 
+    public function sendCivicLoginRequest() {
+        $response = $this->test_case->action('POST', 'Auth\CivicAuthController@login', array(), array(
+            'jwtToken' => '123456789asdfghjkl'));
+
+        return $response;
+    }
+
+    public function confirmCivicLogin() {
+        $response = $this->test_case->action('POST', 'Auth\CivicAuthController@login', array(), array(
+            'jwtToken' => '123456789asdfghjkl'));
+
+        return $response;
+    }
+
     public function sendLoginRequest($app, $session=null, $user_override_vars = []) {
         $user_vars = array_merge($this->defaultUserVars(), $user_override_vars);
         $form_vars = [

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
 use \Illuminate\Support\Facades\Session;
+use Mockery\Exception;
 use Tokenpass\Http\Controllers\Controller;
 use Tokenpass\Models\Address;
 use Tokenpass\Models\User;
@@ -27,10 +28,19 @@ class CivicAuthController extends Controller
             'ae7c5e68de7f489be0a48bc9527961f84d23e4fbe0d87d5bbc8adccb080d10b5'
         );
         // Instantiate Civic API client with config and HTTP client.
-        $sipClient = new Client($config, new \GuzzleHttp\Client());
+        try {
+            $sipClient = app('Blockvis\Civic\Sip\Client');
+        } catch (\Exception $e) {
+            $sipClient = new Client($config, new \GuzzleHttp\Client());
+        }
+
         // Exchange Civic authorization code for requested user data.
-        $userData = $sipClient->exchangeToken($jwtToken);
-        $civicId = $userData->userId();
+        try {
+            $userData = $sipClient->exchangeToken($jwtToken);
+            $civicId = $userData->userId();
+        } catch (\Exception $e) {
+            die($e->getMessage());
+        }
 
         $email = $userData->items()[0]->value();
 
@@ -58,6 +68,7 @@ class CivicAuthController extends Controller
             return redirect('/dashboard');
 
         } else {
+
             $random_password = bin2hex(random_bytes(16));
             Session::set('civic_user_password', $random_password);
             Session::set('civic_user_email', $email);
