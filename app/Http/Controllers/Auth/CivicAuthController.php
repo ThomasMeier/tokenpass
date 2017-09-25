@@ -13,6 +13,7 @@ use Mockery\Exception;
 use Tokenpass\Http\Controllers\Controller;
 use Tokenpass\Models\Address;
 use Tokenpass\Models\User;
+use Tokenpass\Models\UserMeta;
 
 class CivicAuthController extends Controller
 {
@@ -86,6 +87,12 @@ class CivicAuthController extends Controller
 
     function disconnectFromCivic() {
         $user = Auth::user();
+
+        if(empty(UserMeta::getMeta($user->id, 'user_set_password')) || UserMeta::getMeta($user->id, 'user_set_password') == 0) {
+            Session::flash('message', 'Please change the default password before disconnecting from Civic');
+            Session::flash('message-class', 'alert-danger');
+            return redirect('/auth/update');
+        }
 
         $user->civic_userID = NULL;
         $user->civic_enabled = 0;
