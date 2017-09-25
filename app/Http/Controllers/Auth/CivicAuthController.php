@@ -23,15 +23,15 @@ class CivicAuthController extends Controller
         $input = Input::all();
         $jwtToken = $input['jwtToken'];
         // Configure Civic App credentials.
-        $config = new AppConfig(
-            env('CIVIC_APP_ID'),
-            env('CIVIC_APP_SECRET'),
-            env('CIVIC_PRIVATE_KEY')
-        );
         // Instantiate Civic API client with config and HTTP client.
         try {
             $sipClient = app('Blockvis\Civic\Sip\Client');
         } catch (\Exception $e) {
+            $config = new AppConfig(
+                env('CIVIC_APP_ID'),
+                env('CIVIC_APP_SECRET'),
+                env('CIVIC_PRIVATE_KEY')
+            );
             $sipClient = new Client($config, new \GuzzleHttp\Client());
         }
 

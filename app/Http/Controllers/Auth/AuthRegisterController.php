@@ -195,24 +195,27 @@ class AuthRegisterController extends BaseAuthController
 
             // check existing password
             if(isset($request_params['civic_token'])) {
-                $config = new AppConfig(
-                    env('CIVIC_APP_ID'),
-                    env('CIVIC_APP_SECRET'),
-                    env('CIVIC_PRIVATE_KEY')
-                );
-                // Instantiate Civic API client with config and HTTP client.
-                // Instantiate Civic API client with config and HTTP client.
                 try {
                     $sipClient = app('Blockvis\Civic\Sip\Client');
                 } catch (\Exception $e) {
+                    $config = new AppConfig(
+                        env('CIVIC_APP_ID'),
+                        env('CIVIC_APP_SECRET'),
+                        env('CIVIC_PRIVATE_KEY')
+                    );
+                    // Instantiate Civic API client with config and HTTP client.
                     $sipClient = new Client($config, new \GuzzleHttp\Client());
                 }
                 // Exchange Civic authorization code for requested user data.
                 try {
                     $userData = $sipClient->exchangeToken($request_params['civic_token']);
+                    try {
                     $civicId = $userData->userId();
-                    if($current_user->civic_userID != $civicId) {
-                      throw new \Exception('Wrong civic ID');
+                        if($current_user->civic_userID != $civicId) {
+                            throw new \Exception('Wrong civic ID');
+                        }
+                    } catch (\Exception $e) {
+                        die($e->getMessage());
                     }
                 } catch (\Exception $e) {
                     Log::debug("\$request->input()=".json_encode($request->input(), 192));
@@ -227,7 +230,7 @@ class AuthRegisterController extends BaseAuthController
                 }
             }
 
-            if($request_params['password'] != $update_vars['new_password']) {
+            if(isset($update_vars['new_password']) && $request_params['password'] != $update_vars['new_password']) {
                 UserMeta::setMeta($current_user->id, 'user_set_password', 1);
             }
 
