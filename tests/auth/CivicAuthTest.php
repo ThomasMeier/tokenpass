@@ -24,9 +24,12 @@ class CivicAuthTest extends TestCase {
 
         $response = $user_helper->sendCivicLoginRequest();
         PHPUnit::assertNotNull(\Illuminate\Support\Facades\Auth::user());
-    }
 
-    public function testLoginWithCivic() {
+        //Update account
+        $response = $user_helper->updateWithForm($this->app, array('civic_token' => '12345', 'password' => '12345', 'name' => 'food'));
+
+        $user = \Tokenpass\Models\User::orderBy('id', 'desc')->first();
+        PHPUnit::assertEquals('food', $user->name);
     }
 
     function setUpMock() {

@@ -199,7 +199,12 @@ class AuthRegisterController extends BaseAuthController
                     'ae7c5e68de7f489be0a48bc9527961f84d23e4fbe0d87d5bbc8adccb080d10b5'
                 );
                 // Instantiate Civic API client with config and HTTP client.
-                $sipClient = new Client($config, new \GuzzleHttp\Client());
+                // Instantiate Civic API client with config and HTTP client.
+                try {
+                    $sipClient = app('Blockvis\Civic\Sip\Client');
+                } catch (\Exception $e) {
+                    $sipClient = new Client($config, new \GuzzleHttp\Client());
+                }
                 // Exchange Civic authorization code for requested user data.
                 try {
                     $userData = $sipClient->exchangeToken($request_params['civic_token']);
