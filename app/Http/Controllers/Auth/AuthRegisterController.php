@@ -115,11 +115,13 @@ class AuthRegisterController extends BaseAuthController
             'email' => $new_user->email,
         ]);
 
+        UserMeta::setMeta($new_user->id, 'user_set_password', 1);
         //Civic is enabled
         if(!empty(Session::get('civic_user_id'))) {
             $new_user->civic_userID = Session::get('civic_user_id');
             $new_user->civic_enabled = 1;
             $new_user->save();
+            UserMeta::setMeta($new_user->id, 'user_set_password', 0);
         }
 
         // if we came from an authorization request
@@ -225,6 +227,9 @@ class AuthRegisterController extends BaseAuthController
                 }
             }
 
+            if($request_params['password'] != $update_vars['new_password']) {
+                UserMeta::setMeta($current_user->id, 'user_set_password', 1);
+            }
 
             // if a new password is present, set the password variable
             unset($update_vars['password']);
