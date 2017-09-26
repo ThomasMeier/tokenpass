@@ -23,13 +23,14 @@
             <div class="form-group">
                 <label for="address">Address</label>
                 <input type="text" name="address" id="address"  class="form-control" />
-            </div>     
+            </div>
             <div class="form-group">
                 <label for="type">Type</label>
                 <select id="type" name="type" class="form-control">
                     <option name="btc">btc</option>
+                    <option name="eth">eth</option>
                 </select>
-            </div>     
+            </div>
             <div class="form-group">
                 <label for="user_id">Owner</label>
                 <select name="user_id" id="user_id" class="form-control">
@@ -48,7 +49,7 @@
                     <option value="0">No</option>
                     <option value="1">Yes</option>
                 </select>
-            </div>            
+            </div>
             <div class="form-group">
                 <label for="active_toggle">Active</label>
                 <select name="active_toggle" id="active_toggle" class="form-control">
@@ -76,26 +77,26 @@
                     <option value="0">No</option>
                     <option value="1" >Yes</option>
                 </select>
-            </div>         
+            </div>
             <div class="form-group">
                 <label for="from_api">From API (disables login and 2fa toggles)</label>
                 <select name="from_api" id="from_api" class="form-control">
                     <option value="0">No</option>
                     <option value="1">Yes</option>
                 </select>
-            </div>                        
+            </div>
             <div class="form-group">
                 <label for="xchain_address_id">XChain Address ID</label>
                 <input type="text" name="xchain_address_id" id="xchain_address_id"  class="form-control" />
-            </div>     
+            </div>
             <div class="form-group">
                 <label for="send_monitor_id">XChain Send Monitor</label>
                 <input type="text" name="send_monitor_id" id="send_monitor_id"  class="form-control" />
-            </div>     
+            </div>
             <div class="form-group">
                 <label for="receive_monitor_id">XChain Receive Monitor</label>
                 <input type="text" name="receive_monitor_id" id="receive_monitor_id"  class="form-control" />
-            </div>                                                                          
+            </div>
         </div>
 
         <div class="six columns">
@@ -121,4 +122,3 @@
 </div>
 
 @endsection
-
