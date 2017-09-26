@@ -12,7 +12,7 @@
         "laravelcollective/html": "5.3.*",
         "guzzlehttp/guzzle": "~6",
         "tokenly/consul-health-daemon": "dev-master",
-		"linusu/bitcoin-address-validator": "~0",
+        "linusu/bitcoin-address-validator": "~0",
         "tokenly/token-controlled-access": "dev-master",
         "tokenly/platform-admin": "^0.2.0",
         "tokenly/xchain-client": "^0.3.0",
@@ -33,7 +33,8 @@
         "tokenly/asset-name-utils": "^0.2.0",
         "stephenhill/base58": "^1.1",
         "pda/pheanstalk": "^3.1",
-        "tokenly/delivery-client": "dev-master@dev"
+        "tokenly/delivery-client": "dev-master@dev",
+        "digitaldonkey/ethereum-php": "dev-master"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
@@ -52,7 +53,7 @@
             "url": "https://github.com/tokenly/bitcoin-lib-php.git"
         }
 
-    ],    
+    ],
     "autoload": {
         "classmap": [
             "database"
