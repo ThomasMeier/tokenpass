@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Tokenpass\Util;
 
@@ -16,7 +16,7 @@ use LinusU\Bitcoin\AddressValidator;
 */
 class BitcoinUtil
 {
-    
+
     public static function deriveAddressFromSignature($signature, $message) {
 
         $ec             = Bitcoin::getEcAdapter();

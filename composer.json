@@ -34,7 +34,7 @@
         "stephenhill/base58": "^1.1",
         "pda/pheanstalk": "^3.1",
         "tokenly/delivery-client": "dev-master@dev",
-        "digitaldonkey/ethereum-php": "dev-master"
+        "fguillot/json-rpc" : "@stable"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
