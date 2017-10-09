@@ -10,6 +10,8 @@ use JsonRPC\Client;
  */
 class EthereumUtil {
 
+    const BLOCKS_PER_HOUR = 125;
+
     protected $rpcClient;
 
     protected $tokenlyAddress;
@@ -23,23 +25,42 @@ class EthereumUtil {
     }
 
     /**
-     * Create a filter
+     * Check all previous blocks' TXs for userAddr and amt (in wei)
      *
-     * Returns a filter ID for two addresses
+     * Approximately 3000 blocks per day at time of writing just statically
+     *
+     * @return bool true if found in recent blocks
      */
-    public function createNewFilter($userAddr) {
-        $stepBack = self::hexdec_0x($this->currentBlock) - 10;
+    public function searchBlocks($userAddr, $amt) {
+        $stepBack = self::hexdec_0x($this->currentBlock) - self::BLOCKS_PER_HOUR;
         $fromBlock = $stepBack < 0 ? 0 : $stepBack;
-        return $this->rpcClient->execute('eth_newFilter',
-                                         [['account' => [$this->tokenlyAddress, $userAddr],
-                                           'fromBlock' => self::dechex_0x($fromBlock)]]);
+        $txFound = false;
+        for ($i = self::hexdec_0x($this->currentBlock); $i >= $fromBlock; $i--) {
+            $block = $this->rpcClient->execute('eth_getBlockByNumber', [self::dechex_0x($i), true]);
+            if ($this->checkBlockTx($block, $userAddr, $amt)) {
+                $txFound = true;
+                break;
+            }
+        }
+        return $txFound;
     }
 
     /**
-     * Check a filter
+     * Checks a block's transaction array for userAddr and amt (in wei)
+     *
+     * @return bool true if tx found in block
      */
-    public function checkFilter($filterId) {
-        return $this->rpcClient->execute('eth_getFilterChanges', [$filterId]);
+    private function checkBlockTx($block, $userAddr, $amt) {
+        $txFound = false;
+        foreach ($block['transactions'] as $tx) {
+            if ($tx['to'] == $this->tokenlyAddress
+                && $tx['from'] == $userAddr
+                && self::hexdec_0x($tx['value']) == self::hexdec_0x($amt)) {
+                $txFound = true;
+                break;
+            }
+        }
+        return $txFound;
     }
 
     /**
