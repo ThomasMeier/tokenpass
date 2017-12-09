@@ -85,10 +85,10 @@ class AddressesAPIController extends Controller
         if ($force_refresh) {
             $this->address_repository->updateUserBalances($user->id);
         }
-        
+
         return $this->buildAddressesListResponse($user, $use_public, $and_active, $and_verified);
     }
-        
+
 
     public function getPublicAddressDetails($username, $address)
     {
@@ -113,7 +113,7 @@ class AddressesAPIController extends Controller
         if ($address_is_valid AND !$address->active_toggle) { $address_is_valid = false; }
         // verified
         if ($address_is_valid AND !$address->verified) { $address_is_valid = false; }
-        
+
         if (!$address_is_valid) {
             $output['error'] = 'Address details not found';
             $output['result'] = false;
@@ -151,7 +151,7 @@ class AddressesAPIController extends Controller
     }
 
 
-    
+
     public function registerAddress(Request $request)
     {
         $output = array();
@@ -159,7 +159,7 @@ class AddressesAPIController extends Controller
         //check if a valid application client_id
 
         $this->validate($request, [
-            'type'    => 'sometimes|in:btc,bitcoin',
+            'type'    => 'sometimes|in:btc,bitcoin,ethereum,eth',
             'address' => 'required|bitcoin',
             'label'   => 'sometimes|max:255',
             'public'  => 'sometimes|boolean',
@@ -168,32 +168,32 @@ class AddressesAPIController extends Controller
 
         $valid_client = false;
         $user = OAuthGuard::user();
-        
+
         $type = 'btc';
         $address = trim($input['address']);
-        
+
         $label = '';
         if(isset($input['label'])){
             $label = trim(htmlentities($input['label']));
         }
-        
+
         $public = 0;
         if(isset($input['public']) AND intval($input['public']) == 1){
             $public = 1;
         }
-        
+
         $active = 1;
         if(isset($input['active']) AND intval($input['active']) == 0){
             $active = 0;
         }
-        
+
         $address_model = Address::where('user_id', $user->id)->where('address', $address)->first();
         if($address_model){
             $output['error'] = 'Address already registered';
             $output['result'] = false;
-            return Response::json($output, 400);    
+            return Response::json($output, 400);
         }
-        
+
         $new = app('Tokenpass\Repositories\AddressRepository')->create([
             'user_id'       => $user->id,
             'type'          => $type,
@@ -203,7 +203,7 @@ class AddressesAPIController extends Controller
             'active_toggle' => $active,
             'from_api'      => true,
         ]);
-        
+
         if(!$new){
             $output['error'] = 'Error registering address';
             $output['result'] = false;
@@ -226,7 +226,7 @@ class AddressesAPIController extends Controller
 
         return Response::json($output);
     }
-    
+
     public function editAddress(Request $request, $address)
     {
         $output = array();
@@ -245,7 +245,7 @@ class AddressesAPIController extends Controller
             $output['error'] = 'Address not found';
             $output['result'] = false;
             return Response::json($output, 404);
-        }   
+        }
 
         if ($address_model['pseudo']) {
             $output['error'] = 'Unable to edit pseudo address';
@@ -253,9 +253,9 @@ class AddressesAPIController extends Controller
             return Response::json($output, 400);
         }
 
-        
+
         if(isset($input['label'])){
-            $address_model->label = trim(htmlentities($input['label']));
+            $address_model->label = trimIN(htmlentities($input['label']));
         }
         if(isset($input['public'])){
             $public = intval($input['public']);
@@ -271,11 +271,11 @@ class AddressesAPIController extends Controller
             $output['result'] = false;
             return Response::json($output, 500);
         }
-        
+
         // return the address
         return $this->buildAddressObjectResponse($address_model, true);
     }
-    
+
     public function deleteAddress($address)
     {
         $output = array();
@@ -288,20 +288,20 @@ class AddressesAPIController extends Controller
             $output['error'] = 'Address not found';
             $output['result'] = false;
             return Response::json($output, 404);
-        }           
-        
+        }
+
         $delete = $address_model->delete();
         if(!$delete){
             $output['error'] = 'Error deleting address';
             $output['result'] = false;
             return Response::json($output, 500);
         }
-        
+
         $output['result'] = true;
         return Response::json($output);
     }
-    
-    
+
+
     public function verifyAddress(Request $request, $address)
     {
         $output = array();
@@ -317,31 +317,31 @@ class AddressesAPIController extends Controller
             $output['error'] = 'Address not found';
             $output['result'] = false;
             return Response::json($output, 404);
-        }   
-        
+        }
+
         if($address_model->verified == 1){
             $output['error'] = 'Address already verified';
             $output['result'] = true;
             return Response::json($output, 400);
         }
-        
+
         $expected_verify_code = $this->fetchAddressSecureCode($address);
-        
+
         $sig = Address::extractSignature($input['signature']);
         $xchain = app('Tokenly\XChainClient\Client');
-        
+
         $verify_message = $xchain->verifyMessage($address_model->address, $sig, $expected_verify_code);
         $verified = false;
         if($verify_message AND $verify_message['result']){
             $verified = true;
         }
-        
+
         if(!$verified){
             $output['error'] = 'Invalid verification signature!';
             $output['result'] = false;
             return Response::json($output, 400);
         }
-        
+
         $address_model->verified = 1;
         $save = $address_model->save();
         if(!$save){
@@ -352,20 +352,20 @@ class AddressesAPIController extends Controller
 
         // make sure to sync the new address with any xchain balances
         $address_model->syncWithXChain();
-        
+
         $output['result'] = true;
         return Response::json($output);
     }
-    
 
 
-    
+
+
     // ------------------------------------------------------------------------
 
     // excludes pseudo addresses
     protected function buildAddressesListResponse(User $user, $use_public, $and_active, $and_verified) {
         $output = [];
-        
+
         $address_list = Address::getAddressList($user->id, $use_public, $and_active, $and_verified);
         if(!$address_list OR count($address_list) == 0){
             $output['result'] = array();
@@ -395,7 +395,7 @@ class AddressesAPIController extends Controller
         $http_code = 200;
         return Response::json($output, $http_code);
     }
-    
+
     protected function buildAddressObjectResponse(Address $address, $private=false, $result=[]) {
         $result['type'] = $address->type;
         $result['address'] = $address->address;
@@ -408,9 +408,9 @@ class AddressesAPIController extends Controller
             $result['verify_code'] = $this->regenerateAddressSecureCode($address->address);
             Cache::put(hash('sha256', $address->address), $result['verify_code'], 600);
             $result['verify_address'] = $address->verify_address;
-        }       
+        }
         $output['result'] = $result;
-        
+
         return Response::json($output);
     }
 
@@ -425,5 +425,5 @@ class AddressesAPIController extends Controller
     }
 
 
-    
+
 }

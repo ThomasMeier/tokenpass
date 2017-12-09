@@ -33,7 +33,7 @@ class ScanCoinAddresses extends Command
         // The XChainClient service provider will build the client and apply xchain credentials
         $xchain = app('Tokenly\XChainClient\Client');
 
-        $address_list = Address::where('verified', '=', 1)->get();
+        $address_list = Address::where('verified', '=', 1)->where('blockchain', '=','BTC.XPC')->get();
         if(!$address_list OR count($address_list) == 0){
 			return false;
 		}

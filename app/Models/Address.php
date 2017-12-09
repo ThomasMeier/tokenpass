@@ -32,7 +32,9 @@ class Address extends Model
         return $this['pseudo'];
     }
 
-    
+    public function isEther() {
+        return $this['blockchain'] === 'ETH.ERC20';
+    }
     public static function getAddressList($userId, $public = null, $active_toggle = 1, $verified_only = false, $login_toggle=null)
     {
         $get = Address::where('user_id', '=', $userId);
@@ -50,7 +52,7 @@ class Address extends Model
         }
         return $get->orderBy('primary', 'desc')->orderBy('id', 'asc')->get();
     }
-    
+
     public static function getAddressBalances($address_id, $filter_disabled = false, $and_provisional = true, $subtract_loans = false)
     {
         $address = Address::find($address_id);
@@ -101,7 +103,7 @@ class Address extends Model
                     }
                 }
             }
-        }        
+        }
         if($filter_disabled){
             $disabled = Address::getDisabledTokens($address->user_id);
             foreach($disabled as $asset){
@@ -112,7 +114,7 @@ class Address extends Model
         }
         return $balances;
     }
-    
+
     public static function updateAddressBalances($address_id, $balance_list)
     {
         $address = Address::find($address_id);
@@ -180,7 +182,7 @@ class Address extends Model
         }
         return $get->meta_value;
     }
-    
+
     public static function setInstantVerifyMessage($user)
     {
         $entropy = Address::getSecureCodeGeneration(8);
@@ -188,7 +190,7 @@ class Address extends Model
         UserMeta::setMeta($user->id, 'instant_verify_message', $message);
         return $message;
     }
-    
+
     public static function getUserVerificationCode($user, $type='readable')
     {
         $result = [];
@@ -267,8 +269,8 @@ class Address extends Model
         }
         return (string) $verify_prefix.$dictionary[$one]. ' ' .$dictionary[$two]. ' ' .$code;
     }
-    
-    
+
+
     public static function getDisabledTokens($user_id)
     {
         $get = UserMeta::getMeta($user_id, 'disabled_tokens');
@@ -281,7 +283,7 @@ class Address extends Model
 
     // ------------------------------------------------------------------------
     // XChain Sync
-    
+
     public function syncWithXChain() {
         // never sync pseudo addresses
         if ($this->isPseudoAddress()) {
@@ -337,7 +339,7 @@ class Address extends Model
 
         // always sync the balances with XChain, even if the address isn't new
         $this->syncAccountBalancesWithXChain();
-        
+
         //invalidate any loans/promises they don't have correct balance for
         $this->invalidateOverdrawnPromises();
     }
@@ -349,7 +351,7 @@ class Address extends Model
     }
 
     // ------------------------------------------------------------------------
-    
+
     protected function balancesToSatoshis($balances_float) {
         $balances_sat = [];
         foreach($balances_float as $asset => $float_balance) {
@@ -382,7 +384,7 @@ class Address extends Model
         }
         return true;
     }
-    
+
     public function user()
     {
         return $this->getUser();
@@ -401,12 +403,12 @@ class Address extends Model
         }
         return $get;
     }
-    
+
     public function promises()
     {
         return Address::getPromiseBalances($this->id);
     }
-    
+
     public function getPromiseBalances($addressId)
     {
         $address = Address::find($addressId);
@@ -419,7 +421,7 @@ class Address extends Model
         }
         return $get;
     }
-    
+
 	public static function extractSignature($text,$start = '-----BEGIN BITCOIN SIGNATURE-----', $end = '-----END BITCOIN SIGNATURE-----')
 	{
 		$inputMessage = trim($text);
@@ -436,7 +438,7 @@ class Address extends Model
 		}
 		return $inputMessage;
 	}
-    
+
     public static function checkUser2FAEnabled($user)
     {
         if($user->second_factor == 0){
@@ -448,7 +450,7 @@ class Address extends Model
         }
         return true;
     }
-    
+
     public function invalidateOverdrawnPromises()
     {
         $promises = Provisional::where('source', $this->address)->get();
@@ -468,7 +470,7 @@ class Address extends Model
             }
         }
     }
-    
+
     public static function getUserTokenBalance($user, $token)
     {
         $address_list = Address::getAddressList($user->id, null, true);
@@ -549,4 +551,3 @@ class Address extends Model
         }
     }
 }
-

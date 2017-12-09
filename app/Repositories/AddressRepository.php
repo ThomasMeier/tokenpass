@@ -10,7 +10,7 @@ use Tokenly\LaravelApiProvider\Repositories\APIRepository;
 use Tokenpass\Events\AddressBalanceChanged;
 use Tokenpass\Models\Address;
 use Tokenpass\Models\User;
-
+use Tokenpass\Util\EthereumUtil;
 /*
 * AddressRepository
 */
@@ -27,7 +27,7 @@ class AddressRepository extends APIRepository
     public function findBySendMonitorID($monitor_id) {
         return $this->prototype_model->where('send_monitor_id', $monitor_id)->first();
     }
-    
+
     public function findAllByUserID($user_id)
     {
         return $this->prototype_model->where('user_id', $user_id)->get();
@@ -141,11 +141,19 @@ class AddressRepository extends APIRepository
         foreach($address_list as $address_model){
             // never sync pseudo addresses
             if (!$address_model->isPseudoAddress()) {
-                $balances = $xchain->getBalances($address_model->address, true);
-                Log::debug("{$address_model->address} \$balances=".json_encode($balances, 192));
-                if($balances AND count($balances) > 0){
-                    $update = Address::updateAddressBalances($address_model->id, $balances);
-                    if(!$update){
+                if (!$address_model->isEther()) {
+                    $balances = $xchain->getBalances($address_model->address, true);
+                    Log::debug("{$address_model->address} \$balances=".json_encode($balances, 192));
+                    if($balances AND count($balances) > 0){
+                        $update = Address::updateAddressBalances($address_model->id, $balances);
+                        if(!$update){
+                            return false;
+                        }
+                    }
+                } else {
+                    $ethereum = new EthereumUtil();
+                    $balance = EthereumUtil::hexdec_0x($ethereum->checkBalance($address_model->address));
+                    if (Address::updateAddressBalances($address_model->id, $balance)) {
                         return false;
                     }
                 }
@@ -156,8 +164,8 @@ class AddressRepository extends APIRepository
             // fire an address balanced changed event
             Event::fire(new AddressBalanceChanged($address_model));
         }
-        return true;        
-        
+        return true;
+
     }
 
     // find all user IDs that have at least one of any of the tokens listed
