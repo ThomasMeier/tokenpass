@@ -28,7 +28,7 @@ class CreatePubnubUserAccessTable extends Migration
 
             $table->timestamp('updated_at');
 
-            $table->unique(['user_id', 'channel', 'ttl', 'read', 'write']);  
+            $table->unique(['user_id', 'channel', 'ttl', 'read', 'write']);
         });
     }
 

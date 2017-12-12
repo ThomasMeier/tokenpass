@@ -2,7 +2,7 @@
 
 namespace Tokenpass\Util;
 
-use JsonRPC\Client;
+//use JsonRPC\Client;
 
 /**
  * Ethereum Util
@@ -18,10 +18,29 @@ class EthereumUtil {
 
     protected $currentBlock;
 
+    protected $guzzleClient;
+
     public function __construct() {
         $this->tokenlyAddress = $_ENV['ETH_TOKENLY_ADDR'];
-        $this->rpcClient = new Client($_ENV['ETH_RPC_SERVER']);
+        $this->rpcClient = new \JsonRPC\Client($_ENV['ETH_RPC_SERVER']);
         $this->currentBlock = $this->rpcClient->execute('eth_blockNumber');
+        $this->guzzleClient = new \GuzzleHttp\Client();
+    }
+
+    /**
+     * Get token balances of address
+     *
+     * Provided an address, abi, and contract address, will return balance
+     */
+    public function tokenBalance($address, $abi, $contractAddr) {
+        $tokenBalance = $this->guzzleClient('GET', $_ENV['ETH_TOKENLY_SERVICE'] . '/get-token-balances', [
+            'query' => [
+                'abi' => $abi,
+                'contractAddr' => $contractAddr,
+                'address' => $address]
+        ]);
+
+        return $tokenBalance[0]->bal;
     }
 
     /**

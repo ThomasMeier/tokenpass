@@ -7,8 +7,10 @@ use Illuminate\Support\Facades\Event;
 use Tokenpass\Events\AddressBalanceChanged;
 use Tokenpass\Models\Address;
 use Tokenpass\Util\EthereumUtil;
+use Tokenpass\Models\ETHContracts;
+use Tokenpass\Models\ETHContractsUsersBalances;
 
-class ScanCoinAddresses extends Command
+class ScanETHAddresses extends Command
 {
     /**
      * The name and signature of the console command.
@@ -38,6 +40,7 @@ class ScanCoinAddresses extends Command
         }
         $stamp = date('Y-m-d H:i:s');
         foreach($address_list as $row){
+            // Ethereum balance alone
             $balance = $eth->checkBalance($row->address);
             if($balance AND count($balance) > 0)
             {
@@ -50,11 +53,22 @@ class ScanCoinAddresses extends Command
                 else
                 {
                     $this->info('Updated '.$row->address.' ['.$row->id.']');
-
-                    // fire an address balanced changed event
-                    Event::fire(new AddressBalanceChanged($row));
                 }
             }
+
+            $this->updateTokenBalances($row->address);
+
+        }
+    }
+
+    protected function updateTokenBalances ($address)
+    {
+        $eth = new EthereumUtil();
+        $contract_list = ETHContracts::getAddressContracts($address);
+        foreach ($contract_list as $contract)
+        {
+            $balance = $eth->tokenBalance($address, $contract->contract_abi, $contract->contract_addr);
+            ETHContractsUsersBalances::updateUserBalance($address, $contract->id, $balance);
         }
     }
 }
